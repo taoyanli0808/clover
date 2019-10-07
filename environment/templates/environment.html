@@ -81,7 +81,7 @@ layui.use(['jquery', 'form', 'layer', 'table'], function(){
   var tableIns = table.render({
     elem: '#demo'
     ,height: 420
-    ,url: '/variable/api/v1/search/' //数据接口
+    ,url: '/environment/api/v1/search/' //数据接口
     ,where: {page: 0, limit: 20}
     ,title: '全局变量'
     ,page: true //开启分页
@@ -118,7 +118,7 @@ layui.use(['jquery', 'form', 'layer', 'table'], function(){
           content: $('#create_variable_dialog'),
           btn: '创建变量',
           yes: function(index, layero) {
-            var url = "/variable/api/v1/create"
+            var url = "/environment/api/v1/create"
             var data = {
               'team': $('#team').val(),
               'project': $('#project').val(),
@@ -132,7 +132,7 @@ layui.use(['jquery', 'form', 'layer', 'table'], function(){
                 layer.msg(data.message);
               }
               tableIns.reload({
-                url: '/variable/api/v1/search'
+                url: '/environment/api/v1/search'
                 ,where: {page: 0, limit: 20}
               });
             }, function(data){
@@ -162,7 +162,7 @@ layui.use(['jquery', 'form', 'layer', 'table'], function(){
           content: $('#create_variable_dialog'),
           btn: '更新变量',
           yes: function(index, layero) {
-            var url = "/variable/api/v1/update"
+            var url = "/environment/api/v1/update"
             var data = {
               '_id': checkStatus.data[0]._id,
               'team': $('#team').val(),
@@ -178,7 +178,7 @@ layui.use(['jquery', 'form', 'layer', 'table'], function(){
                 layer.msg(data.message);
               }
               tableIns.reload({
-                url: '/variable/api/v1/search'
+                url: '/environment/api/v1/search'
                 ,where: {page: 0, limit: 20}
               });
             }, function(data){
@@ -214,7 +214,7 @@ layui.use(['jquery', 'form', 'layer', 'table'], function(){
               data['id_list'].push(checkStatus.data[index]._id)
             }
             console.log(data)
-            var url = "/variable/api/v1/delete"
+            var url = "/environment/api/v1/delete"
             http(url, data, 'POST', function(data){
               console.log(data)
               if (data.status != 0) {
@@ -223,7 +223,7 @@ layui.use(['jquery', 'form', 'layer', 'table'], function(){
                 layer.msg(data.message);
               }
               tableIns.reload({
-                url: '/variable/api/v1/search'
+                url: '/environment/api/v1/search'
                 ,where: {page: 0, limit: 20}
               });
             }, function(data){
@@ -250,7 +250,7 @@ layui.use(['jquery', 'form', 'layer', 'table'], function(){
           content: $('#create_variable_dialog'),
           btn: '创建变量',
           yes: function(index, layero) {
-            var url = "/variable/api/v1/create"
+            var url = "/environment/api/v1/create"
             var data = {
               'team': $('#team').val(),
               'project': $('#project').val(),
@@ -264,7 +264,7 @@ layui.use(['jquery', 'form', 'layer', 'table'], function(){
                 layer.msg(data.message);
               }
               tableIns.reload({
-                url: '/variable/api/v1/search'
+                url: '/environment/api/v1/search'
                 ,where: {page: 0, limit: 20}
               });
             }, function(data){
@@ -285,7 +285,7 @@ layui.use(['jquery', 'form', 'layer', 'table'], function(){
             var item = {
               'id_list': [data._id]
             }
-            var url = "/variable/api/v1/delete"
+            var url = "/environment/api/v1/delete"
             http(url, item, 'POST', function(data){
               console.log(data)
               if (data.status != 0) {
@@ -294,7 +294,7 @@ layui.use(['jquery', 'form', 'layer', 'table'], function(){
                 layer.msg(data.message);
               }
               tableIns.reload({
-                url: '/variable/api/v1/search'
+                url: '/environment/api/v1/search'
                 ,where: {page: 0, limit: 20}
               });
             }, function(data){
@@ -313,7 +313,7 @@ layui.use(['jquery', 'form', 'layer', 'table'], function(){
           content: $('#create_variable_dialog'),
           btn: '更新变量',
           yes: function(index, layero) {
-            var url = "/variable/api/v1/update"
+            var url = "/environment/api/v1/update"
             var item = {
               '_id': data._id,
               'team': $('#team').val(),
@@ -329,7 +329,7 @@ layui.use(['jquery', 'form', 'layer', 'table'], function(){
                 layer.msg(data.message);
               }
               tableIns.reload({
-                url: '/variable/api/v1/search'
+                url: '/environment/api/v1/search'
                 ,where: {page: 0, limit: 20}
               });
             }, function(data){
