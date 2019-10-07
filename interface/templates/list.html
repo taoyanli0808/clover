@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block script %}
+    <!-- 引入js文件，需要在base.html留入口，不然渲染会出问题。 -->
+    <script src="/interface/static/list.js"></script>
+{% endblock %}
+
+{% block content %}
+    <table id="cases"></table>
+{% endblock %}

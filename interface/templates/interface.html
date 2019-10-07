@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block style %}
+{% endblock %}
+
+{% block script %}
+    <!-- 引入js文件，需要在base.html留入口，不然渲染会出问题。 -->
+    <script src="/interface/static/interface.js"></script>
+{% endblock %}
+
+{% block content %}
+<div style="padding-top: 46px;" class="layui-container">
+  <div class="layui-row">
+    <div class="layui-row">
+      <div class="layui-col-md6">
+        <div class="layui-row">
+          <div class="layui-inline">
+            <select name="team">
+              <option value="fe">前端技术部</option>
+              <option value="rd">平台研发部</option>
+              <option value="qa">质量部</option>
+            </select>
+          </div>
+          <div class="layui-inline">
+            <select name="project">
+              <option value="prj1">支付项目</option>
+              <option value="prj2">大中台</option>
+              <option value="prj3">质量改进</option>
+            </select>
+          </div>
+          <div class="layui-inline">
+            <button id="header" type="button" class="layui-btn layui-btn-normal">header</button>
+          </div>
+          <div class="layui-inline">
+            <button id="param" type="button" class="layui-btn layui-btn-normal">params</button>
+          </div>
+          <div class="layui-inline">
+            <button id="assert" type="button" class="layui-btn layui-btn-normal">assert</button>
+          </div>
+          <div class="layui-inline">
+            <button id="extract" type="button" class="layui-btn layui-btn-normal">extract</button>
+          </div>
+        </div>
+        <div class="layui-row">
+          <div class="layui-inline">
+            <select id="method">
+              <option value="get">GET</option>
+              <option value="post">POST</option>
+              <option value="put">PUT</option>
+              <option value="delete">DELETE</option>
+              <option value="head">HEAD</option>
+              <option value="option">OPTION</option>
+            </select>
+          </div>
+          <div class="layui-inline">
+            <input type="text" id="host" lay-verify="title" autocomplete="off" placeholder="https://www.baidu.com" class="layui-input">
+          </div>
+          <div class="layui-inline">
+            <input type="text" id="path" lay-verify="title" autocomplete="off" placeholder="/api/v1/search" class="layui-input">
+          </div>
+        </div>
+        <fieldset id="h_section" class="layui-elem-field layui-field-title">
+          <legend>请求头</legend>
+          <div class="layui-field-box">
+            <div class="row">
+              <div class="layui-input-inline layui-col-md6">
+                <label style="text-align:center;">提取方式</label>
+              </div>
+              <div class="layui-input-inline layui-col-md6">
+                <label style="text-align:center;">提取表达式</label>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+        <fieldset id="p_section" class="layui-elem-field layui-field-title">
+          <legend>请求参数</legend>
+          <div class="layui-field-box">
+            <div class="row">
+              <div class="layui-input-inline layui-col-md6">
+                <label style="text-align:center;">提取方式</label>
+              </div>
+              <div class="layui-input-inline layui-col-md6">
+                <label style="text-align:center;">提取表达式</label>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+        <fieldset id="a_section" class="layui-elem-field layui-field-title">
+          <legend>添加断言</legend>
+          <div class="layui-field-box">
+            <div class="row">
+              <div class="layui-input-inline layui-col-md6">
+                <label style="text-align:center;">提取方式</label>
+              </div>
+              <div class="layui-input-inline layui-col-md6">
+                <label style="text-align:center;">提取表达式</label>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+        <fieldset id="e_section" class="layui-elem-field layui-field-title">
+          <legend>提取参数</legend>
+          <div class="layui-field-box">
+            <div class="row">
+              <div class="layui-input-inline layui-col-md6">
+                <label style="text-align:center;">提取方式</label>
+              </div>
+              <div class="layui-input-inline layui-col-md6">
+                <label style="text-align:center;">提取表达式</label>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+        <div id="c_section" class="layui-row">
+          <div class="layui-inline">
+            <button id="debug" type="button" class="layui-btn layui-btn-normal">Debug</button>
+          </div>
+          <div class="layui-inline">
+            <button id="save" type="button" class="layui-btn layui-btn-normal">Save</button>
+          </div>
+        </div>
+      </div>
+      <div class="layui-col-md6">
+        <!-- 展示接口返回的数据 -->
+        <div class="col-sm-12 col-md-6 col-lg-6">
+          <div id="response"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  layui.use(['form', 'layer'], function() {
+    var form = layui.form
+    ,layer = layui.layer;
+
+    form.render();
+  });
+</script>
+{% endblock %}

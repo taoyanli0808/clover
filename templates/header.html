@@ -1,18 +1,14 @@
 <header>
-    <nav class="navbar navbar-default" role="navigation">
-        <div class="container-fluid">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="#">Testfan测试开发平台</a>
-        </div>
-        <div>
-            <ul class="nav navbar-nav">
-                <li class="active"><a href="/">首页</a></li>
-                <li><a href="/interface/index">接口测试</a></li>
-                <li><a href="/function/index">功能测试</a></li>
-                <li><a href="/performance/index">性能测试</a></li>
-                <li><a href="/monitor/index">机器监控</a></li>
-            </ul>
-        </div>
-        </div>
-    </nav>
+  <ul class="layui-nav layui-bg-blue">
+  <li class="layui-nav-item"><a href="/">测开平台</a></li>
+  <li class="layui-nav-item layui-this">
+    <a href="/interface/">接口测试</a>
+    <dl class="layui-nav-child">
+      <dd><a href="">创建接口</a></dd>
+      <dd><a href="">接口列表</a></dd>
+    </dl>
+  </li>
+  <li class="layui-nav-item"><a href="/automation/">自动化测试</a></li>
+  <li class="layui-nav-item"><a href="/environment/">变量管理</a></li>
+</ul>
 </header>

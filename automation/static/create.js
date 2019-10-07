@@ -1,10 +1,23 @@
 
 function debug_handler() {
     var data = {
-        "name": $(""),
+        "name": $("#name"),
         "commands": parser()
     }
-    var url = HOST + '/automation/api/v1/debug'
+    var url = '/automation/api/v1/debug'
+    http(url, data, 'POST', function (data) {
+        console.log("成功！")
+    }, function (data) {
+        console.log("出错！")
+    })
+}
+
+function save_handler() {
+    var data = {
+        "name": $("#name"),
+        "commands": parser()
+    }
+    var url = HOST + '/automation/api/v1/create'
     http(url, data, 'POST', function (data) {
         console.log("成功！")
     }, function (data) {
@@ -38,4 +51,5 @@ $(function () {
         }
     });
     $('#debug').click(debug_handler)
+    $('#save').click(save_handler)
 });
