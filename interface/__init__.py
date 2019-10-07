@@ -19,11 +19,6 @@ def index():
     return render_template("interface.html")
 
 
-@interface.route('/report/<run_id>')
-def report(run_id):
-    return render_template('interface/report.html')
-
-
 @interface.route('/list')
 def list():
     return render_template('list.html')
@@ -121,37 +116,6 @@ def api_v1_trigger():
 
     try:
         result = Service().trigger(data)
-        return jsonify({
-            'status': 0,
-            'message': 'ok',
-            'data': result,
-        })
-    except Exception as error:
-        return jsonify({
-            'status': 500,
-            'message': str(error),
-            'data': data
-        })
-
-
-@interface.route('/api/v1/report', methods=['GET', 'POST'])
-def api_v1_report():
-    # 这里支持GET与POST请求，获取参数方法不同。
-    if request.method == 'GET':
-        data = request.values.to_dict()
-    else:
-        data = request.get_json()
-
-    run_id = data.get('run_id', None)
-    if not run_id:
-        return jsonify({
-            'status': 400,
-            'message': 'invalid parameter [run_id]',
-            'data': data,
-        })
-
-    try:
-        result = Service().report(data)
         return jsonify({
             'status': 0,
             'message': 'ok',
