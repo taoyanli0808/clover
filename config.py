@@ -13,3 +13,9 @@ DATABASE = {
     'USERNAME': "",
     'PASSWORD': "",
 }
+
+# kafka config
+KAFKA = {
+    'SERVER': ['localhost:9092'],
+    'TOPIC': 'clover',
+}
