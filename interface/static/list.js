@@ -11,30 +11,30 @@ function detail(value, row, index) {
 function success(data) {
     console.log(data);
     var cases = data['data'];
-    $('#cases').bootstrapTable({
-        search:true,
-        pageSize:"50",
-        ageNumber:"1",
-        sidePagination:"client",
-        pagination:true,
-        striped: true,                      //是否显示行间隔色
-        showColumns: true,                  //是否显示所有的列
-        data: cases,
-        columns: [{
-            field: '_id',
-            title: '用例编号'
-        }, {
-            field: 'method',
-            title: '请求方法'
-        }, {
-            field: 'host',
-            title: '请求地址'
-        }, {
-            field: '_id',
-            title: '查看详情',
-            formatter: detail //添加超链接的方法
-        }]
-    });
+    // $('#cases').bootstrapTable({
+    //     search:true,
+    //     pageSize:"50",
+    //     ageNumber:"1",
+    //     sidePagination:"client",
+    //     pagination:true,
+    //     striped: true,                      //是否显示行间隔色
+    //     showColumns: true,                  //是否显示所有的列
+    //     data: cases,
+    //     columns: [{
+    //         field: '_id',
+    //         title: '用例编号'
+    //     }, {
+    //         field: 'method',
+    //         title: '请求方法'
+    //     }, {
+    //         field: 'host',
+    //         title: '请求地址'
+    //     }, {
+    //         field: '_id',
+    //         title: '查看详情',
+    //         formatter: detail //添加超链接的方法
+    //     }]
+    // });
 }
 
 $(function () {

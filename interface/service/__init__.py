@@ -139,17 +139,6 @@ class Service(object):
         print(run_id)
         return run_id
 
-    def report(self, data):
-        """
-        # 通过数据库查询测试报告数据。
-        :param data:
-        :return:
-        """
-        mongo = Mongo()
-        results = mongo.search("interface", "report", data)
-        mongo.close()
-        return results if results else []
-
     def list(self, data):
         """
         :param data:

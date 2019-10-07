@@ -19,11 +19,6 @@ def index():
     return render_template("interface.html")
 
 
-@interface.route('/list')
-def list():
-    return render_template('list.html')
-
-
 @interface.route('/api/v1/debug', methods=['POST'])
 def api_v1_debug():
     # get请求使用request.values.to_dict接收
@@ -128,10 +123,19 @@ def api_v1_trigger():
             'data': data
         })
 
+"""
+# 列表页部分
+"""
+
+
+@interface.route('/list')
+def list():
+    return render_template('list.html')
+
 
 @interface.route('/api/v1/list', methods=['GET', 'POST'])
 def api_v1_list():
-    # 这里支持GET与POST请求，获取参数方法不同。
+
     if request.method == 'GET':
         data = request.values.to_dict()
     else:
