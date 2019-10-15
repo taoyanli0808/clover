@@ -14,9 +14,14 @@ environment = Blueprint('environment', __name__,
                      url_prefix='/environment')
 
 
-@environment.route("/")
-def index():
-    return render_template("environment.html")
+@environment.route("/team")
+def team():
+    return render_template("team.html")
+
+
+@environment.route("/variable")
+def variable():
+    return render_template("variable.html")
 
 
 @environment.route("/api/v1/create", methods=['POST'])
@@ -24,10 +29,24 @@ def api_v1_create():
 
     data = request.get_json()
 
-    if 'name' not in data or not data['name']:
+    if 'type' not in data or not data['type']:
         return jsonify({
             'status': 400,
-            'message': "invalid parameter name[{0}]".format(data['name']),
+            'message': "invalid parameter type[{0}]".format(data['type']),
+            'data': data
+        })
+
+    if 'team' not in data or not data['team']:
+        return jsonify({
+            'status': 400,
+            'message': "invalid parameter team[{0}]".format(data['team']),
+            'data': data
+        })
+
+    if 'project' not in data or not data['project']:
+        return jsonify({
+            'status': 400,
+            'message': "invalid parameter project[{0}]".format(data['project']),
             'data': data
         })
 
@@ -52,7 +71,13 @@ def api_v1_create():
 def api_v1_delete():
 
     data = request.get_json()
-    print(data)
+
+    if 'type' not in data or not data['type']:
+        return jsonify({
+            'status': 400,
+            'message': "invalid parameter type[{0}]".format(data['type']),
+            'data': data
+        })
 
     if 'id_list' not in data or not data['id_list']:
         return jsonify({
@@ -83,6 +108,13 @@ def api_v1_update():
 
     data = request.get_json()
 
+    if 'type' not in data or not data['type']:
+        return jsonify({
+            'status': 400,
+            'message': "invalid parameter type[{0}]".format(data['type']),
+            'data': data
+        })
+
     if '_id' not in data or not data['_id']:
         return jsonify({
             'status': 400,
@@ -111,6 +143,13 @@ def api_v1_update():
 def api_v1_search():
 
     data = request.values.to_dict()
+
+    if 'type' not in data or not data['type']:
+        return jsonify({
+            'status': 400,
+            'message': "invalid parameter type[{0}]".format(data['type']),
+            'data': data
+        })
 
     try:
         service = Service()

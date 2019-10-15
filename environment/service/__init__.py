@@ -14,7 +14,8 @@ class Service():
         :return:
         """
         data.setdefault('_id', get_friendly_id())
-        return self.db.insert("variable", "variable", data)
+        collection = data.get("type", None)
+        return self.db.insert("environment", collection, data)
 
     def detele(self, data):
         """
@@ -22,8 +23,9 @@ class Service():
         :return:
         """
         count = 0
+        collection = data.get("type", None)
         for id in data['id_list']:
-            result = self.db.delete("variable", "variable", {'_id': id})
+            result = self.db.delete("environment", collection, {'_id': id})
             count += result
         return count
 
@@ -33,11 +35,14 @@ class Service():
         :return:
         """
         filter = {'_id': data.pop('_id')}
-        return self.db.update("variable", "variable", filter, data)
+        collection = data.get("type", None)
+        return self.db.update("environment", collection, filter, data)
 
     def search(self, data):
         """
         :param data:
         :return:
         """
-        return self.db.search("variable", "variable", data)
+        collection = data.pop("type", None)
+        result = self.db.search("environment", collection, data)
+        return result

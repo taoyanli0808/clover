@@ -62,9 +62,23 @@ class Mongo():
         :param filter:
         :return:
         """
+        if 'page' in filter:
+            try:
+                filter['skip'] = int(filter.pop('page'))
+            except TypeError:
+                filter['skip'] = 0
+
+        if 'limit' in filter:
+            try:
+                filter['limit'] = int(filter.pop('limit'))
+            except TypeError:
+                filter['limit'] = 0
+
         _database = self.client.get_database(database)
         _collection = _database.get_collection(collection)
-        results = list(_collection.find(filter))
+        results = list(_collection.find(**filter))
+        print(database, collection, filter)
+        print(results)
         for result in results:
             result['_id'] = str(result['_id'])
         return results

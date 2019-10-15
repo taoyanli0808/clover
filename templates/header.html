@@ -9,6 +9,23 @@
     </dl>
   </li>
   <li class="layui-nav-item"><a href="/automation/">自动化测试</a></li>
-  <li class="layui-nav-item"><a href="/environment/">变量管理</a></li>
+  <li class="layui-nav-item">
+    <a href="javascript:;">配置管理</a>
+    <dl class="layui-nav-child">
+      <dd><a href="/environment/team">团队管理</a></dd>
+      <dd><a href="/environment/variable">全局变量</a></dd>
+    </dl>
+  </li>
+  <li class="layui-nav-item"><a href=""></a></li>
 </ul>
+    <script>
+    layui.use('element', function(){
+      var element = layui.element;
+      element.init();
+      //监听导航点击
+      element.on('nav(demo)', function(elem){
+        console.log(elem.text());
+      });
+    });
+    </script>
 </header>
