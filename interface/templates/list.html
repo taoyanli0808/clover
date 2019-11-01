@@ -67,15 +67,13 @@
 </script>
 
 <script>
-layui.config({
-  version: '1566370370532' //为了更新 js 缓存，可忽略
-});
 
-layui.use(['jquery', 'form', 'layer', 'table'], function(){
+layui.use(['jquery', 'form', 'layer', 'table', 'soulTable'], function(){
   var $ = layui.$      //jquery
   ,form = layui.form   //表单
   ,layer = layui.layer //弹层
   ,table = layui.table //表格
+  ,soulTable = layui.soulTable;
 
   //执行一个 table 实例
   var tableIns = table.render({
@@ -88,11 +86,12 @@ layui.use(['jquery', 'form', 'layer', 'table'], function(){
     ,toolbar: 'default' //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
     ,cols: [[ //表头
       {type: 'checkbox', fixed: 'left'}
-      ,{field: '_id', title: 'ID', width:280, sort: true, fixed: 'left', totalRowText: '合计：'}
-      ,{field: 'team', title: '团队', width:200}
-      ,{field: 'project', title: '项目', width: 200, sort: true, totalRow: true}
-      ,{field: 'name', title: '变量', width:200, sort: true}
-      ,{field: 'value', title: '值', width:200, sort: true}
+      ,{field: '_id', title: 'ID', width:220, sort: true, fixed: 'left', totalRowText: '合计：'}
+      ,{field: 'team', title: '团队', width:120, filter:true}
+      ,{field: 'project', title: '项目', width: 120, sort: true, totalRow: true, filter:true}
+      ,{field: 'method', title: '方法', width:80, sort: true}
+      ,{field: 'host', title: '域名', width:300, sort: true}
+      ,{field: 'path', title: '路径', width:300, sort: true}
       ,{fixed: 'right', width: 165, align:'center', toolbar: '#barDemo'}
     ]]
     ,parseData: function(res){ //res 即为原始返回的数据
@@ -102,6 +101,9 @@ layui.use(['jquery', 'form', 'layer', 'table'], function(){
         "count": res.data.length, //解析数据长度
         "data": res.data //解析数据列表
       };
+    }
+    ,done: function () {
+      soulTable.render(this);
     }
   });
 

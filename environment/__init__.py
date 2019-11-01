@@ -139,7 +139,7 @@ def api_v1_update():
         })
 
 
-@environment.route("/api/v1/search/")
+@environment.route("/api/v1/search")
 def api_v1_search():
 
     data = request.values.to_dict()
@@ -150,10 +150,52 @@ def api_v1_search():
             'message': "invalid parameter type[{0}]".format(data['type']),
             'data': data
         })
+    service = Service()
+    data = service.search(data)
+    return jsonify({
+        'status': 0,
+        'message': 'ok',
+        'data': data
+    })
+    # try:
+    #     service = Service()
+    #     data = service.search(data)
+    #     return jsonify({
+    #         'status': 0,
+    #         'message': 'ok',
+    #         'data': data
+    #     })
+    # except Exception as error:
+    #     return jsonify({
+    #         'status': 500,
+    #         'message': str(error),
+    #         'traceback': traceback.format_stack(),
+    #         'data': data
+    #     })
+
+
+@environment.route("/api/v1/aggregate", methods=['POST'])
+def api_v1_aggregate():
+
+    data = request.get_json()
+
+    if 'type' not in data or not data['type']:
+        return jsonify({
+            'status': 400,
+            'message': "invalid parameter type[{0}]".format(data['type']),
+            'data': data
+        })
+
+    if 'key' not in data or not data['key']:
+        return jsonify({
+            'status': 400,
+            'message': "invalid parameter key[{0}]".format(data['key']),
+            'data': data
+        })
 
     try:
         service = Service()
-        data = service.search(data)
+        data = service.aggregate(data)
         return jsonify({
             'status': 0,
             'message': 'ok',

@@ -62,26 +62,33 @@ class Mongo():
         :param filter:
         :return:
         """
-        if 'page' in filter:
-            try:
-                filter['skip'] = int(filter.pop('page'))
-            except TypeError:
-                filter['skip'] = 0
+        try:
+            skip = int(filter.pop('page'))
+        except TypeError:
+            skip = 0
+        except KeyError:
+            skip = 0
 
-        if 'limit' in filter:
-            try:
-                filter['limit'] = int(filter.pop('limit'))
-            except TypeError:
-                filter['limit'] = 0
+        try:
+            limit = int(filter.pop('limit'))
+        except TypeError:
+            limit = 0
+        except KeyError:
+            limit = 0
 
         _database = self.client.get_database(database)
         _collection = _database.get_collection(collection)
-        results = list(_collection.find(**filter))
-        print(database, collection, filter)
-        print(results)
+        results = _collection.find(filter, skip=skip, limit=limit)
+        results = list(results)
+
         for result in results:
             result['_id'] = str(result['_id'])
         return results
+
+    def aggregate(self, database, collection, pipeline):
+        _database = self.client.get_database(database)
+        _collection = _database.get_collection(collection)
+        return list(_collection.aggregate(pipeline))
 
     def close(self):
         """

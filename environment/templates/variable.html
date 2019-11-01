@@ -16,6 +16,10 @@
   </style>
 {% endblock %}
 
+{% block script %}
+  <script src="/environment/static/environment.js"></script>
+{% endblock %}
+
 {% block content %}
 <table class="layui-hide" id="list" lay-filter="list"></table>
 
@@ -24,12 +28,7 @@
     <div class="layui-form-item">
       <label class="layui-form-label">团队</label>
       <div class="layui-input-block">
-        <select id="team" lay-verify="required">
-          <option value="大前端">大前端</option>
-          <option value="研发部">研发部</option>
-          <option value="质量部">质量部</option>
-          <option value="产品创新部">产品创新部</option>
-          <option value="运营部">运营部</option>
+        <select id="team" lay-filter="team" lay-verify="required">
         </select>
       </div>
     </div>
@@ -37,11 +36,6 @@
       <label class="layui-form-label">项目</label>
       <div class="layui-input-block">
         <select id="project" lay-verify="required">
-          <option value="六合项目">六合项目</option>
-          <option value="企业注册">企业注册</option>
-          <option value="专利申请">专利申请</option>
-          <option value="商标管理">商标管理</option>
-          <option value="法务纠纷">法务纠纷</option>
         </select>
       </div>
     </div>
@@ -73,11 +67,30 @@ layui.use(['jquery', 'form', 'layer', 'table'], function(){
   ,layer = layui.layer //弹层
   ,table = layui.table //表格
 
+  form.on('select(team)', function(data){
+	var url = "/environment/api/v1/search"
+    var data = {
+      "type": "team",
+      "team": $("#team").val()
+    }
+    http(url, data, 'GET', function(data) {
+      $('#project').empty()
+      var html = ""
+      for (key in data['data']) {
+        html += '<option value="' + data['data'][key]['project'] + '">' + data['data'][key]['project'] + '</option>'
+      }
+      $('#project').append(html)
+      form.render();
+    }, function(data) {
+      console.log(data)
+    })
+  });
+
   //执行一个 table 实例
   var tableIns = table.render({
-    elem: '#demo'
+    elem: '#list'
     ,height: 420
-    ,url: '/environment/api/v1/search/' //数据接口
+    ,url: '/environment/api/v1/search' //数据接口
     ,where: {type: 'variable', page: 0, limit: 20}
     ,title: '全局变量'
     ,page: true //开启分页
@@ -238,7 +251,7 @@ layui.use(['jquery', 'form', 'layer', 'table'], function(){
   });
 
   //监听行工具事件
-  table.on('tool(test)', function(obj){ //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
+  table.on('tool(list)', function(obj){ //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
     var data = obj.data //获得当前行数据
     ,layEvent = obj.event; //获得 lay-event 对应的值
     if(layEvent === 'add'){

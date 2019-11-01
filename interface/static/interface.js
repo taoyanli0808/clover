@@ -44,11 +44,23 @@ function add_param() {
 function add_assert() {
     // 这里是动态拼接html语句，带着样式，拼凑成页面的  "jsonpath []  expect []"
     var html = '<div class="layui-row">' +
-     '<div class="layui-input-inline layui-col-md5">' +
-        '<input type="text" name="title" required  lay-verify="required" placeholder="请输入标题" autocomplete="off" class="a_key layui-input">' +
+     '<div class="layui-input-inline layui-col-md3">' +
+        '<input type="text" name="title" required  lay-verify="required" placeholder="请输入断言" autocomplete="off" class="a_key layui-input">' +
       '</div>' +
-      '<div class="layui-input-inline layui-col-md5">' +
-        '<input type="text" name="title" required  lay-verify="required" placeholder="请输入标题" autocomplete="off" class="a_value layui-input">' +
+      '<div class="layui-input-inline layui-col-md3">' +
+        '<select id="a_op" lay-filter="team" lay-verify="required">' +
+          '<option value="in">包含</option>' +
+          '<option value="not in">不包含</option>' +
+          '<option value="=">等于</option>' +
+          '<option value="!=">不等于</option>' +
+          '<option value=">">大于</option>' +
+          '<option value=">=">大于等于</option>' +
+          '<option value="<">小于</option>' +
+          '<option value="<=">小于等于</option>' +
+        '</select>' +
+      '</div>' +
+      '<div class="layui-input-inline layui-col-md3">' +
+        '<input type="text" name="title" required  lay-verify="required" placeholder="请输断言值" autocomplete="off" class="a_value layui-input">' +
       '</div>' +
       '<div class="layui-input-inline  layui-col-md1">' +
         '<button class="layui-btn layui-btn-danger delete">' +
@@ -60,6 +72,7 @@ function add_assert() {
     $('#a_section').show();
     $('#c_section').show();
     $('.delete').click(delete_element);
+    layui.form.render()
 }
 
 function add_extract() {
@@ -87,6 +100,8 @@ function add_parameter() {
 
     // 需要发送给服务器的数据，是测试接口时，在页面上填写的内容。
     var data = {
+        'team': $('#team').val(),
+        'project': $('#project').val(),
         'method': $('#method').val(),
         'host': $('#host').val(),
         'path': $('#path').val(),
@@ -119,9 +134,11 @@ function add_parameter() {
     $('.a_key').each(function(index, element){
         var key = $('.a_key').eq(index).val();
         var value = $('.a_value').eq(index).val();
+        var operation = $('.a_op').eq(index).val();
         data['assert'].push({
             'rule': key,
-            'expect': value
+            'expect': value,
+            'operation': operation
         })
     })
 

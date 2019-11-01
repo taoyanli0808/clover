@@ -1,11 +1,14 @@
 #coding=utf-8
 
+import os
+
 from flask import Flask
 from flask import jsonify
 from flask import render_template
+from flask import send_from_directory
 
-from environment import environment
 from automation import automation
+from environment import environment
 from interface import interface
 
 app = Flask(__name__)
@@ -14,8 +17,8 @@ app.config.from_object('config')
 app.logger.info("load config {0}".format(app.config))
 
 
-app.register_blueprint(environment)
 app.register_blueprint(automation)
+app.register_blueprint(environment)
 app.register_blueprint(interface)
 
 
@@ -46,6 +49,14 @@ def info():
             }
         }
     })
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(
+        os.path.join(app.root_path, 'static'),
+        'favicon.ico', mimetype='image/vnd.microsoft.icon'
+    )
 
 
 if __name__ == '__main__':

@@ -42,7 +42,8 @@ def api_v1_debug():
         })
 
     try:
-        status, message, data = Service().execute(data)
+        service = Service()
+        status, message, data = service.execute(data)
         return jsonify({
             'status': status,
             'message': message,
@@ -79,7 +80,8 @@ def api_v1_save():
         })
 
     try:
-        case_id = Service().save(data)
+        service = Service()
+        case_id = service.save(data)
         return jsonify({
             'status': 0,
             'message': 'ok',
@@ -110,7 +112,8 @@ def api_v1_trigger():
         })
 
     try:
-        result = Service().trigger(data)
+        service = Service()
+        result = service.trigger(data)
         return jsonify({
             'status': 0,
             'message': 'ok',

@@ -4,5 +4,9 @@ body {
 }
 
 header {
-  padding-bottom: 100px;
+  padding-bottom: 20px;
+}
+
+.layui-nav-child {
+  z-index: 9999;
 }

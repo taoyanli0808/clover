@@ -12,9 +12,10 @@ automation = Blueprint('automation', __name__,
                        template_folder='templates')
 
 
-@automation.route("/create")
+@automation.route("/")
+@automation.route("/index")
 def create():
-    return render_template("create.html")
+    return render_template("automation.html")
 
 
 @automation.route("/api/v1/debug", methods=['POST'])

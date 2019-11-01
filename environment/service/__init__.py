@@ -46,3 +46,15 @@ class Service():
         collection = data.pop("type", None)
         result = self.db.search("environment", collection, data)
         return result
+
+    def aggregate(self, data):
+        """
+        :param data:
+        :return:
+        """
+        collection = data.pop("type", None)
+        key = data.pop("key", None)
+        pipeline = [
+            {'$group': {'_id': "$" + key}},
+        ]
+        return self.db.aggregate("environment", collection, pipeline)

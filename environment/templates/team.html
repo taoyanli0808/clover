@@ -19,7 +19,7 @@
 {% block content %}
 <table class="layui-hide" id="list" lay-filter="list"></table>
 
-<div id="team_dialog">
+<div id="team_dialog" style="display: none;">
   <form class="layui-form" action="">
     <div class="layui-form-item">
       <label class="layui-form-label">团队名称：</label>
@@ -43,23 +43,34 @@
 </script>
 
 <script>
-layui.use(['jquery', 'form', 'layer', 'table'], function(){
+//layui.extend({
+//  excel: '{/}/static/layui/ext/excel',
+//  soulTable: '{/}/static/layui/ext/soulTable',
+//  tableChild: '{/}/static/layui/ext/tableChild',
+//  tableFilter: '{/}/static/layui/ext/tableFilter',
+//  tableMerge: '{/}/static/layui/ext/tableMerge',
+//})
+
+layui.use(['jquery', 'form', 'layer', 'table', 'soulTable'], function(){
   var $ = layui.$      //jquery
   ,form = layui.form   //表单
   ,layer = layui.layer //弹层
   ,table = layui.table //表格
+  ,soulTable = layui.soulTable
 
   //执行一个 table 实例
   var tableIns = table.render({
     elem: '#list'
+    ,id: 'list'
     ,height: 420
-    ,url: '/environment/api/v1/search/' //数据接口
+    ,url: '/environment/api/v1/search' //数据接口
     ,where: {type:'team', page: 0, limit: 20}
     ,title: '团队配置'
     ,page: true //开启分页
     ,toolbar: 'default' //开启工具栏，此处显示默认图标，可以自定义模板，详见文档
     ,cols: [[ //表头
       {type: 'checkbox', fixed: 'left'}
+      ,{field: '_id', title: 'ID', width:200}
       ,{field: 'team', title: '团队', width:200}
       ,{field: 'project', title: '项目', width: 200, sort: true, totalRow: true}
       ,{fixed: 'right', width: 165, align:'center', toolbar: '#tool'}
@@ -71,6 +82,9 @@ layui.use(['jquery', 'form', 'layer', 'table'], function(){
         "count": res.data.length, //解析数据长度
         "data": res.data //解析数据列表
       };
+    }
+    ,done: function () {
+        soulTable.render(this)
     }
   });
 
