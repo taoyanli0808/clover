@@ -44,23 +44,29 @@ function add_param() {
 function add_assert() {
     // 这里是动态拼接html语句，带着样式，拼凑成页面的  "jsonpath []  expect []"
     var html = '<div class="layui-row">' +
+      '<div class="layui-input-inline layui-col-md2">' +
+        '<select class="a_extractor" lay-filter="team" lay-verify="required">' +
+          '<option value="re">正则</option>' +
+          '<option value="delimiter">分隔符</option>' +
+        '</select>' +
+      '</div>' +
      '<div class="layui-input-inline layui-col-md3">' +
-        '<input type="text" name="title" required  lay-verify="required" placeholder="请输入断言" autocomplete="off" class="a_key layui-input">' +
+        '<input type="text" name="title" required  lay-verify="required" placeholder="请输入断言" autocomplete="off" class="a_expression layui-input">' +
       '</div>' +
       '<div class="layui-input-inline layui-col-md3">' +
-        '<select id="a_op" lay-filter="team" lay-verify="required">' +
-          '<option value="in">包含</option>' +
-          '<option value="not in">不包含</option>' +
-          '<option value="=">等于</option>' +
-          '<option value="!=">不等于</option>' +
-          '<option value=">">大于</option>' +
-          '<option value=">=">大于等于</option>' +
-          '<option value="<">小于</option>' +
-          '<option value="<=">小于等于</option>' +
+        '<select class="a_condition" lay-filter="team" lay-verify="required">' +
+          '<option value="equal">等于</option>' +
+          '<option value="not_equal">不等于</option>' +
+          '<option value="contain">包含</option>' +
+          '<option value="not_contain">不包含</option>' +
+          '<option value="greater">大于</option>' +
+          '<option value="not_less">大于等于</option>' +
+          '<option value="less">小于</option>' +
+          '<option value="not_greater">小于等于</option>' +
         '</select>' +
       '</div>' +
       '<div class="layui-input-inline layui-col-md3">' +
-        '<input type="text" name="title" required  lay-verify="required" placeholder="请输断言值" autocomplete="off" class="a_value layui-input">' +
+        '<input type="text" name="title" required  lay-verify="required" placeholder="请输断言值" autocomplete="off" class="a_expected layui-input">' +
       '</div>' +
       '<div class="layui-input-inline  layui-col-md1">' +
         '<button class="layui-btn layui-btn-danger delete">' +
@@ -78,11 +84,17 @@ function add_assert() {
 function add_extract() {
     // 这里是动态拼接html语句，带着样式，拼凑成页面的  "jsonpath []  expect []"
     var html = '<div class="layui-row">' +
-      '<div class="layui-input-inline layui-col-md5">' +
-        '<input type="text" name="title" required  lay-verify="required" placeholder="请输入标题" autocomplete="off" class="e_key layui-input">' +
+      '<div class="layui-input-inline layui-col-md2">' +
+        '<select class="e_extractor" lay-filter="team" lay-verify="required">' +
+          '<option value="re">正则</option>' +
+          '<option value="delimiter">分隔符</option>' +
+        '</select>' +
       '</div>' +
-      '<div class="layui-input-inline layui-col-md5">' +
-        '<input type="text" name="title" required  lay-verify="required" placeholder="请输入标题" autocomplete="off" class="e_value layui-input">' +
+     '<div class="layui-input-inline layui-col-md3">' +
+        '<input type="text" required  lay-verify="required" placeholder="请输入表达式" autocomplete="off" class="e_expression layui-input">' +
+      '</div>' +
+      '<div class="layui-input-inline layui-col-md3">' +
+        '<input type="text" required  lay-verify="required" placeholder="请输入变量名" autocomplete="off" class="e_variable layui-input">' +
       '</div>' +
       '<div class="layui-input-inline  layui-col-md1">' +
         '<button class="layui-btn layui-btn-danger delete">' +
@@ -94,19 +106,24 @@ function add_extract() {
     $('#e_section').show();
     $('#c_section').show();
     $('.delete').click(delete_element);
+    layui.form.render()
 }
 
 function add_parameter() {
 
     // 需要发送给服务器的数据，是测试接口时，在页面上填写的内容。
     var data = {
-        'team': $('#team').val(),
-        'project': $('#project').val(),
-        'method': $('#method').val(),
-        'host': $('#host').val(),
-        'path': $('#path').val(),
-        'header': {},
-        'param': {},
+        'environment': {
+            'team': $('#team').val(),
+            'project': $('#project').val(),
+        },
+        'request': {
+            'method': $('#method').val(),
+            'host': $('#host').val(),
+            'path': $('#path').val(),
+            'header': {},
+            'param': {},
+        },
         'assert': [],
         'extract': []
     }
@@ -116,7 +133,7 @@ function add_parameter() {
     $('.h_key').each(function(index, element){
         var key = $('.h_key').eq(index).val();
         var value = $('.h_value').eq(index).val();
-        data['header'][key] = value;
+        data['request']['header'][key] = value;
     })
 
     // 使用each函数遍历每一个parameter的key，按照each函数的索引
@@ -124,30 +141,30 @@ function add_parameter() {
     $('.p_key').each(function(index, element){
         var key = $('.p_key').eq(index).val();
         var value = $('.p_value').eq(index).val();
-        data['param'][key] = value;
+        data['request']['param'][key] = value;
     })
 
-    // jsonpath是断言的表达式，jsonpath结果与expect匹配
-    // 如果符合预期则成功，否则判定为失败。
-    // 使用each函数遍历每一个assert的jsonpath，按照each函数的索引
-    // 分别取出assert的jsonpath作为key和expect作为value，保存在data['assert']。
-    $('.a_key').each(function(index, element){
-        var key = $('.a_key').eq(index).val();
-        var value = $('.a_value').eq(index).val();
-        var operation = $('.a_op').eq(index).val();
+    /*
+    // 这里是断言数据，断言需要先提取响应信息，再将响应与预期值比较；
+    // 因此这里需要使用正则或者分隔符提取器，需要输入提取表达式；
+    // 比较条件只支持先定的几种，如需支持更多条件需扩展common.interface.expect模块。
+     */
+    $('.a_extractor').each(function(index, element){
         data['assert'].push({
-            'rule': key,
-            'expect': value,
-            'operation': operation
+            'extractor': $('.a_extractor').eq(index).val(),
+            'expression': $('.a_expression').eq(index).val(),
+            'condition': $('.a_condition').eq(index).val(),
+            'expected': $('.a_expected').eq(index).val()
         })
     })
 
-    $('.e_key').each(function(index, element){
+    $('.e_extractor').each(function(index, element){
         var key = $('.e_key').eq(index).val();
         var value = $('.e_value').eq(index).val();
-        data['expect'].push({
-            'expr': key,
-            'variable': value
+        data['extract'].push({
+            'extractor': $('.e_extractor').eq(index).val(),
+            'expression': $('.e_expression').eq(index).val(),
+            'variable': $('.e_variable').eq(index).val()
         })
     })
 
@@ -163,12 +180,18 @@ function debug_success(data) {
     // 先清空数据，否则append函数会不断累加结果。
     $('#response').empty()
     // 讲返回的结果append到response区域，代码和json数据显示需要用pre与code标签，json.stringify使用参数null, 4缩进4个空格。
-    $('#response').append('<pre><code>' + JSON.stringify(data['data'], null, 4) + '</code></pre>')
+    var content = data['data']['response']['content']
+    $('#response').append('<pre><code>' + JSON.stringify(content, null, 4) + '</code></pre>')
     alert(data['message'])
 }
 
 function fail(data) {
     console.log(data);
+    // 先清空数据，否则append函数会不断累加结果。
+    $('#response').empty()
+    // 讲返回的结果append到response区域，代码和json数据显示需要用pre与code标签，json.stringify使用参数null, 4缩进4个空格。
+    $('#response').append('<pre><code>' + JSON.stringify(data['data'], null, 4) + '</code></pre>')
+    alert(data['message'])
 }
 
 function send_request() {
@@ -178,9 +201,9 @@ function send_request() {
     http(url, data, 'POST', debug_success, fail);
 }
 
-function save_success() {
+function save_success(data) {
     console.log(data);
-    alert("保存用例成功，case_id" + data['data'])
+    alert("保存用例成功，case_id: " + data['data'])
 }
 
 function save_request() {

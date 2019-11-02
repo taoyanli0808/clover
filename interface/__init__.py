@@ -24,8 +24,9 @@ def api_v1_debug():
     # get请求使用request.values.to_dict接收
     # post、put、delete使用request.get_json接收
     data = request.get_json()
+    print(data)
 
-    method = data.get('method', None)
+    method = data['request'].get('method', None)
     if not method:
         return jsonify({
             'status': 400,
@@ -33,7 +34,7 @@ def api_v1_debug():
             'data': data,
         })
 
-    host = data.get('host', None)
+    host = data['request'].get('host', None)
     if not host:
         return jsonify({
             'status': 400,
@@ -41,12 +42,20 @@ def api_v1_debug():
             'data': data,
         })
 
+    path = data['request'].get('path', None)
+    if not path:
+        return jsonify({
+            'status': 400,
+            'message': 'invalid parameter [path]',
+            'data': data,
+        })
+
     try:
         service = Service()
-        status, message, data = service.execute(data)
+        data = service.execute(data)
         return jsonify({
-            'status': status,
-            'message': message,
+            'status': 0,
+            'message': 'ok',
             'data': data,
         })
     except Exception as error:
@@ -63,7 +72,7 @@ def api_v1_save():
     # post、put、delete使用request.get_json接收
     data = request.get_json()
 
-    method = data.get('method', None)
+    method = data['request'].get('method', None)
     if not method:
         return jsonify({
             'status': 400,
@@ -71,11 +80,19 @@ def api_v1_save():
             'data': data,
         })
 
-    host = data.get('host', None)
+    host = data['request'].get('host', None)
     if not host:
         return jsonify({
             'status': 400,
             'message': 'invalid parameter [host]',
+            'data': data,
+        })
+
+    path = data['request'].get('path', None)
+    if not path:
+        return jsonify({
+            'status': 400,
+            'message': 'invalid parameter [path]',
             'data': data,
         })
 

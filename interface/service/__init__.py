@@ -1,16 +1,15 @@
 #coding=utf-8
 
 import time
+import json
 
 import requests
-
-from jsonpath import jsonpath
 
 from common.utils.mongo import Mongo
 from common.utils import get_timestamp
 from common.utils import get_friendly_id
 from common.utils.helper import derivation
-
+from common.interface.expect import Expect
 
 class Service(object):
 
@@ -27,21 +26,81 @@ class Service(object):
         :return:
         """
         filter = {
-            'team': data.get('team'),
-            'project': data.get('project')
+            'team': data['environment'].get('team'),
+            'project': data['environment'].get('project')
         }
         results = self.db.search("environment", "variable", filter)
 
-        data['host'] = derivation(data.get('host'), results)
+        data['request']['host'] = derivation(data['request'].get('host'), results)
+        data['request']['path'] = derivation(data['request'].get('path'), results)
 
-        if 'header' in data:
-            for key, value in data['header'].items():
-                data['header'][key] = derivation(data['header'][key], results)
+        if 'header' in data['request']:
+            for key, value in data['request']['header'].items():
+                data['request']['header'][key] = derivation(data['request']['header'][key], results)
 
-        if 'param' in data:
-            for key, value in data['param'].items():
-                data['param'][key] = derivation(data['param'][key], results)
+        if 'param' in data['request']:
+            for key, value in data['request']['param'].items():
+                data['request']['param'][key] = derivation(data['request']['param'][key], results)
 
+        return data
+
+    def make_request(self, data):
+        """
+        :param data:
+        :return:
+        """
+        # 发送http请求
+        method = data['request'].get("method")
+        host = data['request'].get("host")
+        path = data['request'].get("path")
+        header = data['request'].get('header', {})
+        payload = data['request'].get('param', {})
+        url = host + path
+
+        if method == 'get':
+            response = requests.request(method, url, params=payload, headers=header)
+        else:
+            response = requests.request(method, url, data=payload, headers=header)
+
+        # 这里将响应的状态码，头信息和响应体单独存储，后面断言或提取变量会用到
+        data['response'] = {
+            'status': response.status_code,
+            'header': dict(response.headers),
+            'content': response.text
+        }
+        return data
+
+    def convert_format(self, data):
+        """
+        # 这个函数暂时保留，如有必要，用于后续讲xml等其它格式数据进行转换。
+        :param data:
+        :return:
+        """
+        return data
+
+    def execute_assertion(self, data):
+        """
+        :param data:
+        :return:
+        """
+        expect = Expect(data)
+        expect.test()
+        return data
+
+    def extract_variables(self, data):
+        """
+        :param data:
+        :return:
+        """
+        return data
+
+    def record_result(self, data):
+        """
+        :param data:
+        :return:
+        """
+        data['_id'] = get_friendly_id()
+        self.db.insert("interface", "history", data)
         return data
 
     def execute(self, data):
@@ -49,50 +108,17 @@ class Service(object):
         :param data:
         :return: 返回值为元组，分别是flag，message和接口请求后的json数据。
         """
-        data = self.replace_variable(data)
+        self.replace_variable(data)
+        self.make_request(data)
+        self.convert_format(data)
+        self.execute_assertion(data)
+        self.extract_variables(data)
+        self.record_result(data)
 
-        # 发送http请求
-        method = data.get("method")
-        host = data.get("host")
-        path = data.get("path")
-        header = data.get('header', {})
-        payload = data.get('param', {})
-        url = host + path
+        if data['response']['header']['Content-Type'].find("application/json") != -1:
+            data['response']['content'] = json.loads(data['response']['content'])
 
-        if method == 'get':
-            response = requests.request(method, url, params=payload, headers=header)
-        else:
-            response = requests.request(method, url, data=payload, headers=header)
-        # 解析请求结果
-        result = response.json()
-        # 执行断言
-        flag = 0
-        message = "测试成功"
-
-        if response.status_code != 200:
-            flag = 1
-            message = "请求接口失败！"
-
-        try:
-            json = response.json()
-        except Exception:
-            flag = 3
-            message = "响应数据非json"
-            return flag, message, {}
-        items = data.get('assert', [])
-        for item in items:
-            result = jsonpath(json, item['rule'])
-            if not result:
-                flag = 2
-                message = "测试断言失败"
-                break
-            result = list(map(str, result))
-            if result != [item['expect']]:
-                flag = 2
-                message = "测试断言失败"
-                break
-
-        return flag, message, json
+        return data
 
     def save(self, data):
         """

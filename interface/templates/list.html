@@ -95,11 +95,25 @@ layui.use(['jquery', 'form', 'layer', 'table', 'soulTable'], function(){
       ,{fixed: 'right', width: 165, align:'center', toolbar: '#barDemo'}
     ]]
     ,parseData: function(res){ //res 即为原始返回的数据
+      console.log(res)
+      result = []
+      for (i in res.data) {
+        result.push(
+          {
+            '_id': res.data[i]['_id'],
+            'team': res.data[i]['environment']['team'],
+            'project': res.data[i]['environment']['project'],
+            'method': res.data[i]['request']['method'],
+            'host': res.data[i]['request']['host'],
+            'path': res.data[i]['request']['path']
+          }
+        )
+      }
       return {
         "code": res.status, //解析接口状态
         "msg": res.message, //解析提示文本
         "count": res.data.length, //解析数据长度
-        "data": res.data //解析数据列表
+        "data": result
       };
     }
     ,done: function () {
