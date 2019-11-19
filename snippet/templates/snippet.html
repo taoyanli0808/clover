@@ -3,13 +3,70 @@
 {% block script %}
   <script src="https://cdn.bootcss.com/ace/1.4.6/ace.js"></script>
   <script src="https://cdn.bootcss.com/ace/1.4.6/mode-python.js"></script>
+  <script src="https://cdn.bootcss.com/ace/1.4.6/mode-json.js"></script>
   <script src="https://cdn.bootcss.com/ace/1.4.6/mode-sql.js"></script>
 {% endblock %}
 
 {% block content %}
-  <div id="editor" style="height: 350px; min-height:inherit; max-height: 800px;"></div>
+  <div class="layui-container">
+    <div class="layui-row">
+      <div class="layui-col-md6">
+        <label class="layui-form-label">调试数据</label>
+      </div>
+      <div class="layui-col-md6">
+        <label class="layui-form-label">自定义关键字</label>
+      </div>
+    <div class="layui-row">
+      <div class="layui-col-md6">
+        <div id="mock" style="height: 350px; max-height: 800px; width: 90%;"></div>
+      </div>
+      <div class="layui-col-md6">
+        <div id="editor" style="height: 350px; max-height: 800px; width: 90%;"></div>
+      </div>
+    </div>
+    <div class="layui-row">
+      <div class="layui-btn-group">
+        <button id="debug" type="button" class="layui-btn">调试</button>
+        <button id="save" type="button" class="layui-btn">保存</button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    var mock = ace.edit('mock');
+    mock.setTheme("ace/theme/monokai");
+    mock.getSession().setMode("ace/mode/json");
+    mock.getSession().setUseWrapMode(true);
+    mock.setFontSize(15);
+
     var editor = ace.edit('editor');
     editor.setTheme("ace/theme/monokai");
+    editor.getSession().setMode("ace/mode/python");
+    editor.getSession().setUseWrapMode(true);
+    editor.setFontSize(15);
+
+    function debug() {
+      var url = "/snippet/api/v1/debug"
+      var data = {
+          'mock': mock.getValue(),
+          'snippet': editor.getValue()
+      }
+      http(url, data, 'POST', function (data) {
+          console.log(data)
+          mock.moveCursorTo(0, 0)
+          mock.setValue(JSON.stringify(data['data']))
+      }, function (data) {
+          console.log(data)
+      })
+    }
+
+    function save() {
+
+    }
+
+    layui.use(['form'], function () {
+      $('#debug').click(debug)
+      $('#save').click(save)
+    })
   </script>
 {% endblock %}
