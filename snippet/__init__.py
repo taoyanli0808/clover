@@ -17,6 +17,11 @@ def create():
     return render_template("snippet.html")
 
 
+@snippet.route('/list')
+def list():
+    return render_template("snippet_list.html")
+
+
 @snippet.route('/api/v1/debug', methods=['POST'])
 def api_v1_debug():
     data = request.get_json()
