@@ -61,7 +61,16 @@
     }
 
     function save() {
-
+      var url = "/snippet/api/v1/save"
+      var data = {
+          'mock': mock.getValue(),
+          'snippet': editor.getValue()
+      }
+      http(url, data, 'POST', function (data) {
+          console.log(data)
+      }, function (data) {
+          console.log(data)
+      })
     }
 
     layui.use(['form'], function () {

@@ -2,10 +2,13 @@
 import re
 import json
 
+from common.utils.mongo import Mongo
+
+
 class Service():
 
     def __init__(self):
-        pass
+        self.db = Mongo()
 
     def debug(self, data):
         """
@@ -27,4 +30,7 @@ class Service():
         :param data:
         :return:
         """
+        # 这里需要先提取函数名，然后关键字用函数名进行索引，存到数据库。
+        # 如果数据库中函数名已经存在怎么办，是否需要先查询，重复则失败？
+        self.db.insert()
         return data
