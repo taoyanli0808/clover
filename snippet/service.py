@@ -3,6 +3,7 @@ import re
 import json
 
 from common.utils.mongo import Mongo
+from common.utils import get_friendly_id
 
 
 class Service():
@@ -27,10 +28,25 @@ class Service():
 
     def save(self, data):
         """
+        # 这里需要先提取函数名，然后关键字用函数名进行索引，存到数据库。
+        # 如果数据库中函数名已经存在怎么办，是否需要先查询，重复则失败？
         :param data:
         :return:
         """
-        # 这里需要先提取函数名，然后关键字用函数名进行索引，存到数据库。
-        # 如果数据库中函数名已经存在怎么办，是否需要先查询，重复则失败？
-        self.db.insert()
-        return data
+        mock = json.loads(data.get('mock'))
+        snippet = data.get('snippet')
+        func = re.findall(r'def\s+(.+?)\(', snippet)
+        name = func[0] if func else ""
+        print({
+            'name': name,
+            'mock': mock,
+            'snippet': snippet,
+        })
+        result = self.db.insert("environment", "snippet", {
+            '_id': get_friendly_id(),
+            'name': name,
+            'mock': mock,
+            'snippet': snippet,
+        })
+        print(result)
+        return result
