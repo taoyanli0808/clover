@@ -7,10 +7,10 @@ from flask import jsonify
 from flask import render_template
 from flask import send_from_directory
 
-from snippet import snippet
-from automation import automation
-from environment import environment
-from interface import interface
+from clover.snippet import snippet
+from clover.automation import automation
+from clover.environment import environment
+from clover.interface import interface
 
 app = Flask(__name__)
 app.config.from_object('config')

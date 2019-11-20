@@ -1,7 +1,7 @@
 
 import unittest
 
-from common.interface.extract import Extract
+from clover.common import Extract
 
 
 class TestExpect(unittest.TestCase):
