@@ -7,7 +7,6 @@ from flask import jsonify
 from flask import render_template
 from flask import send_from_directory
 
-from clover.snippet import snippet
 from clover.automation import automation
 from clover.environment import environment
 from clover.interface import interface
@@ -18,7 +17,6 @@ app.config.from_object('config')
 app.logger.info("load config {0}".format(app.config))
 
 
-app.register_blueprint(snippet)
 app.register_blueprint(automation)
 app.register_blueprint(environment)
 app.register_blueprint(interface)

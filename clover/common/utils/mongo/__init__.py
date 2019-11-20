@@ -24,6 +24,7 @@ class Mongo():
         """
         _database = self.client.get_database(database)
         _collection = _database.get_collection(collection)
+
         if isinstance(documents, list):
             result = _collection.insert_many(documents)
             return [str(id) for id in result.inserted_ids]

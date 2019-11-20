@@ -24,6 +24,16 @@ def variable():
     return render_template("variable.html")
 
 
+@environment.route('/create')
+def create():
+    return render_template("snippet.html")
+
+
+@environment.route('/list')
+def list():
+    return render_template("snippet_list.html")
+
+
 @environment.route("/api/v1/create", methods=['POST'])
 def api_v1_create():
 
@@ -150,28 +160,22 @@ def api_v1_search():
             'message': "invalid parameter type[{0}]".format(data['type']),
             'data': data
         })
-    service = Service()
-    data = service.search(data)
-    return jsonify({
-        'status': 0,
-        'message': 'ok',
-        'data': data
-    })
-    # try:
-    #     service = Service()
-    #     data = service.search(data)
-    #     return jsonify({
-    #         'status': 0,
-    #         'message': 'ok',
-    #         'data': data
-    #     })
-    # except Exception as error:
-    #     return jsonify({
-    #         'status': 500,
-    #         'message': str(error),
-    #         'traceback': traceback.format_stack(),
-    #         'data': data
-    #     })
+
+    try:
+        service = Service()
+        data = service.search(data)
+        return jsonify({
+            'status': 0,
+            'message': 'ok',
+            'data': data
+        })
+    except Exception as error:
+        return jsonify({
+            'status': 500,
+            'message': str(error),
+            'traceback': traceback.format_stack(),
+            'data': data
+        })
 
 
 @environment.route("/api/v1/aggregate", methods=['POST'])
@@ -206,5 +210,73 @@ def api_v1_aggregate():
             'status': 500,
             'message': str(error),
             'traceback': traceback.format_stack(),
+            'data': data
+        })
+
+
+@environment.route('/api/v1/debug', methods=['POST'])
+def api_v1_debug():
+    data = request.get_json()
+
+    if 'mock' not in data or not data['mock']:
+        return jsonify({
+            'status': 400,
+            'message': 'invalid parameter [mock]!',
+            'data': data
+        })
+
+    if 'snippet' not in data or not data['snippet']:
+        return jsonify({
+            'status': 400,
+            'message': 'invalid parameter [snippet]!',
+            'data': data
+        })
+
+    try:
+        service = Service()
+        result = service.debug(data)
+        return jsonify({
+            'status': 0,
+            'message': "ok",
+            'data': result
+        })
+    except Exception as error:
+        return jsonify({
+            'status': 500,
+            'message': str(error),
+            'data': data
+        })
+
+
+@environment.route('/api/v1/save', methods=['POST'])
+def api_v1_save():
+    data = request.get_json()
+
+    if 'mock' not in data or not data['mock']:
+        return jsonify({
+            'status': 400,
+            'message': 'invalid parameter [mock]!',
+            'data': data
+        })
+
+    if 'snippet' not in data or not data['snippet']:
+        return jsonify({
+            'status': 400,
+            'message': 'invalid parameter [snippet]!',
+            'data': data
+        })
+
+    try:
+        service = Service()
+        result = service.save(data)
+        return jsonify({
+            'status': 0,
+            'message': "ok",
+            'data': result
+        })
+    except Exception as error:
+        return jsonify({
+            'status': 500,
+            'message': str(error),
             'data': data
         })
