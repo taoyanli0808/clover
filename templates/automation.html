@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block style %}
+    <link rel="stylesheet" href="//apps.bdimg.com/libs/jqueryui/1.10.4/css/jquery-ui.min.css">
+{#    <link rel="stylesheet" href="//jqueryui/style.css">#}
+{% endblock %}
+
+{% block script %}
+    <script src="//apps.bdimg.com/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="//apps.bdimg.com/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+
+    <script src="/static/js/command.js"></script>
+    <script src="/static/js/parser.js"></script>
+    <script src="/static/js/create.js"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <label>用例名称</label><input id="name" placeholder="请输入用例名称">
+            <button id="debug">调试</button>
+            <button id="save">调试</button>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                <div id="products">
+                    <h1 class="ui-widget-header">命令</h1>
+                    <div id="catalog">
+                        <h2><a href="#">浏览器</a></h2>
+                        <div>
+                            <ul>
+                                <li classify="browser" command="get">打开网址</li>
+                                <li classify="browser" command="forward">前进</li>
+                                <li classify="browser" command="back">后退</li>
+                                <li classify="browser" command="refresh">刷新</li>
+                                <li classify="browser" command="quit">关闭</li>
+                                <li classify="browser" command="switch_to_frame">切换</li>
+                                <li classify="browser" command="switch_to_window">切换</li>
+                                <li classify="browser" command="maximize_window">最大化</li>
+                                <li classify="browser" command="minimize_window">最小化</li>
+                                <li classify="browser" command="resize">设置大小</li>
+                            </ul>
+                        </div>
+                        <h2><a href="#">选择器</a></h2>
+                        <div>
+                            <ul>
+                                <li classify="selector" command="find_element_by_id">ID</li>
+                                <li classify="selector" command="find_element_by_name">Name</li>
+                                <li classify="selector" command="find_element_by_css_selector">Css</li>
+                                <li classify="selector" command="find_element_by_class">Class</li>
+                                <li classify="selector" command="find_element_by_xpath">Xpath</li>
+                                <li classify="selector" command="find_element_by_tag">Tag</li>
+                                <li classify="selector" command="find_element_by_link_text">LinkText</li>
+                                <li classify="selector" command="find_element_by_partial_link_text">PartialLinkText</li>
+                            </ul>
+                        </div>
+                        <h2><a href="#">动作</a></h2>
+                        <div>
+                            <ul>
+                                <li classify="action" command="send_keys">输入文本信息</li>
+                                <li classify="action" command="click">点击鼠标左键</li>
+                                <li classify="action" command="context_click">点击鼠标右键</li>
+                                <li classify="action" command="double_click">双击鼠标左键</li>
+                                <li classify="action" command="drag_and_drop">拖拽元素</li>
+                                <li classify="action" command="click_and_hold">点击并保持</li>
+                                <li classify="action" command="move_to_element">移动到元素位置</li>
+                                <li classify="action" command="move_by_offset">移动一定偏移量</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div id="cart">
+                    <h1 class="ui-widget-header">测试用例</h1>
+                    <div class="ui-widget-content">
+                        <ol>
+                            <li class="placeholder">添加命令到这里</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
