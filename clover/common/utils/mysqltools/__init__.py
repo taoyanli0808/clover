@@ -145,16 +145,3 @@ if __name__ == '__main__':
     sql_name = 'update test set password=%s where case_id=%s'
     paramss = ['abcdefg', 3]
     print(db.update(sql_name, paramss))
-
-
-"""
-CREATE TABLE `test` (
-  `id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  `case_id` int(11) DEFAULT NULL,
-  `username` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `password` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `start_time` datetime DEFAULT NULL,
-  `end_time` datetime DEFAULT NULL COMMENT '结束时间or最后更新时间',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-"""
