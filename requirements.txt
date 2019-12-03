@@ -1,4 +1,6 @@
 flask==1.1.1
+flask-script==2.0.6
+flask-migrate==2.5.2
 flask-sqlalchemy==2.4.1
 selenium==3.141.0
 pymongo==3.9.0
