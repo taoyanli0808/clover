@@ -91,7 +91,7 @@
     <el-dialog
       :visible.sync="editDialogVisible"
       width="30%"
-      title="添加项目"
+      title="编辑项目"
     >
       <el-form ref="form" :model="edit" label-width="80px">
         <el-form-item label="团队名称">
