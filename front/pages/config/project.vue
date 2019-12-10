@@ -116,7 +116,6 @@
 export default {
   data () {
     return {
-      baseUrl: 'http://127.0.0.1:5000',
       data: [],
       total: 0,
       limit: 10,
@@ -139,7 +138,7 @@ export default {
   },
   mounted () {
     this.$axios
-      .get(this.baseUrl + '/environment/api/v1/search', {
+      .get(process.env.BASE_URL + '/environment/api/v1/search', {
         params: { limit: this.limit, type: 'team' }
       })
       .then((res) => {
@@ -151,7 +150,7 @@ export default {
     handleCurrentChange (value) {
       this.page = value - 1
       this.$axios
-        .get(this.baseUrl + '/environment/api/v1/search', {
+        .get(process.env.BASE_URL + '/environment/api/v1/search', {
           params: { limit: this.limit, skip: (value - 1) * this.limit, type: 'team' }
         })
         .then((res) => {
@@ -176,7 +175,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$axios({
-          url: this.baseUrl + '/environment/api/v1/delete',
+          url: process.env.BASE_URL + '/environment/api/v1/delete',
           method: 'post',
           data: JSON.stringify({
             type: 'team',
@@ -201,7 +200,7 @@ export default {
     addProject () {
       this.addDialogVisible = false
       this.$axios({
-        url: this.baseUrl + '/environment/api/v1/create',
+        url: process.env.BASE_URL + '/environment/api/v1/create',
         method: 'post',
         data: JSON.stringify(this.add),
         headers: {
@@ -214,7 +213,7 @@ export default {
     editProject () {
       this.editDialogVisible = false
       this.$axios({
-        url: this.baseUrl + '/environment/api/v1/update',
+        url: process.env.BASE_URL + '/environment/api/v1/update',
         method: 'post',
         data: JSON.stringify(this.edit),
         headers: {
