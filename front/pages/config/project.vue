@@ -143,7 +143,6 @@ export default {
         params: { limit: this.limit, type: 'team' }
       })
       .then((res) => {
-        console.log(res)
         this.total = res.data.total
         this.data = res.data.data
       })
@@ -151,18 +150,16 @@ export default {
   methods: {
     handleCurrentChange (value) {
       this.page = value - 1
-      console.log(value)
       this.$axios
         .get(this.baseUrl + '/environment/api/v1/search', {
           params: { limit: this.limit, skip: (value - 1) * this.limit, type: 'team' }
         })
         .then((res) => {
-          console.log(res)
           this.total = res.data.total
           this.data = res.data.data
         })
     },
-    handleAdd (row) {
+    handleAdd (index, row) {
       this.addDialogVisible = true
     },
     handleEdit (index, row) {
@@ -172,11 +169,34 @@ export default {
       this.edit.owner = row.owner
       this.edit._id = row._id
     },
-    handleDelete (row) {
-      console.log(row)
-    },
-    handleClose (value) {
-      console.log(value)
+    handleDelete (index, row) {
+      this.$confirm('此操作将永久删除该项目, 是否继续?', '删除项目', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$axios({
+          url: this.baseUrl + '/environment/api/v1/delete',
+          method: 'post',
+          data: JSON.stringify({
+            type: 'team',
+            id_list: [row._id]
+          }),
+          headers: {
+            'Content-Type': 'application/json;'
+          }
+        }).then((res) => {
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
     },
     addProject () {
       this.addDialogVisible = false

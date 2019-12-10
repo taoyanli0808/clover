@@ -41,8 +41,10 @@ class Mongo():
         """
         _database = self.client.get_database(database)
         _collection = _database.get_collection(collection)
+        print(database, collection, filter)
         result = _collection.delete_many(filter)
-        print(result)
+        print(result.deleted_count)
+        return result.deleted_count
 
     def update(self, database, collection, filter, document):
         """
