@@ -68,6 +68,27 @@
       background
     >
     </el-pagination>
+    <el-dialog
+      title="添加项目"
+      :visible.sync="addDialogVisible"
+      width="30%"
+      :before-close="handleClose">
+      <el-form ref="form" :model="params" label-width="80px">
+        <el-form-item label="团队名称">
+          <el-input v-model="params.team"></el-input>
+        </el-form-item>
+        <el-form-item label="项目名称">
+          <el-input v-model="params.project"></el-input>
+        </el-form-item>
+        <el-form-item label="负责人">
+          <el-input v-model="params.owner"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="addDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="addDialogVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -79,7 +100,13 @@ export default {
       data: [],
       total: 0,
       limit: 10,
-      page: 0
+      page: 0,
+      addDialogVisible: false,
+      params: {
+        team: '',
+        project: '',
+        owner: ''
+      }
     }
   },
   mounted () {
@@ -109,12 +136,16 @@ export default {
     },
     handleAdd (row) {
       console.log(row)
+      this.addDialogVisible = true
     },
     handleEdit (row) {
       console.log(row)
     },
     handleDelete (row) {
       console.log(row)
+    },
+    handleClose (value) {
+      console.log(value)
     }
   }
 }
