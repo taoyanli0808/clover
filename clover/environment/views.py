@@ -55,6 +55,13 @@ def api_v1_create():
             'data': data
         })
 
+    if 'owner' not in data or not data['owner']:
+        return jsonify({
+            'status': 400,
+            'message': "invalid parameter owner[{0}]".format(data['owner']),
+            'data': data
+        })
+
     try:
         service = Service()
         id = service.create(data)
@@ -158,11 +165,12 @@ def api_v1_search():
 
     try:
         service = Service()
-        data = service.search(data)
+        total, result = service.search(data)
         return jsonify({
             'status': 0,
             'message': 'ok',
-            'data': data
+            'data': result,
+            'total': total,
         })
     except Exception as error:
         return jsonify({

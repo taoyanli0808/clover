@@ -17,6 +17,17 @@
         先这样
       </el-menu-item>
     </el-submenu>
+    <el-submenu index="3">
+      <template slot="title">
+        配置管理
+      </template>
+      <el-menu-item index="2-1">
+        <a href="/config/project">创建项目</a>
+      </el-menu-item>
+      <el-menu-item index="2-2">
+        <a href="/config/variable">创建变量</a>
+      </el-menu-item>
+    </el-submenu>
     <el-menu-item index="4">
       <a href="https://github.com/taoyanli0808/clover" target="_blank">
         加入我们

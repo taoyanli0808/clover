@@ -1,4 +1,5 @@
 
+DEBUG = True
 # server config
 SERVER = {
     'HOST': "0.0.0.0",

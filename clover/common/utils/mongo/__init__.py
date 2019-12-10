@@ -64,7 +64,7 @@ class Mongo():
         :return:
         """
         try:
-            skip = int(filter.pop('page'))
+            skip = int(filter.pop('skip'))
         except TypeError:
             skip = 0
         except KeyError:
@@ -80,11 +80,12 @@ class Mongo():
         _database = self.client.get_database(database)
         _collection = _database.get_collection(collection)
         results = _collection.find(filter, skip=skip, limit=limit)
+        count = _collection.count_documents({})
         results = list(results)
 
         for result in results:
             result['_id'] = str(result['_id'])
-        return results
+        return count, results
 
     def aggregate(self, database, collection, pipeline):
         _database = self.client.get_database(database)
