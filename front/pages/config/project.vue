@@ -63,30 +63,50 @@
     </el-table>
     <el-pagination
       @current-change="handleCurrentChange"
-      layout="total, prev, pager, next, jumper"
       :total="total"
       background
-    >
-    </el-pagination>
+      layout="total, prev, pager, next, jumper"
+    />
     <el-dialog
-      title="添加项目"
       :visible.sync="addDialogVisible"
       width="30%"
-      :before-close="handleClose">
-      <el-form ref="form" :model="params" label-width="80px">
+      title="添加项目"
+    >
+      <el-form ref="form" :model="add" label-width="80px">
         <el-form-item label="团队名称">
-          <el-input v-model="params.team"></el-input>
+          <el-input v-model="add.team" />
         </el-form-item>
         <el-form-item label="项目名称">
-          <el-input v-model="params.project"></el-input>
+          <el-input v-model="add.project" />
         </el-form-item>
         <el-form-item label="负责人">
-          <el-input v-model="params.owner"></el-input>
+          <el-input v-model="add.owner" />
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="addDialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="addDialogVisible = false">确 定</el-button>
+        <el-button @click="addProject" type="primary">确 定</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog
+      :visible.sync="editDialogVisible"
+      width="30%"
+      title="添加项目"
+    >
+      <el-form ref="form" :model="edit" label-width="80px">
+        <el-form-item label="团队名称">
+          <el-input v-model="edit.team" />
+        </el-form-item>
+        <el-form-item label="项目名称">
+          <el-input v-model="edit.project" />
+        </el-form-item>
+        <el-form-item label="负责人">
+          <el-input v-model="edit.owner" />
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="editDialogVisible = false">取 消</el-button>
+        <el-button @click="editProject" type="primary">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -102,7 +122,15 @@ export default {
       limit: 10,
       page: 0,
       addDialogVisible: false,
-      params: {
+      add: {
+        type: 'team',
+        team: '',
+        project: '',
+        owner: ''
+      },
+      editDialogVisible: false,
+      edit: {
+        type: 'team',
         team: '',
         project: '',
         owner: ''
@@ -135,17 +163,46 @@ export default {
         })
     },
     handleAdd (row) {
-      console.log(row)
       this.addDialogVisible = true
     },
-    handleEdit (row) {
-      console.log(row)
+    handleEdit (index, row) {
+      this.editDialogVisible = true
+      this.edit.team = row.team
+      this.edit.project = row.project
+      this.edit.owner = row.owner
+      this.edit._id = row._id
     },
     handleDelete (row) {
       console.log(row)
     },
     handleClose (value) {
       console.log(value)
+    },
+    addProject () {
+      this.addDialogVisible = false
+      this.$axios({
+        url: this.baseUrl + '/environment/api/v1/create',
+        method: 'post',
+        data: JSON.stringify(this.add),
+        headers: {
+          'Content-Type': 'application/json;'
+        }
+      }).then((res) => {
+        console.log(res)
+      })
+    },
+    editProject () {
+      this.editDialogVisible = false
+      this.$axios({
+        url: this.baseUrl + '/environment/api/v1/update',
+        method: 'post',
+        data: JSON.stringify(this.edit),
+        headers: {
+          'Content-Type': 'application/json;'
+        }
+      }).then((res) => {
+        console.log(res)
+      })
     }
   }
 }

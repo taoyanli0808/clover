@@ -19,7 +19,7 @@ class Service():
         """
         data.setdefault('_id', get_friendly_id())
         data.setdefault('created', datetime.datetime.now())
-        collection = data.get("type", None)
+        collection = data.pop("type", None)
         return self.db.insert("environment", collection, data)
 
     def detele(self, data):
@@ -40,7 +40,7 @@ class Service():
         :return:
         """
         filter = {'_id': data.pop('_id')}
-        collection = data.get("type", None)
+        collection = data.pop("type", None)
         return self.db.update("environment", collection, filter, data)
 
     def search(self, data):

@@ -54,7 +54,9 @@ class Mongo():
         """
         _database = self.client.get_database(database)
         _collection = _database.get_collection(collection)
-        _collection.update_one(filter, {'$set': document})
+        print(filter, document)
+        result = _collection.update_one(filter, {'$set': document})
+        return result.modified_count
 
     def search(self, database, collection, filter):
         """
