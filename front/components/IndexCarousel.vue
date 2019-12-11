@@ -1,15 +1,39 @@
 <template>
   <div class="block">
-    <span class="demonstration">默认 Hover 指示器触发</span>
-    <el-carousel height="150px">
-      <el-carousel-item v-for="item in 4" :key="item">
-        <h3 class="small">
-          {{ item }}
-        </h3>
+    <el-carousel height="760px">
+      <el-carousel-item v-for="item in images" :key="item.alt">
+        <el-image
+          style="width: 100%; height: 100%"
+          :src="item.img"
+          :fit="fit"
+        />
       </el-carousel-item>
     </el-carousel>
   </div>
 </template>
+
+<script>
+export default {
+  data () {
+    return {
+      images: [
+        {
+          img: require('../assets/img/carousel-01.png'),
+          alt: 'carousel-01.png'
+        },
+        {
+          img: require('../assets/img/carousel-02.png'),
+          alt: 'carousel-02.png'
+        },
+        {
+          img: require('../assets/img/carousel-03.jpeg'),
+          alt: 'carousel-03.png'
+        }
+      ]
+    }
+  }
+}
+</script>
 
 <style>
   .el-carousel__item h3 {
