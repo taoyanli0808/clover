@@ -9,11 +9,6 @@ from clover.environment import environment
 from clover.environment.service import Service
 
 
-@environment.route("/variable")
-def variable():
-    return render_template("variable.html")
-
-
 @environment.route('/create')
 def create():
     return render_template("snippet.html")
