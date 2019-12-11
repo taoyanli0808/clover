@@ -9,11 +9,6 @@ from clover.environment import environment
 from clover.environment.service import Service
 
 
-@environment.route("/team")
-def team():
-    return render_template("team.html")
-
-
 @environment.route("/variable")
 def variable():
     return render_template("variable.html")
