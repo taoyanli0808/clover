@@ -1,5 +1,49 @@
 <template>
   <div class="block">
+    <el-row :gutter="20">
+      <el-col :span="3">
+        <el-select
+          @change="changeTeam"
+          v-model="selectTeam"
+          placeholder="请选择团队"
+          clearable
+        >
+          <el-option
+            v-for="item in team"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-col>
+      <el-col :span="3">
+        <el-select
+          @change="changeOwner"
+          v-model="selectOwner"
+          placeholder="请选择负责人"
+          clearable
+        >
+          <el-option
+            v-for="item in owner"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-col>
+      <el-col
+        :span="3"
+        :offset="15"
+      >
+        <el-button
+          @click="addProject"
+          icon="el-icon-plus"
+          type="primary"
+        >
+          创建项目
+        </el-button>
+      </el-col>
+    </el-row>
     <el-table
       :data="data"
       style="width: 100%"
@@ -46,6 +90,7 @@
           <el-button
             @click="handleAdd(scope.$index, scope.row)"
             size="mini"
+            icon="el-icon-plus"
             type="primary"
           >
             添加
@@ -53,6 +98,7 @@
           <el-button
             @click="handleEdit(scope.$index, scope.row)"
             size="mini"
+            icon="el-icon-edit"
             type="warning"
           >
             编辑
@@ -60,6 +106,7 @@
           <el-button
             @click="handleDelete(scope.$index, scope.row)"
             size="mini"
+            icon="el-icon-delete"
             type="danger"
           >
             删除
@@ -139,30 +186,22 @@ export default {
         team: '',
         project: '',
         owner: ''
-      }
+      },
+      team: [],
+      selectTeam: '',
+      owner: [],
+      selectOwner: ''
     }
   },
   mounted () {
-    this.$axios
-      .get(process.env.BASE_URL + '/environment/api/v1/search', {
-        params: { limit: this.limit, type: 'team' }
-      })
-      .then((res) => {
-        this.total = res.data.total
-        this.data = res.data.data
-      })
+    this.refresh()
+    this.getTeam()
+    this.getOwner()
   },
   methods: {
     handleCurrentChange (value) {
       this.page = value - 1
-      this.$axios
-        .get(process.env.BASE_URL + '/environment/api/v1/search', {
-          params: { limit: this.limit, skip: this.page * this.limit, type: 'team' }
-        })
-        .then((res) => {
-          this.total = res.data.total
-          this.data = res.data.data
-        })
+      this.refresh()
     },
     handleAdd (index, row) {
       this.addDialogVisible = true
@@ -231,15 +270,90 @@ export default {
       })
     },
     refresh () {
+      const params = {
+        limit: this.limit,
+        skip: this.page * this.limit,
+        type: 'team'
+      }
+      if (this.selectTeam !== '') {
+        params.team = this.selectTeam
+      }
+      if (this.selectOwner !== '') {
+        params.owner = this.selectOwner
+      }
       this.$axios
         .get(process.env.BASE_URL + '/environment/api/v1/search', {
-          params: { limit: this.limit, skip: this.page * this.limit, type: 'team' }
+          params
         })
         .then((res) => {
           this.total = res.data.total
           this.data = res.data.data
         })
+    },
+    getTeam () {
+      this.$axios({
+        url: process.env.BASE_URL + '/environment/api/v1/aggregate',
+        method: 'post',
+        data: JSON.stringify({
+          type: 'team',
+          key: 'team'
+        }),
+        headers: {
+          'Content-Type': 'application/json;'
+        }
+      }).then((res) => {
+        for (const index in res.data.data) {
+          this.team.push({
+            label: res.data.data[index]._id,
+            value: res.data.data[index]._id
+          })
+        }
+      })
+    },
+    changeTeam () {
+      this.refresh()
+    },
+    getOwner () {
+      this.$axios({
+        url: process.env.BASE_URL + '/environment/api/v1/aggregate',
+        method: 'post',
+        data: JSON.stringify({
+          type: 'team',
+          key: 'owner'
+        }),
+        headers: {
+          'Content-Type': 'application/json;'
+        }
+      }).then((res) => {
+        for (const index in res.data.data) {
+          this.owner.push({
+            label: res.data.data[index]._id,
+            value: res.data.data[index]._id
+          })
+        }
+      })
+    },
+    changeOwner () {
+      this.refresh()
     }
   }
 }
 </script>
+
+<style>
+.el-row {
+  margin-bottom: 20px;
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+.el-col {
+  border-radius: 4px;
+}
+.el-pagination {
+  margin-top: 20px;
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+</style>

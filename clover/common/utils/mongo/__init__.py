@@ -84,7 +84,7 @@ class Mongo():
         _database = self.client.get_database(database)
         _collection = _database.get_collection(collection)
         results = _collection.find(filter, skip=skip, limit=limit)
-        count = _collection.count_documents({})
+        count = _collection.count_documents(filter)
         results = list(results)
 
         for result in results:
