@@ -10,31 +10,37 @@
         prop="_id"
         label="ID"
         width="220"
+        align="center"
       />
       <el-table-column
         prop="team"
         label="团队"
         width="200"
+        align="center"
       />
       <el-table-column
         prop="project"
         label="项目"
         width="200"
+        align="center"
       />
       <el-table-column
         prop="owner"
         label="负责人"
         width="200"
+        align="center"
       />
       <el-table-column
         prop="created"
         label="创建日期"
         width="200"
+        align="center"
       />
       <el-table-column
         fixed="right"
         label="操作"
         width="300"
+        align="center"
       >
         <template slot-scope="scope">
           <el-button
@@ -151,7 +157,7 @@ export default {
       this.page = value - 1
       this.$axios
         .get(process.env.BASE_URL + '/environment/api/v1/search', {
-          params: { limit: this.limit, skip: (value - 1) * this.limit, type: 'team' }
+          params: { limit: this.limit, skip: this.page * this.limit, type: 'team' }
         })
         .then((res) => {
           this.total = res.data.total
@@ -185,6 +191,7 @@ export default {
             'Content-Type': 'application/json;'
           }
         }).then((res) => {
+          this.refresh()
           this.$message({
             type: 'success',
             message: '删除成功!'
@@ -207,7 +214,7 @@ export default {
           'Content-Type': 'application/json;'
         }
       }).then((res) => {
-        console.log(res)
+        this.refresh()
       })
     },
     editProject () {
@@ -220,8 +227,18 @@ export default {
           'Content-Type': 'application/json;'
         }
       }).then((res) => {
-        console.log(res)
+        this.refresh()
       })
+    },
+    refresh () {
+      this.$axios
+        .get(process.env.BASE_URL + '/environment/api/v1/search', {
+          params: { limit: this.limit, skip: this.page * this.limit, type: 'team' }
+        })
+        .then((res) => {
+          this.total = res.data.total
+          this.data = res.data.data
+        })
     }
   }
 }
