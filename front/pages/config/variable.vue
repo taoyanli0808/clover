@@ -36,11 +36,11 @@
         :offset="15"
       >
         <el-button
-          @click="addVariable"
+          @click="handleAdd"
           icon="el-icon-plus"
           type="primary"
         >
-          创建项目
+          创建变量
         </el-button>
       </el-col>
     </el-row>

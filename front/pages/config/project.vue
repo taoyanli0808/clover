@@ -36,7 +36,7 @@
         :offset="15"
       >
         <el-button
-          @click="addProject"
+          @click="handleAdd"
           icon="el-icon-plus"
           type="primary"
         >
