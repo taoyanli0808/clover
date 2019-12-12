@@ -1,19 +1,22 @@
-FROM node:10
-
-LABEL maintainer="taoyanli0808@126.com"
+FROM ubuntu
 
 COPY . /data
 
 WORKDIR /data/front
 
-RUN npm install && npm run generate
+ADD ./front/package.json /data/front
 
-FROM python:3.7.5
+# 安装依赖
+RUN apt-get update && \
+    apt-get -y install nodejs  && \
+    apt-get -y install npm  && \
+    npm install && \
+    npm run generate && \
+    apt-get -y install nginx  && \
+    cp -f /data/nginx.conf /etc/nginx/nginx.conf && \
+    apt-get -y install python3.7 && \
+    pip3 --no-cache-dir install -r /data/requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 WORKDIR /data
 
-# 安装依赖
-RUN apt-get update && apt-get -y install nginx && cp -f /data/nginx.conf /etc/nginx/nginx.conf
-RUN pip3 --no-cache-dir install -r /data/requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-
-CMD python clover.py runserver -h 0.0.0.0 && nginx
+CMD python3 clover.py runserver -h 0.0.0.0 && nginx
