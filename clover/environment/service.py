@@ -1,6 +1,7 @@
 
 import re
 import json
+import datetime
 
 from clover.common.utils.mongo import Mongo
 from clover.common.utils import get_friendly_id
@@ -17,7 +18,8 @@ class Service():
         :return:
         """
         data.setdefault('_id', get_friendly_id())
-        collection = data.get("type", None)
+        data.setdefault('created', datetime.datetime.now())
+        collection = data.pop("type", None)
         return self.db.insert("environment", collection, data)
 
     def detele(self, data):
@@ -38,7 +40,7 @@ class Service():
         :return:
         """
         filter = {'_id': data.pop('_id')}
-        collection = data.get("type", None)
+        collection = data.pop("type", None)
         return self.db.update("environment", collection, filter, data)
 
     def search(self, data):
@@ -47,8 +49,10 @@ class Service():
         :return:
         """
         collection = data.pop("type", None)
-        result = self.db.search("environment", collection, data)
-        return result
+        total, result = self.db.search("environment", collection, data)
+        for r in result:
+            r['created'] = r['created'].strftime("%Y-%m-%d %H:%M:%S")
+        return total, result
 
     def aggregate(self, data):
         """
