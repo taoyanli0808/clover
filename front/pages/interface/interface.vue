@@ -118,7 +118,7 @@ export default {
       this.form.team = value
       this.project = []
       this.$axios
-        .get(process.env.BASE_URL + '/api/v1/environment/search', {
+        .get('/api/v1/environment/search', {
           params: {
             type: 'team',
             team: value
@@ -142,7 +142,7 @@ export default {
     },
     getTeam () {
       this.$axios({
-        url: process.env.BASE_URL + '/api/v1/environment/aggregate',
+        url: '/api/v1/environment/aggregate',
         method: 'post',
         data: JSON.stringify({
           type: 'team',

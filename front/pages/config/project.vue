@@ -220,7 +220,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$axios({
-          url: process.env.BASE_URL + '/api/v1/environment/delete',
+          url: '/api/v1/environment/delete',
           method: 'post',
           data: JSON.stringify({
             type: 'team',
@@ -246,7 +246,7 @@ export default {
     addProject () {
       this.addDialogVisible = false
       this.$axios({
-        url: process.env.BASE_URL + '/api/v1/environment/create',
+        url: '/api/v1/environment/create',
         method: 'post',
         data: JSON.stringify(this.add),
         headers: {
@@ -259,7 +259,7 @@ export default {
     editProject () {
       this.editDialogVisible = false
       this.$axios({
-        url: process.env.BASE_URL + '/api/v1/environment/update',
+        url: '/api/v1/environment/update',
         method: 'post',
         data: JSON.stringify(this.edit),
         headers: {
@@ -282,7 +282,7 @@ export default {
         params.owner = this.selectOwner
       }
       this.$axios
-        .get(process.env.BASE_URL + '/api/v1/environment/search', {
+        .get('/api/v1/environment/search', {
           params
         })
         .then((res) => {
@@ -292,7 +292,7 @@ export default {
     },
     getTeam () {
       this.$axios({
-        url: process.env.BASE_URL + '/api/v1/environment/aggregate',
+        url: '/api/v1/environment/aggregate',
         method: 'post',
         data: JSON.stringify({
           type: 'team',
@@ -315,7 +315,7 @@ export default {
     },
     getOwner () {
       this.$axios({
-        url: process.env.BASE_URL + '/api/v1/environment/aggregate',
+        url: '/api/v1/environment/aggregate',
         method: 'post',
         data: JSON.stringify({
           type: 'team',
