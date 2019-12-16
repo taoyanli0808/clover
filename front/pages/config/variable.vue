@@ -296,7 +296,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$axios({
-          url: process.env.BASE_URL + '/environment/api/v1/delete',
+          url: process.env.BASE_URL + '/api/v1/environment/delete',
           method: 'post',
           data: JSON.stringify({
             type: 'variable',
@@ -322,7 +322,7 @@ export default {
     addVariable () {
       this.addDialogVisible = false
       this.$axios({
-        url: process.env.BASE_URL + '/environment/api/v1/create',
+        url: process.env.BASE_URL + '/api/v1/environment/create',
         method: 'post',
         data: JSON.stringify(this.add),
         headers: {
@@ -342,7 +342,7 @@ export default {
     editVariable () {
       this.editDialogVisible = false
       this.$axios({
-        url: process.env.BASE_URL + '/environment/api/v1/update',
+        url: process.env.BASE_URL + '/api/v1/environment/update',
         method: 'post',
         data: JSON.stringify(this.edit),
         headers: {
@@ -365,7 +365,7 @@ export default {
         params.owner = this.selectOwner
       }
       this.$axios
-        .get(process.env.BASE_URL + '/environment/api/v1/search', {
+        .get(process.env.BASE_URL + '/api/v1/environment/search', {
           params
         })
         .then((res) => {
@@ -375,7 +375,7 @@ export default {
     },
     getTeam () {
       this.$axios({
-        url: process.env.BASE_URL + '/environment/api/v1/aggregate',
+        url: process.env.BASE_URL + '/api/v1/environment/aggregate',
         method: 'post',
         data: JSON.stringify({
           type: 'team',
@@ -398,7 +398,7 @@ export default {
     },
     getOwner () {
       this.$axios({
-        url: process.env.BASE_URL + '/environment/api/v1/aggregate',
+        url: process.env.BASE_URL + '/api/v1/environment/aggregate',
         method: 'post',
         data: JSON.stringify({
           type: 'variable',
@@ -423,7 +423,7 @@ export default {
       this.add.team = value
       this.project = []
       this.$axios
-        .get(process.env.BASE_URL + '/environment/api/v1/search', {
+        .get(process.env.BASE_URL + '/api/v1/environment/search', {
           params: {
             type: 'team',
             team: value
@@ -452,7 +452,7 @@ export default {
       this.edit.team = value
       this.project = []
       this.$axios
-        .get(process.env.BASE_URL + '/environment/api/v1/search', {
+        .get(process.env.BASE_URL + '/api/v1/environment/search', {
           params: {
             type: 'team',
             team: value

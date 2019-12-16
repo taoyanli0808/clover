@@ -2,6 +2,6 @@
 
 from flask import Blueprint
 
-interface = Blueprint('interface', __name__, url_prefix='/interface')
+interface = Blueprint('interface', __name__)
 
 from clover.interface import views
