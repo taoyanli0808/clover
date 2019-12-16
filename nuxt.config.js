@@ -1,6 +1,11 @@
 
 export default {
-  mode: 'universal',
+  rootDir: 'front/',
+  env: {
+    BASE_URL: process.env.BASE_URL,
+    NODE_ENV: process.env.NODE_ENV
+  },
+  mode: 'spa',
   /*
   ** Headers of the page
   */
