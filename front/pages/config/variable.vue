@@ -430,7 +430,6 @@ export default {
           }
         })
         .then((res) => {
-          console.log(res)
           for (const index in res.data.data) {
             this.project.push({
               project: res.data.data[index].project,
@@ -443,7 +442,6 @@ export default {
       this.add.project = value
       for (const index in this.project) {
         if (this.project[index].project === value) {
-          console.log(this.project[index].owner)
           this.add.owner = this.project[index].owner
         }
       }
@@ -459,7 +457,6 @@ export default {
           }
         })
         .then((res) => {
-          console.log(res)
           for (const index in res.data.data) {
             this.project.push({
               project: res.data.data[index].project,
@@ -472,7 +469,6 @@ export default {
       this.edit.project = value
       for (const index in this.project) {
         if (this.project[index].project === value) {
-          console.log(this.project[index].owner)
           this.edit.owner = this.project[index].owner
         }
       }
