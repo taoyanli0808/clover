@@ -2,5 +2,5 @@
 
 .idea/
 __pycache__/
-Pipfile
-Pipfile.lock
+.nuxt/
+node_modules/

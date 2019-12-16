@@ -1,4 +1,5 @@
 
+DEBUG = True
 # server config
 SERVER = {
     'HOST': "0.0.0.0",
@@ -14,18 +15,5 @@ DATABASE = {
     'PASSWORD': "",
 }
 
-# MySQL config
-DB_CONFIG = {
-    'HOST': "127.0.0.1",
-    'PORT': 3306,
-    'DBNAME': 'clover',
-    'USERNAME': "root",
-    'PASSWORD': "admin123456",
-    'CHARSET': 'utf8',
-}
-
-# kafka config
-KAFKA = {
-    'SERVER': ['localhost:9092'],
-    'TOPIC': 'clover',
-}
+SQLALCHEMY_DATABASE_URI = "mysql://{user}:{pswd}@{host}:{port}/clover?charset=utf8".format(**MYSQL_CONFIG)
+SQLALCHEMY_TRACK_MODIFICATIONS = True

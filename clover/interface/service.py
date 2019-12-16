@@ -129,6 +129,9 @@ class Service(object):
         """
         data['_id'] = get_friendly_id()
         self.db.insert("interface", "case", data)
+        print('111111111111111111111111111111111111')
+        print(data)
+        print('111111111111111111111111111111111111')
         return data['_id']
 
     def trigger(self, data):

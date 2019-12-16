@@ -41,8 +41,10 @@ class Mongo():
         """
         _database = self.client.get_database(database)
         _collection = _database.get_collection(collection)
+        print(database, collection, filter)
         result = _collection.delete_many(filter)
-        print(result)
+        print(result.deleted_count)
+        return result.deleted_count
 
     def update(self, database, collection, filter, document):
         """
@@ -54,7 +56,9 @@ class Mongo():
         """
         _database = self.client.get_database(database)
         _collection = _database.get_collection(collection)
-        _collection.update_one(filter, {'$set': document})
+        print(filter, document)
+        result = _collection.update_one(filter, {'$set': document})
+        return result.modified_count
 
     def search(self, database, collection, filter):
         """
@@ -64,7 +68,7 @@ class Mongo():
         :return:
         """
         try:
-            skip = int(filter.pop('page'))
+            skip = int(filter.pop('skip'))
         except TypeError:
             skip = 0
         except KeyError:
@@ -80,11 +84,12 @@ class Mongo():
         _database = self.client.get_database(database)
         _collection = _database.get_collection(collection)
         results = _collection.find(filter, skip=skip, limit=limit)
+        count = _collection.count_documents(filter)
         results = list(results)
 
         for result in results:
             result['_id'] = str(result['_id'])
-        return results
+        return count, results
 
     def aggregate(self, database, collection, pipeline):
         _database = self.client.get_database(database)
