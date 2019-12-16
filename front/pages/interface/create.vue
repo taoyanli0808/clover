@@ -81,6 +81,7 @@
           <el-table
             :data="headerTable"
             @row-click="currentHeaderTableChange"
+            ref="headerTable"
             class="tb-edit"
             style="width: 100%"
             highlight-current-row
@@ -153,7 +154,7 @@
             <el-table-column
               label="KEY"
               width="180"
-              align="center"
+              header-align="center"
             >
               <template scope="scope">
                 <el-input
@@ -169,7 +170,7 @@
             <el-table-column
               label="VALUE"
               width="180"
-              align="center"
+              header-align="center"
             >
               <template scope="scope">
                 <el-input
@@ -311,6 +312,10 @@ export default {
         key: '',
         value: ''
       })
+      const last = this.$refs.headerTable.data.length
+      const currentRow = this.$refs.headerTable.data[last]
+      this.$refs.headerTable.setCurrentRow(currentRow)
+      console.log(last)
     },
     deleteHeaderTableRow (index, row) {
       console.log(index, row)
