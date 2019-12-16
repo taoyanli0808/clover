@@ -2,9 +2,8 @@
 from flask_cors import CORS
 from flask_script import Manager
 
-from clover import create_app
+from clover import app
 
-app = create_app()
 
 CORS(app, supports_credentials=True)
 

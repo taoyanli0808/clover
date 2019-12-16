@@ -1,6 +1,6 @@
 
 from flask import Blueprint
 
-environment = Blueprint('environment', __name__, url_prefix='/environment')
+environment = Blueprint('environment', __name__)
 
 from clover.environment import views

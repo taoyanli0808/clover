@@ -296,7 +296,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$axios({
-          url: process.env.BASE_URL + '/environment/api/v1/delete',
+          url: '/api/v1/environment/delete',
           method: 'post',
           data: JSON.stringify({
             type: 'variable',
@@ -322,7 +322,7 @@ export default {
     addVariable () {
       this.addDialogVisible = false
       this.$axios({
-        url: process.env.BASE_URL + '/environment/api/v1/create',
+        url: '/api/v1/environment/create',
         method: 'post',
         data: JSON.stringify(this.add),
         headers: {
@@ -342,7 +342,7 @@ export default {
     editVariable () {
       this.editDialogVisible = false
       this.$axios({
-        url: process.env.BASE_URL + '/environment/api/v1/update',
+        url: '/api/v1/environment/update',
         method: 'post',
         data: JSON.stringify(this.edit),
         headers: {
@@ -365,7 +365,7 @@ export default {
         params.owner = this.selectOwner
       }
       this.$axios
-        .get(process.env.BASE_URL + '/environment/api/v1/search', {
+        .get('/api/v1/environment/search', {
           params
         })
         .then((res) => {
@@ -375,7 +375,7 @@ export default {
     },
     getTeam () {
       this.$axios({
-        url: process.env.BASE_URL + '/environment/api/v1/aggregate',
+        url: '/api/v1/environment/aggregate',
         method: 'post',
         data: JSON.stringify({
           type: 'team',
@@ -398,7 +398,7 @@ export default {
     },
     getOwner () {
       this.$axios({
-        url: process.env.BASE_URL + '/environment/api/v1/aggregate',
+        url: '/api/v1/environment/aggregate',
         method: 'post',
         data: JSON.stringify({
           type: 'variable',
@@ -423,14 +423,13 @@ export default {
       this.add.team = value
       this.project = []
       this.$axios
-        .get(process.env.BASE_URL + '/environment/api/v1/search', {
+        .get('/api/v1/environment/search', {
           params: {
             type: 'team',
             team: value
           }
         })
         .then((res) => {
-          console.log(res)
           for (const index in res.data.data) {
             this.project.push({
               project: res.data.data[index].project,
@@ -443,7 +442,6 @@ export default {
       this.add.project = value
       for (const index in this.project) {
         if (this.project[index].project === value) {
-          console.log(this.project[index].owner)
           this.add.owner = this.project[index].owner
         }
       }
@@ -452,14 +450,13 @@ export default {
       this.edit.team = value
       this.project = []
       this.$axios
-        .get(process.env.BASE_URL + '/environment/api/v1/search', {
+        .get('/api/v1/environment/search', {
           params: {
             type: 'team',
             team: value
           }
         })
         .then((res) => {
-          console.log(res)
           for (const index in res.data.data) {
             this.project.push({
               project: res.data.data[index].project,
@@ -472,7 +469,6 @@ export default {
       this.edit.project = value
       for (const index in this.project) {
         if (this.project[index].project === value) {
-          console.log(this.project[index].owner)
           this.edit.owner = this.project[index].owner
         }
       }
