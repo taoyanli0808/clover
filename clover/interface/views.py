@@ -9,16 +9,22 @@ from clover.interface.service import Service
 class InterfaceView(CloverView):
 
     def debug(self):
-        # get请求使用request.values.to_dict接收
-        # post、put、delete使用request.get_json接收
         data = request.get_json()
         print(data)
+
+        name = data['request'].get('name', None)
+        if not name:
+            return jsonify({
+                'status': 400,
+                'message': '接口测试用例需要用例名称！',
+                'data': data,
+            })
 
         method = data['request'].get('method', None)
         if not method:
             return jsonify({
                 'status': 400,
-                'message': 'invalid parameter [method]',
+                'message': '接口测试用例需要正确的请求方法，可选值为[GET|POST|PUT|DELETE]！',
                 'data': data,
             })
 
@@ -26,7 +32,7 @@ class InterfaceView(CloverView):
         if not host:
             return jsonify({
                 'status': 400,
-                'message': 'invalid parameter [host]',
+                'message': '接口测试用例需要指定域名，例如[https://github.com]！',
                 'data': data,
             })
 
@@ -34,24 +40,30 @@ class InterfaceView(CloverView):
         if not path:
             return jsonify({
                 'status': 400,
-                'message': 'invalid parameter [path]',
+                'message': '接口测试用例需要指定路径，例如[/taoyanli0808/clover]！',
                 'data': data,
             })
-
-        try:
-            service = Service()
-            data = service.execute(data)
-            return jsonify({
-                'status': 0,
-                'message': 'ok',
-                'data': data,
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': str(error),
-                'data': data
-            })
+        service = Service()
+        data = service.execute(data)
+        return jsonify({
+            'status': 0,
+            'message': 'ok',
+            'data': data,
+        })
+        # try:
+        #     service = Service()
+        #     data = service.execute(data)
+        #     return jsonify({
+        #         'status': 0,
+        #         'message': 'ok',
+        #         'data': data,
+        #     })
+        # except Exception as error:
+        #     return jsonify({
+        #         'status': 500,
+        #         'message': '运行时错误，请联系管理员！',
+        #         'data': {}
+        #     })
 
     def save(self):
         # get请求使用request.values.to_dict接收
