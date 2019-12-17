@@ -7,8 +7,8 @@ debug = True
 loglevel = 'debug'
 bind = "0.0.0.0:5000"
 pidfile = "logs/gunicorn.pid"
-accesslog = "logs/access.log"
-errorlog = "logs/debug.log"
+accesslog = "logs/flask_access.log"
+errorlog = "logs/flask_error.log"
 timeout = 300
 daemon = True
 
