@@ -36,12 +36,12 @@ class Service(object):
         data['request']['path'] = derivation(data['request'].get('path'), results)
 
         if 'header' in data['request']:
-            for key, value in data['request']['header'].items():
-                data['request']['header'][key] = derivation(data['request']['header'][key], results)
+            for header in data['request']['header']:
+                header['key'] = derivation(header['key'], results)
 
         if 'param' in data['request']:
-            for key, value in data['request']['param'].items():
-                data['request']['param'][key] = derivation(data['request']['param'][key], results)
+            for param in data['request']['param']:
+                param['key'] = derivation(param['key'], results)
 
         return data
 
@@ -57,6 +57,14 @@ class Service(object):
         header = data['request'].get('header', {})
         payload = data['request'].get('param', {})
         url = host + path
+
+        # 将[{'a': 1}, {'b': 2}]转化为{'a': 1, 'b': 2}
+        if header:
+            header = {key: val for key, val in header}
+
+        # 将[{'a': 1}, {'b': 2}]转化为{'a': 1, 'b': 2}
+        if payload:
+            payload = {key: val for key, val in payload}
 
         if method == 'get':
             response = requests.request(method, url, params=payload, headers=header)
