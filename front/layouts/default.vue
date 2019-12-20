@@ -8,7 +8,7 @@
         <nuxt />
       </el-main>
       <el-footer>
-        脚丫
+        <Footer />
       </el-footer>
     </el-container>
   </div>
@@ -16,10 +16,12 @@
 
 <script>
 import Header from './Header.vue'
+import Footer from './Footer.vue'
 
 export default {
   components: {
-    Header
+    Header,
+    Footer
   }
 }
 </script>
