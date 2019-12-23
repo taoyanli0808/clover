@@ -1,90 +1,98 @@
 <template>
-  <el-table
-    :data="data"
-    style="width: 100%"
-  >
-    <el-table-column
-      type="selection"
-      width="55"
-    />
-    <el-table-column
-      prop="environment.project"
-      label="项目"
-      width="180"
-    />
-    <el-table-column
-      prop="environment.team"
-      label="团队"
-      width="180"
-    />
-    <el-table-column
-      prop="request.name"
-      label="用例"
-      width="180"
-    />
-    <el-table-column
-      prop="request.method"
-      label="方法"
-      width="80"
-    />
-    <el-table-column
-      prop="request.name"
-      label="用例"
-      width="180"
-    />
-    <el-table-column
-      prop="request.host"
-      label="域名"
-      width="180"
-    />
-    <el-table-column
-      prop="request.path"
-      label="路径"
-      width="180"
-    />
-    <el-table-column
-      prop="created"
-      label="创建时间"
-      width="180"
-    />
-    <el-table-column
-      fixed="right"
-      label="操作"
-      width="300"
-      align="center"
+  <div>
+    <TeamSelector />
+    <el-table
+      :data="data"
+      style="width: 100%"
     >
-      <template slot-scope="scope">
-        <el-button
-          @click="handleAdd(scope.$index, scope.row)"
-          size="mini"
-          icon="el-icon-plus"
-          type="primary"
-        >
-          添加
-        </el-button>
-        <el-button
-          @click="handleEdit(scope.$index, scope.row)"
-          size="mini"
-          icon="el-icon-edit"
-          type="warning"
-        >
-          编辑
-        </el-button>
-        <el-button
-          @click="handleDelete(scope.$index, scope.row)"
-          size="mini"
-          icon="el-icon-delete"
-          type="danger"
-        >
-          删除
-        </el-button>
-      </template>
-    </el-table-column>
-  </el-table>
+      <el-table-column
+        type="selection"
+        width="55"
+      />
+      <el-table-column
+        prop="environment.project"
+        label="项目"
+        width="180"
+      />
+      <el-table-column
+        prop="environment.team"
+        label="团队"
+        width="180"
+      />
+      <el-table-column
+        prop="request.name"
+        label="用例"
+        width="180"
+      />
+      <el-table-column
+        prop="request.method"
+        label="方法"
+        width="80"
+      />
+      <el-table-column
+        prop="request.name"
+        label="用例"
+        width="180"
+      />
+      <el-table-column
+        prop="request.host"
+        label="域名"
+        width="180"
+      />
+      <el-table-column
+        prop="request.path"
+        label="路径"
+        width="180"
+      />
+      <el-table-column
+        prop="created"
+        label="创建时间"
+        width="180"
+      />
+      <el-table-column
+        fixed="right"
+        label="操作"
+        width="300"
+        align="center"
+      >
+        <template slot-scope="scope">
+          <el-button
+            @click="handleAdd(scope.$index, scope.row)"
+            size="mini"
+            icon="el-icon-plus"
+            type="primary"
+          >
+            添加
+          </el-button>
+          <el-button
+            @click="handleEdit(scope.$index, scope.row)"
+            size="mini"
+            icon="el-icon-edit"
+            type="warning"
+          >
+            编辑
+          </el-button>
+          <el-button
+            @click="handleDelete(scope.$index, scope.row)"
+            size="mini"
+            icon="el-icon-delete"
+            type="danger"
+          >
+            删除
+          </el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+  </div>
 </template>
 
 <script>
+import TeamSelector from '~/components/TeamSelector.vue'
+
 export default {
+  components: {
+    TeamSelector
+  },
   data () {
     return {
       data: []
