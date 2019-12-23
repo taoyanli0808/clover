@@ -17,6 +17,9 @@ export default {
       teams: []
     }
   },
+  mounted () {
+    this.getTeam()
+  },
   methods: {
     getTeam () {
       this.$axios({
