@@ -227,12 +227,12 @@
                   <el-select v-model="scope.row.extractor" placeholder="请选择">
                     <el-option
                       label="delimiter"
-                      value="re">
-                    </el-option>
+                      value="re"
+                    />
                     <el-option
                       label="re"
-                      value="re">
-                    </el-option>
+                      value="re"
+                    />
                   </el-select>
                 </template>
               </el-table-column>
@@ -261,8 +261,8 @@
                   <el-select v-model="scope.row.comparator" placeholder="请选择">
                     <el-option
                       label="contains"
-                      value="contains">
-                    </el-option>
+                      value="contains"
+                    />
                   </el-select>
                 </template>
               </el-table-column>
@@ -275,20 +275,20 @@
                   <el-select v-model="scope.row.convertor" placeholder="请选择">
                     <el-option
                       label="string"
-                      value="str">
-                    </el-option>
+                      value="str"
+                    />
                     <el-option
                       label="int"
-                      value="int">
-                    </el-option>
+                      value="int"
+                    />
                     <el-option
                       label="float"
-                      value="float">
-                    </el-option>
+                      value="float"
+                    />
                     <el-option
                       label="boolean"
-                      value="boolean">
-                    </el-option>
+                      value="boolean"
+                    />
                   </el-select>
                 </template>
               </el-table-column>
@@ -334,18 +334,97 @@
             </el-table>
           </el-tab-pane>
           <el-tab-pane label="提取响应" name="five">
-            提取响应
+            <el-table
+              ref="extractTable"
+              :data="extract"
+              @row-click="currentExtractTableChange"
+              class="tb-edit"
+              style="width: 100%"
+              highlight-current-row
+              border
+            >
+              <el-table-column
+                label="SELECTOR"
+                width="180"
+                align="center"
+              >
+                <template scope="scope">
+                  <el-select v-model="scope.row.selector" placeholder="请选择">
+                    <el-option
+                      v-for="item in selectors"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value">
+                    </el-option>
+                  </el-select>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="EXPRESSION"
+                width="180"
+                align="center"
+              >
+                <template scope="scope">
+                  <el-input
+                    v-model="scope.row.expression"
+                    size="small"
+                    placeholder="请输入内容"
+                  />
+                  <span>
+                    {{ scope.row.key }}
+                  </span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="EXPECTED"
+                width="180"
+                align="center"
+              >
+                <template scope="scope">
+                  <el-input
+                    v-model="scope.row.expected"
+                    size="small"
+                    placeholder="请输入内容"
+                  />
+                  <span>
+                    {{ scope.row.value }}
+                  </span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="操作"
+                align="center"
+              >
+                <template scope="scope">
+                  <el-button
+                    @click="addExtractTableRow(scope.$index, scope.row)"
+                    size="small"
+                    type="primary"
+                  >
+                    添加
+                  </el-button>
+                  <el-button
+                    @click="deleteExtractTableRow(scope.$index, scope.row)"
+                    size="small"
+                    type="danger"
+                  >
+                    删除
+                  </el-button>
+                </template>
+              </el-table-column>
+            </el-table>
           </el-tab-pane>
         </el-tabs>
         <el-row
-          :gutter="20">
+          :gutter="20"
+        >
           <el-col
             :span="4"
             :offset="16"
           >
             <el-button
-              type="primary"
               @click="debugCase"
+              type="primary"
             >
               Debug
             </el-button>
@@ -354,8 +433,8 @@
             :span="4"
           >
             <el-button
-              type="primary"
               @click="saveCase"
+              type="primary"
             >
               Save
             </el-button>
@@ -381,6 +460,14 @@ export default {
       project: [],
       methods: ['get', 'post', 'put', 'delete'],
       activeName: 'first',
+      selectors: [{
+        label: '分隔符',
+        value: 'delimiter'
+      },
+      {
+        label: '正则',
+        value: 're'
+      }],
       response: '',
       environment: {
         team: '',
@@ -405,6 +492,11 @@ export default {
         expression: '',
         comparator: '',
         convertor: '',
+        expected: ''
+      }],
+      extract: [{
+        selector: '',
+        expression: '',
         expected: ''
       }]
     }
@@ -462,7 +554,7 @@ export default {
       })
     },
     currentHeaderTableChange (row, event, column) {
-      console.log(row, event, column, event.currentTarget)
+      console.log(row, event, column)
     },
     addHeaderTableRow (index, row) {
       this.request.header.push({
@@ -526,6 +618,30 @@ export default {
         })
       }
     },
+    currentExtractTableChange (row, event, column) {
+      console.log(row, event, column, event.currentTarget)
+    },
+    addExtractTableRow (index, row) {
+      this.extract.push({
+        selector: '',
+        expression: '',
+        expected: ''
+      })
+      const last = this.$refs.extractTable.data.length
+      const currentRow = this.$refs.extractTable.data[last]
+      this.$refs.extractTable.setCurrentRow(currentRow)
+      console.log(last)
+    },
+    deleteExtractTableRow (index, row) {
+      this.extract = this.extract.filter(item => item.key !== row.key)
+      if (Array.prototype.isPrototypeOf(this.extract) && this.extract.length === 0) {
+        this.extract.push({
+          selector: '',
+          expression: '',
+          expected: ''
+        })
+      }
+    },
     debugCase () {
       this.$axios({
         url: '/api/v1/interface/debug',
@@ -533,6 +649,7 @@ export default {
         data: JSON.stringify({
           assert: this.assert,
           request: this.request,
+          extract: this.extract,
           environment: this.environment
         }),
         headers: {
@@ -544,7 +661,7 @@ export default {
             type: 'success',
             message: '测试成功'
           })
-          this.response = res.data.data
+          this.response = res.data.data.response.json
         } else {
           let level = 'info'
           if (res.data.status >= 500) {
@@ -554,6 +671,7 @@ export default {
             type: level,
             message: res.data.message
           })
+          this.response = res.data.data
         }
       }).catch((error) => {
         console.log(error)
@@ -564,7 +682,43 @@ export default {
       })
     },
     saveCase () {
-      console.log(this.request)
+      this.$axios({
+        url: '/api/v1/interface/save',
+        method: 'post',
+        data: JSON.stringify({
+          assert: this.assert,
+          request: this.request,
+          extract: this.extract,
+          environment: this.environment
+        }),
+        headers: {
+          'Content-Type': 'application/json;'
+        }
+      }).then((res) => {
+        if (res.data.status === 0) {
+          this.$message({
+            type: 'success',
+            message: '测试成功'
+          })
+          this.response = res.data.data.response.json
+        } else {
+          let level = 'info'
+          if (res.data.status >= 500) {
+            level = 'error'
+          }
+          this.$message({
+            type: level,
+            message: res.data.message
+          })
+          this.response = res.data.data
+        }
+      }).catch((error) => {
+        console.log(error)
+        this.$message({
+          type: 'error',
+          message: '服务器偷懒了！'
+        })
+      })
     }
   }
 }
