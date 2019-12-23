@@ -5,22 +5,30 @@ import datetime
 
 from clover.common.utils.mongo import Mongo
 from clover.common.utils import get_friendly_id
+from clover.common.utils.mysqltools import MysqlHelper
 
 
 class Service():
 
     def __init__(self):
         self.db = Mongo()
+        self.mydb = MysqlHelper()
 
     def create(self, data):
         """
         :param data:
         :return:
         """
-        data.setdefault('_id', get_friendly_id())
-        data.setdefault('created', datetime.datetime.now())
-        collection = data.pop("type", None)
-        return self.db.insert("environment", collection, data)
+        # data.setdefault('_id', get_friendly_id())
+        # data.setdefault('created', datetime.datetime.now())
+        # collection = data.pop("type", None)
+        # return self.db.insert("environment", collection, data)
+        # mysql
+        data.setdefault('uuid', get_friendly_id())
+        data.setdefault('table', 'environment')
+        data.pop('type', None)
+        results = self.mydb.insert(data)
+        return results
 
     def detele(self, data):
         """
@@ -29,6 +37,7 @@ class Service():
         """
         count = 0
         collection = data.get("type", None)
+        print(data)
         for id in data['id_list']:
             result = self.db.delete("environment", collection, {'_id': id})
             count += result
@@ -39,9 +48,16 @@ class Service():
         :param data:
         :return:
         """
-        filter = {'_id': data.pop('_id')}
-        collection = data.pop("type", None)
-        return self.db.update("environment", collection, filter, data)
+        print(data)
+        # filter = {'_id': data.pop('_id')}
+        # collection = data.pop("type", None)
+        # return self.db.update("environment", collection, filter, data)
+        # mysql
+        data.pop('type', None)
+        filter = {'uuid': data.pop('_id')}
+        data.setdefault('table', 'environment')
+        results = self.mydb.update(data, filter)
+        return results
 
     def search(self, data):
         """
