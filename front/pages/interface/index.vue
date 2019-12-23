@@ -1,6 +1,7 @@
 <template>
   <div>
-    <TeamSelector />
+    <TeamSelector v-on:selectedTeam="selectedTeam" />
+    <OwnerSelector v-on:selectedOwner="selectedOwner" />
     <el-table
       :data="data"
       style="width: 100%"
@@ -88,14 +89,18 @@
 
 <script>
 import TeamSelector from '~/components/TeamSelector.vue'
+import OwnerSelector from '~/components/OwnerSelector.vue'
 
 export default {
   components: {
-    TeamSelector
+    TeamSelector,
+    OwnerSelector
   },
   data () {
     return {
-      data: []
+      data: [],
+      team: '',
+      owner: ''
     }
   },
   mounted () {
@@ -117,6 +122,12 @@ export default {
           console.log(res)
         }
       })
+    },
+    selectedTeam (value) {
+      this.team = value
+    },
+    selectedOwner (value) {
+      this.owner = value
     },
     handleAdd (index, row) {
       this.$router.push({
