@@ -2,8 +2,11 @@
 
 import time
 import json
+import datetime
 
 import requests
+
+from flask import g
 
 from clover.common.utils.mongo import Mongo
 from clover.common.utils import get_timestamp
@@ -16,6 +19,7 @@ class Service(object):
 
     def __init__(self):
         self.db = Mongo()
+        g.data = []
 
     def replace_variable(self, data):
         """
@@ -30,7 +34,10 @@ class Service(object):
             'team': data['environment'].get('team'),
             'project': data['environment'].get('project')
         }
-        results = self.db.search("environment", "variable", filter)
+        _, results = self.db.search("environment", "variable", filter)
+        results.extend(g.data)
+        print(50 * '*')
+        print(results)
 
         data['request']['host'] = derivation(data['request'].get('host'), results)
         data['request']['path'] = derivation(data['request'].get('path'), results)
@@ -77,6 +84,11 @@ class Service(object):
             'header': dict(response.headers),
             'content': response.text
         }
+        print(response.url)
+        # 如果是json相应，这里对原始相应进行替换。
+        if data['response']['header']['Content-Type'].find("application/json") != -1:
+            data['response']['json'] = json.loads(data['response']['content'])
+
         return data
 
     def convert_format(self, data):
@@ -101,6 +113,25 @@ class Service(object):
         :param data:
         :return:
         """
+        if 'extract' not in data or not data['extract']:
+            return data
+
+        for extract in data['extract']:
+            sel = extract['selector']
+            expr = extract['expression']
+            name = extract['expected']
+            # 从这里开始使用分隔符取数据
+            tmp = data['response']['json']
+            for item in expr.split('.'):
+                try:
+                    item = int(item)
+                    tmp = tmp[item]
+                except ValueError:
+                    tmp = tmp.get(item, None)
+                    if tmp is None:
+                        break
+            g.data.append({'name': name, 'value': tmp})
+
         return data
 
     def record_result(self, data):
@@ -123,10 +154,7 @@ class Service(object):
         self.execute_assertion(data)
         self.extract_variables(data)
         self.record_result(data)
-
-        if data['response']['header']['Content-Type'].find("application/json") != -1:
-            data['response']['content'] = json.loads(data['response']['content'])
-
+        print(g.data)
         return data
 
     def save(self, data):
@@ -136,6 +164,7 @@ class Service(object):
         :return:
         """
         data['_id'] = get_friendly_id()
+        data['created'] = datetime.datetime.now()
         self.db.insert("interface", "case", data)
         return data['_id']
 
@@ -200,13 +229,23 @@ class Service(object):
         print(run_id)
         return run_id
 
+    def delete(self, data):
+        """
+        :param data:
+        :return:
+        """
+        count, id_list = 0, data.pop('id_list')
+        for id in id_list:
+            count += self.db.delete("interface", "case", {'_id': id})
+        return count
+
     def list(self, data):
         """
         :param data:
         :return:
         """
-        results = self.db.search("interface", "case", data)
-        return results if results else []
+        count, results = self.db.search("interface", "case", data)
+        return (count, results) if results else (0, [])
 
     def __del__(self):
         if self.db:
