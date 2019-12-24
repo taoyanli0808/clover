@@ -2,7 +2,7 @@
   <el-select
     v-model="team"
     @change="selectTeam"
-    placeholder="请选择"
+    placeholder="请选择团队"
     clearable
   >
     <el-option
@@ -46,7 +46,8 @@ export default {
         }
       })
     },
-    selectTeam () {
+    selectTeam (value) {
+      this.team = value
       this.$emit('selectedTeam', this.team)
     }
   }

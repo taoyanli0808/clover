@@ -1,7 +1,6 @@
 <template>
   <div>
     <TeamSelector v-on:selectedTeam="selectedTeam" />
-    <OwnerSelector v-on:selectedOwner="selectedOwner" />
     <el-table
       :data="data"
       style="width: 100%"
@@ -89,45 +88,45 @@
 
 <script>
 import TeamSelector from '~/components/TeamSelector.vue'
-import OwnerSelector from '~/components/OwnerSelector.vue'
 
 export default {
   components: {
-    TeamSelector,
-    OwnerSelector
+    TeamSelector
   },
   data () {
     return {
       data: [],
+      total: 0,
+      limit: 10,
+      page: 0,
       team: '',
-      owner: ''
+      project: ''
     }
   },
   mounted () {
-    this.fetch()
+    this.refresh()
   },
   methods: {
-    fetch () {
-      this.$axios({
-        url: '/api/v1/interface/search',
-        method: 'get',
-        data: JSON.stringify({}),
-        headers: {
-          'Content-Type': 'application/json;'
-        }
-      }).then((res) => {
-        if (res.data.status === 0) {
-          this.data = res.data.data
-        } else {
+    refresh () {
+      const params = {
+        limit: this.limit,
+        skip: this.page * this.limit
+      }
+      if (this.team !== '') {
+        params.environment = {}
+        params.environment.team = this.team
+      }
+      this.$axios
+        .post('/api/v1/interface/search', params)
+        .then((res) => {
           console.log(res)
-        }
-      })
+          this.total = res.data.total
+          this.data = res.data.data
+        })
     },
     selectedTeam (value) {
       this.team = value
-    },
-    selectedOwner (value) {
-      this.owner = value
+      this.refresh()
     },
     handleAdd (index, row) {
       this.$router.push({

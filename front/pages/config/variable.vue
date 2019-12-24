@@ -109,7 +109,7 @@
     >
       <el-form ref="form" :model="add" label-width="80px">
         <el-form-item label="团队名称">
-          <TeamSelector v-on:selectedTeam="selectedTeam" />
+          <TeamSelector v-on:selectedTeam="addTeam" />
         </el-form-item>
         <el-form-item label="项目名称">
           <el-select
@@ -148,19 +148,7 @@
     >
       <el-form ref="form" :model="edit" label-width="80px">
         <el-form-item label="团队名称">
-          <el-select
-            @change="editTeam"
-            v-model="editSelectTeam"
-            placeholder="请选择团队"
-            clearable
-          >
-            <el-option
-              v-for="item in team"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
+          <TeamSelector v-on:selectedTeam="editTeam" />
         </el-form-item>
         <el-form-item label="项目名称">
           <el-select
