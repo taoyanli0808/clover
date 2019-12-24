@@ -8,6 +8,15 @@ from clover.interface.service import Service
 
 class InterfaceView(CloverView):
 
+    def __init__(self):
+        super(InterfaceView, self).__init__()
+
+    def update(self):
+        pass
+
+    def create(self):
+        pass
+
     def debug(self):
         data = request.get_json()
 

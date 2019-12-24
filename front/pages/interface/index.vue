@@ -1,8 +1,16 @@
 <template>
   <div>
-    <TeamSelector v-on:selectedTeam="selectedTeam" />
+    <el-row>
+      <el-col :span="4">
+        <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
+      </el-col>
+      <el-col :span="2" :offset="18">
+        <el-button @click="createSuite" type="primary" plain>创建套件</el-button>
+      </el-col>
+    </el-row>
     <el-table
       :data="data"
+      @selection-change="handleSelectionChange"
       style="width: 100%"
     >
       <el-table-column
@@ -88,11 +96,11 @@
 
 <script>
 import Sortable from 'sortablejs'
-import TeamSelector from '~/components/TeamSelector.vue'
+import TeamProjectCascader from '~/components/TeamProjectCascader.vue'
 
 export default {
   components: {
-    TeamSelector
+    TeamProjectCascader
   },
   data () {
     return {
@@ -101,7 +109,8 @@ export default {
       limit: 10,
       page: 0,
       team: '',
-      project: ''
+      project: '',
+      cases: []
     }
   },
   mounted () {
@@ -129,20 +138,17 @@ export default {
         skip: this.page * this.limit
       }
       if (this.team !== '') {
-        params.environment = {}
-        params.environment.team = this.team
+        params.team = this.team
+      }
+      if (this.project !== '') {
+        params.project = this.project
       }
       this.$axios
         .post('/api/v1/interface/search', params)
         .then((res) => {
-          console.log(res)
           this.total = res.data.total
           this.data = res.data.data
         })
-    },
-    selectedTeam (value) {
-      this.team = value
-      this.refresh()
     },
     handleAdd (index, row) {
       this.$router.push({
@@ -188,6 +194,53 @@ export default {
           type: 'info',
           message: '已取消删除'
         })
+      })
+    },
+    selectedTeamProject (value) {
+      this.team = value.team
+      this.project = value.project
+      this.refresh()
+    },
+    handleSelectionChange (value) {
+      const index = []
+      value.forEach((val, idx) => {
+        this.data.forEach((v, i) => {
+          if (val._id === v._id) {
+            index.push(i)
+          }
+        })
+      })
+      this.cases = []
+      const temp = index.sort()
+      for (const i in temp) {
+        this.cases.push(this.data[temp[i]]._id)
+      }
+    },
+    createSuite (value) {
+      console.log(value)
+      this.$axios({
+        url: '/api/v1/testsuite/create',
+        method: 'post',
+        data: JSON.stringify({
+          'team': this.team,
+          'project': this.project,
+          'cases': this.cases
+        }),
+        headers: {
+          'Content-Type': 'application/json;'
+        }
+      }).then((res) => {
+        if (res.data.status === 0) {
+          this.$message({
+            type: 'success',
+            message: res.data.message
+          })
+        } else {
+          this.$message({
+            type: 'error',
+            message: res.data.message
+          })
+        }
       })
     }
   }
