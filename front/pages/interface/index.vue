@@ -10,37 +10,37 @@
         width="55"
       />
       <el-table-column
-        prop="environment.project"
+        prop="project"
         label="项目"
         width="180"
       />
       <el-table-column
-        prop="environment.team"
+        prop="team"
         label="团队"
         width="180"
       />
       <el-table-column
-        prop="request.name"
+        prop="name"
         label="用例"
         width="180"
       />
       <el-table-column
-        prop="request.method"
+        prop="method"
         label="方法"
         width="80"
       />
       <el-table-column
-        prop="request.name"
+        prop="name"
         label="用例"
         width="180"
       />
       <el-table-column
-        prop="request.host"
+        prop="host"
         label="域名"
         width="180"
       />
       <el-table-column
-        prop="request.path"
+        prop="path"
         label="路径"
         width="180"
       />

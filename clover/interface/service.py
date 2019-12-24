@@ -165,6 +165,19 @@ class Service(object):
         """
         data['_id'] = get_friendly_id()
         data['created'] = datetime.datetime.now()
+
+        # 这里对数据进行解包
+        request = data.pop('request')
+        data['name'] = request['name']
+        data['host'] = request['host']
+        data['path'] = request['path']
+        data['method'] = request['method']
+        data['header'] = request['header']
+        data['params'] = request['param']
+        environment = data.pop('environment')
+        data['team'] = environment['team']
+        data['project'] = environment['project']
+
         self.db.insert("interface", "case", data)
         return data['_id']
 

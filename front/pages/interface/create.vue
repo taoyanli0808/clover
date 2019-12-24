@@ -11,7 +11,19 @@
               ref="form"
             >
               <el-form-item label="业务团队">
-                <TeamSelector v-on:selectedTeam="selectedTeam" />
+                <el-select
+                  @change="selectTeam"
+                  v-model="environment.team"
+                  placeholder="请选择团队"
+                  clearable
+                >
+                  <el-option
+                    v-for="item in team"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </el-select>
               </el-form-item>
               <el-form-item label="所属项目">
                 <el-select
@@ -441,15 +453,10 @@
 </template>
 
 <script>
-import TeamSelector from '~/components/TeamSelector.vue'
-
 export default {
-  components: {
-    TeamSelector
-  },
   data () {
     return {
-      team: '',
+      team: [],
       project: [],
       methods: ['get', 'post', 'put', 'delete'],
       activeName: 'first',
@@ -494,11 +501,14 @@ export default {
       }]
     }
   },
+  mounted () {
+    this.getTeam()
+  },
   methods: {
     handleClick (tab, event) {
       console.log(tab, event)
     },
-    selectedTeam (value) {
+    selectTeam (value) {
       this.environment.team = value
       this.project = []
       this.$axios
@@ -523,8 +533,28 @@ export default {
     selectMethod (value) {
       this.request.method = value
     },
+    getTeam () {
+      this.$axios({
+        url: '/api/v1/environment/aggregate',
+        method: 'post',
+        data: JSON.stringify({
+          type: 'team',
+          key: 'team'
+        }),
+        headers: {
+          'Content-Type': 'application/json;'
+        }
+      }).then((res) => {
+        for (const index in res.data.data) {
+          this.team.push({
+            label: res.data.data[index]._id,
+            value: res.data.data[index]._id
+          })
+        }
+      })
+    },
     currentHeaderTableChange (row, event, column) {
-      console.log(row, event, column)
+      console.log(row, event, column, event.currentTarget)
     },
     addHeaderTableRow (index, row) {
       this.request.header.push({
@@ -620,9 +650,7 @@ export default {
           assert: this.assert,
           request: this.request,
           extract: this.extract,
-          environment: {
-            team: this.team
-          }
+          environment: this.environment
         }),
         headers: {
           'Content-Type': 'application/json;'
@@ -633,7 +661,7 @@ export default {
             type: 'success',
             message: '测试成功'
           })
-          this.response = res.data.data.response.json
+          this.response = res.data.data.response.content
         } else {
           let level = 'info'
           if (res.data.status >= 500) {
@@ -661,9 +689,7 @@ export default {
           assert: this.assert,
           request: this.request,
           extract: this.extract,
-          environment: {
-            team: this.team
-          }
+          environment: this.environment
         }),
         headers: {
           'Content-Type': 'application/json;'
@@ -674,7 +700,7 @@ export default {
             type: 'success',
             message: '测试成功'
           })
-          this.response = res.data.data.response.json
+          this.response = res.data.data.response.content
         } else {
           let level = 'info'
           if (res.data.status >= 500) {
