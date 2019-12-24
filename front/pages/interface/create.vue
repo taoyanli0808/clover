@@ -576,7 +576,7 @@ export default {
       }
     },
     currentParameterTableChange (row, event, column) {
-      console.log(row, event, column, event.currentTarget)
+      console.log(row, event, column)
     },
     addParameterTableRow (index, row) {
       this.request.param.push({
@@ -619,7 +619,7 @@ export default {
       }
     },
     currentExtractTableChange (row, event, column) {
-      console.log(row, event, column, event.currentTarget)
+      console.log(row, event, column)
     },
     addExtractTableRow (index, row) {
       this.extract.push({

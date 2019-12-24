@@ -197,8 +197,11 @@ export default {
       })
     },
     selectedTeamProject (value) {
+      console.log(value)
       this.team = value.team
       this.project = value.project
+      console.log(this.team)
+      console.log(this.project)
       this.refresh()
     },
     handleSelectionChange (value) {
