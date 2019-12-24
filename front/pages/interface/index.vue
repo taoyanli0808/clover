@@ -87,6 +87,7 @@
 </template>
 
 <script>
+import Sortable from 'sortablejs'
 import TeamSelector from '~/components/TeamSelector.vue'
 
 export default {
@@ -105,8 +106,23 @@ export default {
   },
   mounted () {
     this.refresh()
+    document.body.ondrop = function (event) {
+      event.preventDefault()
+      event.stopPropagation()
+    }
+    this.rowDrop()
   },
   methods: {
+    rowDrop () {
+      const tbody = document.querySelector('.el-table__body-wrapper tbody')
+      const _this = this
+      Sortable.create(tbody, {
+        onEnd ({ newIndex, oldIndex }) {
+          const currRow = _this.data.splice(oldIndex, 1)[0]
+          _this.data.splice(newIndex, 0, currRow)
+        }
+      })
+    },
     refresh () {
       const params = {
         limit: this.limit,
@@ -134,9 +150,16 @@ export default {
       })
     },
     handleEdit (index, row) {
+      this.$message({
+        showClose: true,
+        message: '付费功能，暂不开放！',
+        type: 'error'
+      })
+      /*
       this.$router.push({
         path: '/interface/edit'
       })
+      */
     },
     handleDelete (index, row) {
       this.$confirm('此操作将永久删除该接口, 是否继续?', '删除接口', {
