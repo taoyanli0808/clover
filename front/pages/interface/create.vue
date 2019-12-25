@@ -4,7 +4,6 @@
       <el-col :span="12">
         <el-tabs
           v-model="activeName"
-          @tab-click="handleClick"
         >
           <el-tab-pane label="基本信息" name="first">
             <el-form
@@ -83,7 +82,6 @@
             <el-table
               ref="headerTable"
               :data="request.header"
-              @row-click="currentHeaderTableChange"
               class="tb-edit"
               style="width: 100%"
               highlight-current-row
@@ -147,7 +145,6 @@
           <el-tab-pane label="请求参数" name="third">
             <el-table
               :data="request.param"
-              @row-click="currentParameterTableChange"
               class="tb-edit"
               style="width: 100%"
               highlight-current-row
@@ -337,7 +334,6 @@
             <el-table
               ref="extractTable"
               :data="extract"
-              @row-click="currentExtractTableChange"
               class="tb-edit"
               style="width: 100%"
               highlight-current-row
@@ -354,8 +350,8 @@
                       v-for="item in selectors"
                       :key="item.value"
                       :label="item.label"
-                      :value="item.value">
-                    </el-option>
+                      :value="item.value"
+                    />
                   </el-select>
                 </template>
               </el-table-column>
@@ -505,9 +501,6 @@ export default {
     this.getTeam()
   },
   methods: {
-    handleClick (tab, event) {
-      console.log(tab, event)
-    },
     selectTeam (value) {
       this.environment.team = value
       this.project = []
@@ -553,9 +546,6 @@ export default {
         }
       })
     },
-    currentHeaderTableChange (row, event, column) {
-      console.log(row, event, column, event.currentTarget)
-    },
     addHeaderTableRow (index, row) {
       this.request.header.push({
         key: '',
@@ -564,7 +554,6 @@ export default {
       const last = this.$refs.headerTable.data.length
       const currentRow = this.$refs.headerTable.data[last]
       this.$refs.headerTable.setCurrentRow(currentRow)
-      console.log(last)
     },
     deleteHeaderTableRow (index, row) {
       this.request.header = this.request.header.filter(item => item.key !== row.key)
@@ -575,9 +564,6 @@ export default {
         })
       }
     },
-    currentParameterTableChange (row, event, column) {
-      console.log(row, event, column)
-    },
     addParameterTableRow (index, row) {
       this.request.param.push({
         key: '',
@@ -585,7 +571,6 @@ export default {
       })
     },
     deleteParameterTableRow (index, row) {
-      console.log(index, row)
       this.request.param = this.request.param.filter(item => item.key !== row.key)
       if (Array.prototype.isPrototypeOf(this.request.param) && this.request.param.length === 0) {
         this.request.param.push({
@@ -595,7 +580,6 @@ export default {
       }
     },
     currentAssertTableChange (row, event, column) {
-      console.log(row, event, column, event.currentTarget)
     },
     addAssertTableRow (index, row) {
       this.assert.push({
@@ -618,9 +602,6 @@ export default {
         })
       }
     },
-    currentExtractTableChange (row, event, column) {
-      console.log(row, event, column)
-    },
     addExtractTableRow (index, row) {
       this.extract.push({
         selector: '',
@@ -630,7 +611,6 @@ export default {
       const last = this.$refs.extractTable.data.length
       const currentRow = this.$refs.extractTable.data[last]
       this.$refs.extractTable.setCurrentRow(currentRow)
-      console.log(last)
     },
     deleteExtractTableRow (index, row) {
       this.extract = this.extract.filter(item => item.key !== row.key)
@@ -673,8 +653,7 @@ export default {
           })
           this.response = res.data.data
         }
-      }).catch((error) => {
-        console.log(error)
+      }).catch(() => {
         this.$message({
           type: 'error',
           message: '服务器偷懒了！'
@@ -712,8 +691,7 @@ export default {
           })
           this.response = res.data.data
         }
-      }).catch((error) => {
-        console.log(error)
+      }).catch(() => {
         this.$message({
           type: 'error',
           message: '服务器偷懒了！'

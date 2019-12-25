@@ -36,4 +36,20 @@ class TestSuiteView(CloverView):
         pass
 
     def search(self):
-        pass
+        data = request.values.to_dict()
+
+        try:
+            service = Service()
+            count, results = service.search(data)
+            return jsonify({
+                'status': 0,
+                'message': '成功检索到{}条数据'.format(count),
+                'data': results,
+                'total': count
+            })
+        except Exception as error:
+            return jsonify({
+                'status': 500,
+                'message': '检索异常，请联系管理员！',
+                'data': str(error)
+            })

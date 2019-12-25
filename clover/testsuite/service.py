@@ -14,3 +14,7 @@ class Service():
         data.setdefault('created', datetime.datetime.now())
         id = self.db.insert("testsuite", "interface", data)
         return id
+
+    def search(self, data):
+        count, results = self.db.search("testsuite", "interface", data)
+        return (count, results) if results else (0, [])

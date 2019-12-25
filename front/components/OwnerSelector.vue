@@ -6,11 +6,11 @@
     clearable
   >
     <el-option
-      v-for="owner in owners"
-      :key="owner.value"
-      :label="owner.label"
-      :value="owner.value">
-    </el-option>
+      v-for="item in owners"
+      :key="item.value"
+      :label="item.label"
+      :value="item.value"
+    />
   </el-select>
 </template>
 

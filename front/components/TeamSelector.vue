@@ -6,11 +6,11 @@
     clearable
   >
     <el-option
-      v-for="team in teams"
-      :key="team.value"
-      :label="team.label"
-      :value="team.value">
-    </el-option>
+      v-for="item in teams"
+      :key="item.value"
+      :label="item.label"
+      :value="item.value"
+    />
   </el-select>
 </template>
 
