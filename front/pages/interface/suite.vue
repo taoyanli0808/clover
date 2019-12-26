@@ -10,10 +10,6 @@
       style="width: 100%"
     >
       <el-table-column
-        type="selection"
-        width="55"
-      />
-      <el-table-column
         prop="project"
         label="项目"
         width="180"
@@ -64,7 +60,7 @@
           <el-button
             @click="handleAdd(scope.$index, scope.row)"
             size="mini"
-            icon="el-icon-plus"
+            icon="el-icon-caret-right"
             type="primary"
           >
             运行
@@ -139,10 +135,31 @@ export default {
       })
     },
     handleAdd (index, row) {
-      this.$message({
-        showClose: true,
-        message: '付费功能，暂不开放！',
-        type: 'error'
+      console.log(row)
+      this.$axios({
+        url: '/api/v1/testsuite/trigger',
+        method: 'post',
+        data: JSON.stringify(row),
+        headers: {
+          'Content-Type': 'application/json;'
+        }
+      }).then((res) => {
+        if (res.data.status === 0) {
+          this.$message({
+            type: 'success',
+            message: '触发成功!'
+          })
+        } else {
+          this.$message({
+            type: 'warning',
+            message: res.data.message
+          })
+        }
+      }).catch((res) => {
+        this.$message({
+          type: 'error',
+          message: res.data.message
+        })
       })
     },
     handleEdit (index, row) {

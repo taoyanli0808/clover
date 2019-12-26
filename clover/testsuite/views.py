@@ -53,3 +53,32 @@ class TestSuiteView(CloverView):
                 'message': '检索异常，请联系管理员！',
                 'data': str(error)
             })
+
+    def trigger(self):
+        """
+        :param data:
+        :return:
+        """
+        data = request.get_json()
+
+        if 'cases' not in data or not data['cases']:
+            return jsonify({
+                'status': 400,
+                'message': '请求缺少cases参数！',
+                'data': data
+            })
+
+        try:
+            service = Service()
+            report_id = service.trigger(data)
+            return jsonify({
+                'status': 0,
+                'message': '运行测试套件[{0}]成功，测试报告ID[{1}]'.format(id, report_id),
+                'data': id
+            })
+        except Exception as error:
+            return jsonify({
+                'status': 500,
+                'message': '检索异常，请联系管理员！',
+                'data': str(error)
+            })
