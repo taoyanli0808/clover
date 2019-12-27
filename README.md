@@ -16,5 +16,5 @@ A Simple and Easy-to-Use Automated Testing Platform
 # 关注公众号，学习更多测试知识。
 ![大猫聊测试](wechat.jpg)
 
-# 如果您喜欢clover，可以请我们喝杯咖啡。
+# 如果您喜欢clover，可以请开发者喝杯咖啡。
 ![支持clover](support.jpg)
