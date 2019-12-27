@@ -13,3 +13,6 @@ A Simple and Easy-to-Use Automated Testing Platform
 4. use mysql replace mongodb
 5. async-validator
 
+# 关注公众号，学习更多测试知识。
+![大猫聊测试](/docs/img/wechat.jpg)
+
