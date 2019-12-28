@@ -1,12 +1,12 @@
 <template>
   <el-select
-    v-model="team"
-    @change="selectTeam"
-    placeholder="请选择团队"
+    v-model="owner"
+    @change="selectOwner"
+    placeholder="请选择"
     clearable
   >
     <el-option
-      v-for="item in teams"
+      v-for="item in owners"
       :key="item.value"
       :label="item.label"
       :value="item.value"
@@ -18,37 +18,36 @@
 export default {
   data () {
     return {
-      team: '',
-      teams: []
+      owner: '',
+      owners: []
     }
   },
   mounted () {
-    this.getTeam()
+    this.getOwner()
   },
   methods: {
-    getTeam () {
+    getOwner () {
       this.$axios({
         url: '/api/v1/environment/aggregate',
         method: 'post',
         data: JSON.stringify({
           type: 'team',
-          key: 'team'
+          key: 'owner'
         }),
         headers: {
           'Content-Type': 'application/json;'
         }
       }).then((res) => {
         for (const index in res.data.data) {
-          this.teams.push({
+          this.owners.push({
             label: res.data.data[index]._id,
             value: res.data.data[index]._id
           })
         }
       })
     },
-    selectTeam (value) {
-      this.team = value
-      this.$emit('selectedTeam', this.team)
+    selectOwner () {
+      this.$emit('selectedOwner', this.owner)
     }
   }
 }

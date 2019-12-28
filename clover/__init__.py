@@ -6,6 +6,7 @@ import config
 from clover.urls import map_urls
 
 blueprints = [
+    'clover.testsuite:testsuite',
     'clover.interface:interface',
     'clover.environment:environment',
 ]

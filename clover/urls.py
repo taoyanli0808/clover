@@ -4,6 +4,7 @@
 """
 from clover.environment.views import EnvironmentView as Environment
 from clover.interface.views import InterfaceView as Interface
+from clover.testsuite.views import TestSuiteView as TestSuite
 
 
 def map_urls(app):
@@ -53,7 +54,7 @@ def map_urls(app):
     )
 
     # 接口测试相关路由与视图
-    interface = Interface.as_view("save")
+    interface = Interface.as_view("interface")
     app.add_url_rule(
         "/api/v1/interface/save",
         view_func=interface,
@@ -84,3 +85,37 @@ def map_urls(app):
         methods=['GET', 'POST'],
         strict_slashes=False,
     )
+
+    # 测试套件相关路由与视图
+    testsuite = TestSuite.as_view("testsuite")
+    app.add_url_rule(
+        "/api/v1/testsuite/create",
+        view_func=testsuite,
+        methods=['POST'],
+        strict_slashes=False,
+    )
+    app.add_url_rule(
+        "/api/v1/testsuite/delete",
+        view_func=testsuite,
+        methods=['POST'],
+        strict_slashes=False,
+    )
+    app.add_url_rule(
+        "/api/v1/testsuite/update",
+        view_func=testsuite,
+        methods=['POST'],
+        strict_slashes=False,
+    )
+    app.add_url_rule(
+        "/api/v1/testsuite/search",
+        view_func=testsuite,
+        methods=['GET', 'POST'],
+        strict_slashes=False,
+    )
+    app.add_url_rule(
+        "/api/v1/testsuite/trigger",
+        view_func=testsuite,
+        methods=['POST'],
+        strict_slashes=False,
+    )
+

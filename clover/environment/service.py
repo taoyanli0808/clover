@@ -72,15 +72,42 @@ class Service():
 
     def aggregate(self, data):
         """
+        # cascader: 按照element ui库cascader需要的数据格式返回数据。
+        #           团队和项目配置数据不会特别多，因此无需过多关注性能。
         :param data:
         :return:
         """
-        collection = data.pop("type", None)
-        key = data.pop("key", None)
-        pipeline = [
-            {'$group': {'_id': "$" + key}},
-        ]
-        return self.db.aggregate("environment", collection, pipeline)
+        if 'cascader' in data:
+            cascader = {}
+            _, results = self.db.search("environment", "team", {})
+            for result in results:
+                if result['team'] not in cascader:
+                    cascader.setdefault(result['team'], {
+                        'label': result['team'],
+                        'value': result['team'],
+                        'children': [{
+                            'label': result['project'],
+                            'value': result['project']
+                        }],
+                    })
+                else:
+                    labels = [item['label'] for item in cascader[result['team']]['children']]
+                    if result['project'] not in labels:
+                        cascader[result['team']]['children'].append({
+                            'label': result['project'],
+                            'value': result['project']
+                        })
+            return list(cascader.values())
+        elif 'type' in data:
+            collection = data.pop("type", None)
+            key = data.pop("key", None)
+            pipeline = [
+                {'$group': {'_id': "$" + key}},
+            ]
+            result = self.db.aggregate("environment", collection, pipeline)
+            return result
+        else:
+            return []
 
     def debug(self, data):
         """
@@ -121,3 +148,8 @@ class Service():
         })
         print(result)
         return result
+
+
+if __name__ == '__main__':
+    service = Service()
+    print(service.aggregate({'cascader': None}))

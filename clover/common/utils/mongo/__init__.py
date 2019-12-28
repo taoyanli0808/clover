@@ -87,8 +87,6 @@ class Mongo():
         count = _collection.count_documents(filter)
         results = list(results)
 
-        for result in results:
-            result['_id'] = str(result['_id'])
         return count, results
 
     def aggregate(self, database, collection, pipeline):
