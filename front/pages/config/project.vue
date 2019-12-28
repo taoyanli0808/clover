@@ -2,34 +2,10 @@
   <div class="block">
     <el-row :gutter="20">
       <el-col :span="3">
-        <el-select
-          @change="changeTeam"
-          v-model="selectTeam"
-          placeholder="请选择团队"
-          clearable
-        >
-          <el-option
-            v-for="item in team"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select>
+        <TeamSelector v-on:selectedTeam="selectedTeam" />
       </el-col>
       <el-col :span="3">
-        <el-select
-          @change="changeOwner"
-          v-model="selectOwner"
-          placeholder="请选择负责人"
-          clearable
-        >
-          <el-option
-            v-for="item in owner"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select>
+        <OwnerSelector v-on:selectedOwner="selectedOwner" />
       </el-col>
       <el-col
         :span="3"
@@ -166,7 +142,14 @@
 </template>
 
 <script>
+import TeamSelector from '~/components/TeamSelector.vue'
+import OwnerSelector from '~/components/OwnerSelector.vue'
+
 export default {
+  components: {
+    TeamSelector,
+    OwnerSelector
+  },
   data () {
     return {
       data: [],
@@ -187,16 +170,12 @@ export default {
         project: '',
         owner: ''
       },
-      team: [],
-      selectTeam: '',
-      owner: [],
-      selectOwner: ''
+      team: '',
+      owner: ''
     }
   },
   mounted () {
     this.refresh()
-    this.getTeam()
-    this.getOwner()
   },
   methods: {
     handleCurrentChange (value) {
@@ -275,11 +254,11 @@ export default {
         skip: this.page * this.limit,
         type: 'team'
       }
-      if (this.selectTeam !== '') {
-        params.team = this.selectTeam
+      if (this.team !== '') {
+        params.team = this.team
       }
-      if (this.selectOwner !== '') {
-        params.owner = this.selectOwner
+      if (this.owner !== '') {
+        params.owner = this.owner
       }
       this.$axios
         .get('/api/v1/environment/search', {
@@ -290,50 +269,12 @@ export default {
           this.data = res.data.data
         })
     },
-    getTeam () {
-      this.$axios({
-        url: '/api/v1/environment/aggregate',
-        method: 'post',
-        data: JSON.stringify({
-          type: 'team',
-          key: 'team'
-        }),
-        headers: {
-          'Content-Type': 'application/json;'
-        }
-      }).then((res) => {
-        for (const index in res.data.data) {
-          this.team.push({
-            label: res.data.data[index]._id,
-            value: res.data.data[index]._id
-          })
-        }
-      })
-    },
-    changeTeam () {
+    selectedTeam (value) {
+      this.team = value
       this.refresh()
     },
-    getOwner () {
-      this.$axios({
-        url: '/api/v1/environment/aggregate',
-        method: 'post',
-        data: JSON.stringify({
-          type: 'team',
-          key: 'owner'
-        }),
-        headers: {
-          'Content-Type': 'application/json;'
-        }
-      }).then((res) => {
-        for (const index in res.data.data) {
-          this.owner.push({
-            label: res.data.data[index]._id,
-            value: res.data.data[index]._id
-          })
-        }
-      })
-    },
-    changeOwner () {
+    selectedOwner (value) {
+      this.owner = value
       this.refresh()
     }
   }

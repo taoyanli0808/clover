@@ -4,64 +4,51 @@
       <el-col :span="4">
         <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
       </el-col>
-      <el-col :span="2" :offset="18">
-        <el-button
-          @click="createSuite"
-          type="primary"
-          plain
-        >
-          创建套件
-        </el-button>
-      </el-col>
     </el-row>
     <el-table
       :data="data"
-      @selection-change="handleSelectionChange"
       style="width: 100%"
     >
-      <el-table-column
-        type="selection"
-        width="55"
-      />
       <el-table-column
         prop="project"
         label="项目"
         width="180"
+        align="center"
       />
       <el-table-column
         prop="team"
         label="团队"
         width="180"
+        align="center"
       />
       <el-table-column
-        prop="name"
-        label="用例"
+        prop="type"
+        label="类型"
         width="180"
+        align="center"
       />
       <el-table-column
-        prop="method"
-        label="方法"
-        width="80"
-      />
-      <el-table-column
-        prop="name"
-        label="用例"
+        label="统计"
         width="180"
-      />
-      <el-table-column
-        prop="host"
-        label="域名"
-        width="180"
-      />
-      <el-table-column
-        prop="path"
-        label="路径"
-        width="180"
-      />
+        align="center"
+      >
+        <template slot-scope="scope">
+          <el-button
+            @click="handleHistory(scope.$index, scope.row)"
+            size="mini"
+            icon="el-icon-s-data"
+            type="primary"
+            plain
+          >
+            查看
+          </el-button>
+        </template>
+      </el-table-column>
       <el-table-column
         prop="created"
         label="创建时间"
         width="180"
+        align="center"
       />
       <el-table-column
         fixed="right"
@@ -73,10 +60,10 @@
           <el-button
             @click="handleAdd(scope.$index, scope.row)"
             size="mini"
-            icon="el-icon-plus"
+            icon="el-icon-caret-right"
             type="primary"
           >
-            添加
+            运行
           </el-button>
           <el-button
             @click="handleEdit(scope.$index, scope.row)"
@@ -101,7 +88,6 @@
 </template>
 
 <script>
-import Sortable from 'sortablejs'
 import TeamProjectCascader from '~/components/TeamProjectCascader.vue'
 
 export default {
@@ -121,23 +107,8 @@ export default {
   },
   mounted () {
     this.refresh()
-    document.body.ondrop = function (event) {
-      event.preventDefault()
-      event.stopPropagation()
-    }
-    this.rowDrop()
   },
   methods: {
-    rowDrop () {
-      const tbody = document.querySelector('.el-table__body-wrapper tbody')
-      const _this = this
-      Sortable.create(tbody, {
-        onEnd ({ newIndex, oldIndex }) {
-          const currRow = _this.data.splice(oldIndex, 1)[0]
-          _this.data.splice(newIndex, 0, currRow)
-        }
-      })
-    },
     refresh () {
       const params = {
         limit: this.limit,
@@ -150,15 +121,45 @@ export default {
         params.project = this.project
       }
       this.$axios
-        .post('/api/v1/interface/search', params)
+        .post('/api/v1/testsuite/search', params)
         .then((res) => {
           this.total = res.data.total
           this.data = res.data.data
         })
     },
+    handleHistory (index, row) {
+      this.$message({
+        showClose: true,
+        message: '付费功能，暂不开放！',
+        type: 'error'
+      })
+    },
     handleAdd (index, row) {
-      this.$router.push({
-        path: '/interface/create'
+      console.log(row)
+      this.$axios({
+        url: '/api/v1/testsuite/trigger',
+        method: 'post',
+        data: JSON.stringify(row),
+        headers: {
+          'Content-Type': 'application/json;'
+        }
+      }).then((res) => {
+        if (res.data.status === 0) {
+          this.$message({
+            type: 'success',
+            message: '触发成功!'
+          })
+        } else {
+          this.$message({
+            type: 'warning',
+            message: res.data.message
+          })
+        }
+      }).catch((res) => {
+        this.$message({
+          type: 'error',
+          message: res.data.message
+        })
       })
     },
     handleEdit (index, row) {
@@ -180,7 +181,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$axios({
-          url: '/api/v1/interface/delete',
+          url: '/api/v1/testsuite/delete',
           method: 'post',
           data: JSON.stringify({
             id_list: [row._id]
@@ -206,48 +207,6 @@ export default {
       this.team = value.team
       this.project = value.project
       this.refresh()
-    },
-    handleSelectionChange (value) {
-      const index = []
-      value.forEach((val, idx) => {
-        this.data.forEach((v, i) => {
-          if (val._id === v._id) {
-            index.push(i)
-          }
-        })
-      })
-      this.cases = []
-      const temp = index.sort()
-      for (const i in temp) {
-        this.cases.push(this.data[temp[i]]._id)
-      }
-    },
-    createSuite (value) {
-      this.$axios({
-        url: '/api/v1/testsuite/create',
-        method: 'post',
-        data: JSON.stringify({
-          'team': this.team,
-          'project': this.project,
-          'type': 'interface',
-          'cases': this.cases
-        }),
-        headers: {
-          'Content-Type': 'application/json;'
-        }
-      }).then((res) => {
-        if (res.data.status === 0) {
-          this.$message({
-            type: 'success',
-            message: res.data.message
-          })
-        } else {
-          this.$message({
-            type: 'error',
-            message: res.data.message
-          })
-        }
-      })
     }
   }
 }

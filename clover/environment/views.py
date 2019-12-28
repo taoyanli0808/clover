@@ -10,6 +10,9 @@ from clover.environment.service import Service
 
 class EnvironmentView(CloverView):
 
+    def __init__(self):
+        super(EnvironmentView, self).__init__()
+
     def create(self):
 
         data = request.get_json()
@@ -157,20 +160,6 @@ class EnvironmentView(CloverView):
     def aggregate(self):
 
         data = request.get_json()
-
-        if 'type' not in data or not data['type']:
-            return jsonify({
-                'status': 400,
-                'message': "invalid parameter type[{0}]".format(data['type']),
-                'data': data
-            })
-
-        if 'key' not in data or not data['key']:
-            return jsonify({
-                'status': 400,
-                'message': "invalid parameter key[{0}]".format(data['key']),
-                'data': data
-            })
 
         try:
             service = Service()

@@ -8,6 +8,15 @@ from clover.interface.service import Service
 
 class InterfaceView(CloverView):
 
+    def __init__(self):
+        super(InterfaceView, self).__init__()
+
+    def update(self):
+        pass
+
+    def create(self):
+        pass
+
     def debug(self):
         data = request.get_json()
 
@@ -93,20 +102,27 @@ class InterfaceView(CloverView):
                 'data': data,
             })
 
-        try:
-            service = Service()
-            case_id = service.save(data)
-            return jsonify({
-                'status': 0,
-                'message': 'ok',
-                'data': case_id,
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': str(error),
-                'data': data
-            })
+        service = Service()
+        case_id = service.save(data)
+        return jsonify({
+            'status': 0,
+            'message': 'ok',
+            'data': case_id,
+        })
+        # try:
+        #     service = Service()
+        #     case_id = service.save(data)
+        #     return jsonify({
+        #         'status': 0,
+        #         'message': 'ok',
+        #         'data': case_id,
+        #     })
+        # except Exception as error:
+        #     return jsonify({
+        #         'status': 500,
+        #         'message': str(error),
+        #         'data': data
+        #     })
 
     def trigger(self):
         # 这里支持GET与POST请求，获取参数方法不同。
