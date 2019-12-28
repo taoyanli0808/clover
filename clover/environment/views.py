@@ -16,7 +16,6 @@ class EnvironmentView(CloverView):
     def create(self):
 
         data = request.get_json()
-        print(data)
         if 'type' not in data or not data['type']:
             return jsonify({
                 'status': 400,

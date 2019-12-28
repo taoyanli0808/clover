@@ -16,4 +16,5 @@ DB_CONFIG = {
     'DBNAME': 'clover',
     'USERNAME': "root",
     'PASSWORD': "admin123456",
+    'CHARSET': 'utf-8'
 }
