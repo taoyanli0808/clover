@@ -115,7 +115,7 @@ class Service(object):
         """
         if 'cascader' in data:
             cascader = {}
-            table = data.pop("type", None)
+            table = data.pop('type', None)
             my_data = {
                 'database': 'clover',
                 'table': table,

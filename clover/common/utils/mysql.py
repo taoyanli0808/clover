@@ -279,7 +279,7 @@ class Mysql(object):
         if 'database' in kwargs and kwargs['database']:
             self.conn.select_db(kwargs['database'])
 
-        if 'table' not in kwargs:
+        if 'table' not in kwargs or kwargs['table'] is None:
             raise Exception("need table！")
         sql = ''
         # 要查询显示的字段
