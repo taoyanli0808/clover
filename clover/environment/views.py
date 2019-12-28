@@ -178,7 +178,6 @@ class EnvironmentView(CloverView):
 
     def debug(self):
         data = request.get_json()
-
         if 'mock' not in data or not data['mock']:
             return jsonify({
                 'status': 400,

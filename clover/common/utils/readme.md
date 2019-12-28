@@ -22,7 +22,7 @@
       `team` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
       `project` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
       `owner` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
-      `enable` tinyint(4) DEFAULT NULL COMMENT '0:已软删除; 1:正常可用状态',
+      `enable` tinyint(4) DEFAULT '1' NULL COMMENT '0:已软删除; 1:正常可用状态',
       `created` datetime DEFAULT NULL,
       `updated` datetime DEFAULT NULL,
       PRIMARY KEY (`id`,`_id`) USING BTREE

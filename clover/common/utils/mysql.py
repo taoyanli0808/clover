@@ -41,6 +41,7 @@ class Mysql(object):
         执行SQL通用方式: insert update delete
         :return:
         """
+        print('_item: {0}'.format(sql))
         try:
             self.cursor.execute(sql)
         except Exception as e:
@@ -125,7 +126,6 @@ class Mysql(object):
         values = [str(value) for value in kwargs['data'].values()]
         values = "'" + "', '".join(values) + "'"
         sql = "insert into {0} ({1}) values ({2});".format(table, fields, values)
-        print('mlog.common mysql.py insert() \n {0}'.format(sql))
 
         count = self._item(sql)
         # cursor = self.conn.cursor()
@@ -177,8 +177,6 @@ class Mysql(object):
             #     logic = ""
             # condition = logic.join(terms)
             # sql += " where {0}".format(condition.strip())
-
-        print(sql)
 
         # cursor = self.conn.cursor()
         # cursor.execute(sql)
@@ -239,8 +237,6 @@ class Mysql(object):
             # condition = logic.join(terms)
             # sql += " where {0}".format(condition.strip())
 
-        print(sql)
-
         # cursor = self.conn.cursor()
         # cursor.execute(sql)
         # self.conn.commit()
@@ -253,7 +249,12 @@ class Mysql(object):
         {
             'database': str,
             'table': str,
-            'fields': str,  # == * , 代表要查找的字段名
+            'fields': {
+                'as': {
+                    'key': 'value'  # id as _id
+                }
+                'col': []
+            },
             'where': {
                 'terms': {
                     'great': {
@@ -280,37 +281,25 @@ class Mysql(object):
 
         if 'table' not in kwargs:
             raise Exception("need table！")
-
+        sql = ''
         # 要查询显示的字段
-        if 'fields' in kwargs and kwargs['fields']:
+        if 'fields' in kwargs and kwargs['fields'] and isinstance(kwargs['fields'], str):
             sql = "select {fields} from {table}".format(**kwargs)
+        elif 'fields' in kwargs and kwargs['fields'] and isinstance(kwargs['fields'], dict):
+            if 'as' in kwargs['fields'] and kwargs['fields']['as']:
+                terms = []
+                for key, val in kwargs['fields']['as'].items():
+                    terms.append(" {0} as '{1}' ".format(key, val))
+                condition = ','.join(terms)
+                sql = "select {0} from {1}".format(condition.strip(), kwargs['table'])
+            else:
+                raise Exception("need as！")
         else:
             sql = "select * from {table}".format(**kwargs)
 
         # 如果限制查询条件则填充sql语句
         if 'where' in kwargs and kwargs['where']:
             sql = self._where(kwargs['where'], sql)
-            # terms = []  # where表达式拼接列表
-            # for key, val in kwargs['where']['terms'].items():
-            #     # 判断大于号
-            #     if key == 'great':
-            #         for key, val in kwargs['where']['terms']['great'].items():
-            #             terms.append(" {0}>'{1}' ".format(key, val))
-            #         continue  # 取出'>'号表达式后继续遍历
-            #     # 判断小于号
-            #     if key == 'less':
-            #         for key, val in kwargs['where']['terms']['less'].items():
-            #             terms.append(" {0}<'{1}' ".format(key, val))
-            #         continue  # 取出'<'号表达式后继续遍历
-            #     # 取出'='号表达式
-            #     terms.append(" {0}='{1}' ".format(key, val))
-            # # 多个查询条件时会存在logic属性，此时用logic拼接，logic是and或or
-            # if 'logic' in kwargs['where'] and kwargs['where']['logic']:
-            #     logic = kwargs['where']['logic']
-            # else:
-            #     logic = ""
-            # condition = logic.join(terms)  # 拼接方式比较单一，请尽量使用一个and或一个or，暂不支持复杂语句
-            # sql += " where {0}".format(condition.strip())
 
         # # 如果携带翻页参数则对其赋值，否则页码为0
         # try:
@@ -333,6 +322,7 @@ class Mysql(object):
         # 拼接limit限制条件, 默认为10条
         if 'limit' in kwargs and kwargs['limit']:
             sql += " limit {0}".format(kwargs.get('limit', 10))
+        print(sql)
         self.cursor.execute(sql)
         results = self.cursor.fetchall()
         self.conn.commit()
@@ -427,10 +417,7 @@ if __name__ == '__main__':
     data_search = {
         'database': 'clover',
         'table': 'team',
-        'order': 'id',
-        'reverse': 'ASC',
-        'limit': 10
-        }
+    }
     mysql = Mysql()
     # row = mysql.insert(**data_insert)
     row = mysql.search(**data_search)
