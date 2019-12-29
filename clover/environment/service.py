@@ -100,7 +100,8 @@ class Service(object):
         result = self.my_db.search(**my_data)
         for r in result:
             r.pop('id', None)  # 去掉数据库自增主键id
-            r['created'] = r['created'].strftime("%Y-%m-%d %H:%M:%S")
+            if r['created']:
+                r['created'] = r['created'].strftime("%Y-%m-%d %H:%M:%S")
         total = len(result)  # 后期看情况增加数据库count函数查询
         return total, result
 
