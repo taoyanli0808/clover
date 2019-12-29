@@ -15,6 +15,7 @@
     "@nuxtjs/axios": "^5.3.6",
     "element-ui": "^2.4.11",
     "nuxt": "^2.0.0",
+    "sortablejs": "^1.10.2",
     "vuedraggable": "^2.23.2"
   },
   "devDependencies": {
@@ -23,6 +24,7 @@
     "babel-eslint": "^10.0.1",
     "cross-env": "^6.0.3",
     "eslint": "^6.1.0",
-    "eslint-plugin-nuxt": ">=0.4.2"
+    "eslint-plugin-nuxt": ">=0.4.2",
+    "webpack-cli": "^3.3.10"
   }
 }

@@ -179,6 +179,9 @@ class Service(object):
         data['project'] = environment['project']
 
         self.db.insert("interface", "case", data)
+        print('111111111111111111111111111111111111')
+        print(data)
+        print('111111111111111111111111111111111111')
         return data['_id']
 
     def trigger(self, data):
