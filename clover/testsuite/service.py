@@ -2,7 +2,6 @@
 import datetime
 
 from clover.common.utils import get_friendly_id
-from clover.common.utils.mongo import Mongo
 
 
 class Service():

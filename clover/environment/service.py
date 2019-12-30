@@ -2,32 +2,30 @@ import re
 import json
 import datetime
 
-from clover.common.utils.mongo import Mongo
-from clover.common.utils import get_friendly_id
-from clover.common.utils.mysql import Mysql
+from clover.exts import db
+from clover.models import query_to_dict
+from clover.environment.models import TeamModel
+from clover.environment.models import VariableModel
 
 
 class Service(object):
 
-    def __init__(self):
-        self.db = Mongo()
-        self.my_db = Mysql()
+    def __init__(self): pass
 
     def create(self, data):
         """
         :param data:
         :return:
         """
-        data.setdefault('_id', get_friendly_id())
-        data.setdefault('created', datetime.datetime.now())
         table = data.pop('type', None)  # 表名由前端传入。。。
-        my_data = {
-            'database': 'clover',
-            'table': table,
-            'data': data
-        }
-        results = self.my_db.insert(**my_data)
-        return results
+        if table == 'team':
+            model = TeamModel(**data)
+            db.session.add(model)
+            db.session.commit()
+        elif table == 'variable':
+            pass
+        else:
+            pass
 
     def detele(self, data):
         """
@@ -35,41 +33,40 @@ class Service(object):
         :return:
         """
         table = data.pop('type', None)
-        uuid = data.get('id_list')[0]
-        my_data = {
-            'database': 'clover',
-            'table': table,
-            'where': {
-                'terms': {
-                    '_id': uuid,
-                },
-            }
-        }
-        count = self.my_db.delete(**my_data)
-        return count
+        if table == 'team':
+            model = TeamModel.query.get(data['id'])
+            if model is not None:
+                db.session.delete(model)
+                db.session.commit()
+        elif table == 'variable':
+            pass
+        else:
+            pass
 
     def update(self, data):
         """
+        # 使用id作为条件，更新数据库重的数据记录。
+        # 通过id查不到数据时增作为一条新的记录存入。
         :param data:
         :return:
         """
         table = data.pop('type', None)
-        uuid = data.pop('_id', None)
-        data.setdefault('updated', datetime.datetime.now())
-        my_data = {
-            'database': 'clover',
-            'table': table,
-            'set': {
-                'terms': data
-            },
-            'where': {
-                'terms': {
-                    '_id': uuid,
-                },
-            }
-        }
-        results = self.my_db.update(**my_data)
-        return results
+        if table == 'team':
+            old_model = TeamModel.query.get(data['id'])
+            if old_model is None:
+                model = TeamModel(**data)
+                db.session.add(model)
+                db.session.commit()
+            else:
+                old_model.team = data['team']
+                old_model.project = data['project']
+                old_model.owner = data['owner']
+                old_model.updated = datetime.datetime.now()
+                db.session.commit()
+        elif table == 'variable':
+            pass
+        else:
+            pass
 
     def search(self, data):
         """
@@ -79,31 +76,38 @@ class Service(object):
         :param data:
         :return:
         """
-        table = data.pop('type', None)
-        if 'limit' in data and data['limit']:
-            limit = data.get('limit', None)
-            my_data = {
-                'database': 'clover',
-                'table': table,
-                'order': 'id',
-                'reverse': 'ASC',
-                'limit': limit
-            }
+        print(data)
+        table = data.get('type', None)  # 表名由前端传入。。。
+        filter = {}
+
+        if 'team' in data and data['team']:
+            filter.setdefault('team', data.get('team'))
+
+        if 'owner' in data and data['owner']:
+            filter.setdefault('owner', data.get('owner'))
+
+        try:
+            offset = int(data.get('offset', 0))
+        except TypeError:
+            offset = 0
+
+        try:
+            limit = int(data.get('limit', 10))
+        except TypeError:
+            limit = 10
+
+        if table == 'team':
+            print(filter)
+            results = TeamModel.query.filter_by(**filter)\
+                .offset(offset).limit(limit)
+            results = query_to_dict(results)
+            print(results)
+            count = TeamModel.query.filter_by(**filter).count()
+            return count, results
+        elif table == 'variable':
+            pass
         else:
-            my_data = {
-                'database': 'clover',
-                'table': table,
-                'where': {
-                    'terms': data
-                }
-            }
-        result = self.my_db.search(**my_data)
-        for r in result:
-            r.pop('id', None)  # 去掉数据库自增主键id
-            if r['created']:
-                r['created'] = r['created'].strftime("%Y-%m-%d %H:%M:%S")
-        total = len(result)  # 后期看情况增加数据库count函数查询
-        return total, result
+            pass
 
     def aggregate(self, data):
         """
@@ -143,28 +147,16 @@ class Service(object):
                         })
             return list(cascader.values())
         elif 'type' in data:
-            # collection = data.pop("type", None)
-            # key = data.pop("key", None)
-            # pipeline = [
-            #     {'$group': {'_id': "$" + key}},
-            # ]
-            # result = self.db.aggregate("environment", collection, pipeline)
-
-            table = data.pop("type", None)
-            column = data.pop("key", None)
-            my_data = {
-                'database': 'clover',
-                'table': table,
-                'fields': {
-                    'as': {
-                        column: '_id'
-                    }
-                },
-            }
-            result = self.my_db.search(**my_data)
-            return result
-        else:
-            return []
+            if data['key'] == 'team':
+                results = TeamModel.query.with_entities(TeamModel.team)\
+                    .distinct().all()
+                return [r[0] for r in results]
+            elif data['key'] == 'owner':
+                results = TeamModel.query.with_entities(TeamModel.owner) \
+                    .distinct().all()
+                return [r[0] for r in results]
+            else:
+                return []
 
     def debug(self, data):
         """

@@ -4,6 +4,8 @@ from werkzeug.utils import import_string
 
 import config
 from clover.urls import map_urls
+from clover.exts import db
+
 
 blueprints = [
     'clover.testsuite:testsuite',
@@ -18,6 +20,7 @@ def create_app():
 
     app.app_context().push()
     map_urls(app)
+    db.init_app(app)
 
     for bp_name in blueprints:
         bp = import_string(bp_name)

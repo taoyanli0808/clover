@@ -1,42 +1,43 @@
 
-from clover import db
-from clover.models import BaseModel
+import datetime
+
+from clover.exts import db
+from clover.models import CloverModel
 
 
-class Team(BaseModel):
+class TeamModel(CloverModel):
 
     __tablename__ = 'team'
 
     id = db.Column(db.Integer, primary_key=True)
-    team = db.Column(db.String(64), unique=True)
-    project = db.Column(db.String(256), unique=True)
+    team = db.Column(db.String(64))
+    project = db.Column(db.String(256))
+    owner = db.Column(db.String(64))
+    enable = db.Column(db.Integer, default=0)
+    created = db.Column(db.DateTime, default=datetime.datetime.now)
+    updated = db.Column(db.DateTime, default=datetime.datetime.now)
 
-    def __repr__(self):
-        return '<Team {id}>'.format(self.id)
-
-
-class Variable(BaseModel):
-
-    __tablename__ = 'variable'
-
-    id = db.Column(db.Integer, primary_key=True)
-    team = db.Column(db.String(64), unique=True)
-    project = db.Column(db.String(256), unique=True)
-    name = db.Column(db.String(64), unique=True)
-    value = db.Column(db.String(64), unique=True)
-
-    def __repr__(self):
-        return '<Variable {id}>'.format(self.id)
+    # def __repr__(self):
+    #     return '<Team {id}>'.format(self.id)
 
 
-class Snippet(BaseModel):
+class VariableModel(CloverModel):
 
     __tablename__ = 'variable'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(64), unique=True)
-    mock = db.Column(db.String(64), unique=True)
-    snippet = db.Column(db.String(1024), unique=True)
+    team = db.Column(db.String(64))
+    project = db.Column(db.String(256))
+    owner = db.Column(db.String(64))
+    name = db.Column(db.String(64))
+    value = db.Column(db.String(64))
+    enable = db.Column(db.Integer, default=0)
+    created = db.Column(db.DateTime, default=datetime.datetime.now)
+    updated = db.Column(db.DateTime, default=datetime.datetime.now)
 
-    def __repr__(self):
-        return '<Snippet {id}>'.format(self.id)
+    # def __repr__(self):
+    #     return '<Variable {id}>'.format(self.id)
+
+
+if __name__ == '__main__':
+    pass

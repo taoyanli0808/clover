@@ -8,7 +8,6 @@ import requests
 
 from flask import g
 
-from clover.common.utils.mongo import Mongo
 from clover.common.utils import get_timestamp
 from clover.common.utils import get_friendly_id
 from clover.common.utils.helper import derivation
