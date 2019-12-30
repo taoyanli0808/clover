@@ -23,7 +23,9 @@ class Service(object):
             db.session.add(model)
             db.session.commit()
         elif table == 'variable':
-            pass
+            model = VariableModel(**data)
+            db.session.add(model)
+            db.session.commit()
         else:
             pass
 
@@ -39,7 +41,10 @@ class Service(object):
                 db.session.delete(model)
                 db.session.commit()
         elif table == 'variable':
-            pass
+            model = VariableModel.query.get(data['id'])
+            if model is not None:
+                db.session.delete(model)
+                db.session.commit()
         else:
             pass
 
@@ -64,7 +69,19 @@ class Service(object):
                 old_model.updated = datetime.datetime.now()
                 db.session.commit()
         elif table == 'variable':
-            pass
+            old_model = VariableModel.query.get(data['id'])
+            if old_model is None:
+                model = VariableModel(**data)
+                db.session.add(model)
+                db.session.commit()
+            else:
+                old_model.team = data['team']
+                old_model.project = data['project']
+                old_model.owner = data['owner']
+                old_model.name = data['name']
+                old_model.value = data['value']
+                old_model.updated = datetime.datetime.now()
+                db.session.commit()
         else:
             pass
 
@@ -76,7 +93,6 @@ class Service(object):
         :param data:
         :return:
         """
-        print(data)
         table = data.get('type', None)  # 表名由前端传入。。。
         filter = {}
 
@@ -97,15 +113,17 @@ class Service(object):
             limit = 10
 
         if table == 'team':
-            print(filter)
             results = TeamModel.query.filter_by(**filter)\
                 .offset(offset).limit(limit)
             results = query_to_dict(results)
-            print(results)
             count = TeamModel.query.filter_by(**filter).count()
             return count, results
         elif table == 'variable':
-            pass
+            results = VariableModel.query.filter_by(**filter) \
+                .offset(offset).limit(limit)
+            results = query_to_dict(results)
+            count = VariableModel.query.filter_by(**filter).count()
+            return count, results
         else:
             pass
 

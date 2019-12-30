@@ -27,6 +27,12 @@
       border
     >
       <el-table-column
+        prop="id"
+        label="ID"
+        width="90"
+        align="center"
+      />
+      <el-table-column
         prop="team"
         label="团队"
         width="200"
@@ -59,6 +65,12 @@
       <el-table-column
         prop="created"
         label="创建日期"
+        width="200"
+        align="center"
+      />
+      <el-table-column
+        prop="updated"
+        label="更新日期"
         width="200"
         align="center"
       />
@@ -245,7 +257,7 @@ export default {
       this.edit.owner = row.owner
       this.edit.name = row.name
       this.edit.value = row.value
-      this.edit._id = row._id
+      this.edit.id = row.id
     },
     handleDelete (index, row) {
       this.$confirm('此操作将永久删除该项目, 是否继续?', '删除项目', {
@@ -258,7 +270,7 @@ export default {
           method: 'post',
           data: JSON.stringify({
             type: 'variable',
-            id_list: [row._id]
+            id: row.id
           }),
           headers: {
             'Content-Type': 'application/json;'
