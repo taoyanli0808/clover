@@ -15,7 +15,7 @@ class Expect(Extract):
         :param asrt:
         :return: 断言成功返回True，失败返回False，出错返回None
         """
-        for asrt in self.data['assert']:
+        for asrt in self.data['verify']:
             extractor = asrt.get('extractor', 'delimiter')
             expression = asrt.get('expression')
             condition = asrt.get('condition', 'equal')

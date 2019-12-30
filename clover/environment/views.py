@@ -4,8 +4,8 @@ import traceback
 from flask import request
 from flask import jsonify
 
-from clover.views import CloverView
 from clover.environment.service import Service
+from clover.views import CloverView
 
 
 class EnvironmentView(CloverView):
@@ -71,10 +71,10 @@ class EnvironmentView(CloverView):
                 'data': data
             })
 
-        if 'id_list' not in data or not data['id_list']:
+        if 'id' not in data or not data['id']:
             return jsonify({
                 'status': 400,
-                'message': "invalid parameter id_list[{0}]".format(data['id_list']),
+                'message': "invalid parameter id[{0}]".format(data['id']),
                 'data': data
             })
 
@@ -105,10 +105,10 @@ class EnvironmentView(CloverView):
                 'data': data
             })
 
-        if '_id' not in data or not data['_id']:
+        if 'id' not in data or not data['id']:
             return jsonify({
                 'status': 400,
-                'message': "invalid parameter _id[{0}]".format(data['_id']),
+                'message': "invalid parameter id[{0}]".format(data['id']),
                 'data': data
             })
 

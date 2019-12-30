@@ -8,17 +8,19 @@ import requests
 
 from flask import g
 
-from clover.common.utils.mongo import Mongo
 from clover.common.utils import get_timestamp
 from clover.common.utils import get_friendly_id
 from clover.common.utils.helper import derivation
 from clover.common.interface.expect import Expect
 
+from clover.exts import db
+from clover.interface.models import InterfaceModel
+from clover.environment.models import VariableModel
+
 
 class Service(object):
 
     def __init__(self):
-        self.db = Mongo()
         g.data = []
 
     def replace_variable(self, data):
@@ -31,23 +33,21 @@ class Service(object):
         :return:
         """
         filter = {
-            'team': data['environment'].get('team'),
-            'project': data['environment'].get('project')
+            'team': data.get('team'),
+            'project': data.get('project')
         }
-        _, results = self.db.search("environment", "variable", filter)
+        results = VariableModel.query.filter_by(**filter).all()
         results.extend(g.data)
-        print(50 * '*')
-        print(results)
 
-        data['request']['host'] = derivation(data['request'].get('host'), results)
-        data['request']['path'] = derivation(data['request'].get('path'), results)
+        data['host'] = derivation(data.get('host'), results)
+        data['path'] = derivation(data.get('path'), results)
 
-        if 'header' in data['request']:
-            for header in data['request']['header']:
+        if 'header' in data:
+            for header in data['header']:
                 header['key'] = derivation(header['key'], results)
 
-        if 'param' in data['request']:
-            for param in data['request']['param']:
+        if 'param' in data:
+            for param in data['param']:
                 param['key'] = derivation(param['key'], results)
 
         return data
@@ -57,21 +57,22 @@ class Service(object):
         :param data:
         :return:
         """
+        print(data)
         # 发送http请求
-        method = data['request'].get("method")
-        host = data['request'].get("host")
-        path = data['request'].get("path")
-        header = data['request'].get('header', {})
-        payload = data['request'].get('param', {})
+        method = data.get("method")
+        host = data.get("host")
+        path = data.get("path")
+        header = data.get('header', {})
+        payload = data.get('param', {})
         url = host + path
 
         # 将[{'a': 1}, {'b': 2}]转化为{'a': 1, 'b': 2}
         if header:
-            header = {key: val for key, val in header}
+            header = {item['key']: item['value'] for item in header if item['key']}
 
         # 将[{'a': 1}, {'b': 2}]转化为{'a': 1, 'b': 2}
         if payload:
-            payload = {key: val for key, val in payload}
+            payload = {item['key']: item['value'] for item in payload}
 
         if method == 'get':
             response = requests.request(method, url, params=payload, headers=header)
@@ -84,7 +85,7 @@ class Service(object):
             'header': dict(response.headers),
             'content': response.text
         }
-        print(response.url)
+
         # 如果是json相应，这里对原始相应进行替换。
         if data['response']['header']['Content-Type'].find("application/json") != -1:
             data['response']['json'] = json.loads(data['response']['content'])
@@ -139,8 +140,8 @@ class Service(object):
         :param data:
         :return:
         """
-        data['_id'] = get_friendly_id()
-        self.db.insert("interface", "history", data)
+        # data['_id'] = get_friendly_id()
+        # self.db.insert("interface", "history", data)
         return data
 
     def execute(self, data):
@@ -157,32 +158,15 @@ class Service(object):
         print(g.data)
         return data
 
-    def save(self, data):
+    def create(self, data):
         """
         # 将页面数据保存到数据库。
         :param data:
         :return:
         """
-        data['_id'] = get_friendly_id()
-        data['created'] = datetime.datetime.now()
-
-        # 这里对数据进行解包
-        request = data.pop('request')
-        data['name'] = request['name']
-        data['host'] = request['host']
-        data['path'] = request['path']
-        data['method'] = request['method']
-        data['header'] = request['header']
-        data['params'] = request['param']
-        environment = data.pop('environment')
-        data['team'] = environment['team']
-        data['project'] = environment['project']
-
-        self.db.insert("interface", "case", data)
-        print('111111111111111111111111111111111111')
-        print(data)
-        print('111111111111111111111111111111111111')
-        return data['_id']
+        model = InterfaceModel(**data)
+        db.session.add(model)
+        db.session.commit()
 
     def trigger(self, data):
         """
@@ -260,9 +244,7 @@ class Service(object):
         :param data:
         :return:
         """
-        count, results = self.db.search("interface", "case", data)
-        return (count, results) if results else (0, [])
+        # count, results = self.db.search("interface", "case", data)
+        # return (count, results) if results else (0, [])
+        return 0, []
 
-    def __del__(self):
-        if self.db:
-            self.db.close()

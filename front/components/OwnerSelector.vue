@@ -40,8 +40,8 @@ export default {
       }).then((res) => {
         for (const index in res.data.data) {
           this.owners.push({
-            label: res.data.data[index]._id,
-            value: res.data.data[index]._id
+            label: res.data.data[index],
+            value: res.data.data[index]
           })
         }
       })

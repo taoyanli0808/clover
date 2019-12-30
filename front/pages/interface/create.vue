@@ -9,46 +9,19 @@
             <el-form
               ref="form"
             >
-              <el-form-item label="业务团队">
-                <el-select
-                  @change="selectTeam"
-                  v-model="environment.team"
-                  placeholder="请选择团队"
-                  clearable
-                >
-                  <el-option
-                    v-for="item in team"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  />
-                </el-select>
-              </el-form-item>
-              <el-form-item label="所属项目">
-                <el-select
-                  @change="selectProject"
-                  v-model="environment.project"
-                  placeholder="请选择项目"
-                  clearable
-                >
-                  <el-option
-                    v-for="item in project"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  />
-                </el-select>
+              <el-form-item label="业务与项目">
+                <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
               </el-form-item>
               <el-form-item label="用例名称">
                 <el-input
-                  v-model="request.name"
+                  v-model="name"
                   placeholder="clover接口测试用例"
                   clearable
                 />
               </el-form-item>
               <el-form-item label="测试域名">
                 <el-input
-                  v-model="request.host"
+                  v-model="host"
                   placeholder="https://github.com"
                   class="input-with-select"
                   clearable
@@ -56,7 +29,7 @@
                   <el-select
                     slot="prepend"
                     @change="selectMethod"
-                    v-model="request.method"
+                    v-model="method"
                     placeholder="请求方法"
                     clearable
                   >
@@ -71,7 +44,7 @@
               </el-form-item>
               <el-form-item label="请求路径">
                 <el-input
-                  v-model="request.path"
+                  v-model="path"
                   placeholder="/taoyanli0808/clover"
                   clearable
                 />
@@ -81,7 +54,7 @@
           <el-tab-pane label="请求头信息" name="second">
             <el-table
               ref="headerTable"
-              :data="request.header"
+              :data="header"
               class="tb-edit"
               style="width: 100%"
               highlight-current-row
@@ -144,7 +117,7 @@
           </el-tab-pane>
           <el-tab-pane label="请求参数" name="third">
             <el-table
-              :data="request.param"
+              :data="param"
               class="tb-edit"
               style="width: 100%"
               highlight-current-row
@@ -449,11 +422,16 @@
 </template>
 
 <script>
+import TeamProjectCascader from '~/components/TeamProjectCascader.vue'
+
 export default {
+  components: {
+    TeamProjectCascader
+  },
   data () {
     return {
-      team: [],
-      project: [],
+      teams: [],
+      projects: [],
       methods: ['get', 'post', 'put', 'delete'],
       activeName: 'first',
       selectors: [{
@@ -465,24 +443,20 @@ export default {
         value: 're'
       }],
       response: '',
-      environment: {
-        team: '',
-        project: ''
-      },
-      request: {
-        name: '',
-        host: '',
-        path: '',
-        method: '',
-        header: [{
-          key: '',
-          value: ''
-        }],
-        param: [{
-          key: '',
-          value: ''
-        }]
-      },
+      team: '',
+      project: '',
+      name: '',
+      host: '',
+      path: '',
+      method: '',
+      header: [{
+        key: '',
+        value: ''
+      }],
+      param: [{
+        key: '',
+        value: ''
+      }],
       assert: [{
         extractor: '',
         expression: '',
@@ -497,57 +471,16 @@ export default {
       }]
     }
   },
-  mounted () {
-    this.getTeam()
-  },
   methods: {
-    selectTeam (value) {
-      this.environment.team = value
-      this.project = []
-      this.$axios
-        .get('/api/v1/environment/search', {
-          params: {
-            type: 'team',
-            team: value
-          }
-        })
-        .then((res) => {
-          for (const index in res.data.data) {
-            this.project.push({
-              label: res.data.data[index].project,
-              value: res.data.data[index].project
-            })
-          }
-        })
-    },
-    selectProject (value) {
-      this.environment.project = value
+    selectedTeamProject (value) {
+      this.team = value.team
+      this.project = value.project
     },
     selectMethod (value) {
-      this.request.method = value
-    },
-    getTeam () {
-      this.$axios({
-        url: '/api/v1/environment/aggregate',
-        method: 'post',
-        data: JSON.stringify({
-          type: 'team',
-          key: 'team'
-        }),
-        headers: {
-          'Content-Type': 'application/json;'
-        }
-      }).then((res) => {
-        for (const index in res.data.data) {
-          this.team.push({
-            label: res.data.data[index]._id,
-            value: res.data.data[index]._id
-          })
-        }
-      })
+      this.method = value
     },
     addHeaderTableRow (index, row) {
-      this.request.header.push({
+      this.header.push({
         key: '',
         value: ''
       })
@@ -556,24 +489,24 @@ export default {
       this.$refs.headerTable.setCurrentRow(currentRow)
     },
     deleteHeaderTableRow (index, row) {
-      this.request.header = this.request.header.filter(item => item.key !== row.key)
-      if (Array.prototype.isPrototypeOf(this.request.header) && this.request.header.length === 0) {
-        this.request.header.push({
+      this.header = this.header.filter(item => item.key !== row.key)
+      if (Array.prototype.isPrototypeOf(this.header) && this.header.length === 0) {
+        this.header.push({
           key: '',
           value: ''
         })
       }
     },
     addParameterTableRow (index, row) {
-      this.request.param.push({
+      this.param.push({
         key: '',
         value: ''
       })
     },
     deleteParameterTableRow (index, row) {
-      this.request.param = this.request.param.filter(item => item.key !== row.key)
-      if (Array.prototype.isPrototypeOf(this.request.param) && this.request.param.length === 0) {
-        this.request.param.push({
+      this.param = this.param.filter(item => item.key !== row.key)
+      if (Array.prototype.isPrototypeOf(this.param) && this.param.length === 0) {
+        this.param.push({
           key: '',
           value: ''
         })
@@ -627,10 +560,16 @@ export default {
         url: '/api/v1/interface/debug',
         method: 'post',
         data: JSON.stringify({
-          assert: this.assert,
-          request: this.request,
-          extract: this.extract,
-          environment: this.environment
+          team: this.team,
+          project: this.project,
+          name: this.name,
+          host: this.host,
+          path: this.path,
+          method: this.method,
+          header: this.header,
+          param: this.param,
+          verify: this.assert,
+          extract: this.extract
         }),
         headers: {
           'Content-Type': 'application/json;'
@@ -662,13 +601,19 @@ export default {
     },
     saveCase () {
       this.$axios({
-        url: '/api/v1/interface/save',
+        url: '/api/v1/interface/create',
         method: 'post',
         data: JSON.stringify({
-          assert: this.assert,
-          request: this.request,
-          extract: this.extract,
-          environment: this.environment
+          team: this.team,
+          project: this.project,
+          name: this.name,
+          host: this.host,
+          path: this.path,
+          method: this.method,
+          header: this.header,
+          param: this.param,
+          verify: this.assert,
+          extract: this.extract
         }),
         headers: {
           'Content-Type': 'application/json;'
