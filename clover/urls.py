@@ -56,7 +56,7 @@ def map_urls(app):
     # 接口测试相关路由与视图
     interface = Interface.as_view("interface")
     app.add_url_rule(
-        "/api/v1/interface/save",
+        "/api/v1/interface/create",
         view_func=interface,
         methods=['POST'],
         strict_slashes=False,

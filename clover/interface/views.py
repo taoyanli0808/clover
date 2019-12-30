@@ -14,13 +14,10 @@ class InterfaceView(CloverView):
     def update(self):
         pass
 
-    def create(self):
-        pass
-
     def debug(self):
         data = request.get_json()
 
-        name = data['request'].get('name', None)
+        name = data.get('name', None)
         if not name:
             return jsonify({
                 'status': 400,
@@ -28,7 +25,7 @@ class InterfaceView(CloverView):
                 'data': data,
             })
 
-        method = data['request'].get('method', None)
+        method = data.get('method', None)
         if not method:
             return jsonify({
                 'status': 400,
@@ -36,7 +33,7 @@ class InterfaceView(CloverView):
                 'data': data,
             })
 
-        host = data['request'].get('host', None)
+        host = data.get('host', None)
         if not host:
             return jsonify({
                 'status': 400,
@@ -44,7 +41,7 @@ class InterfaceView(CloverView):
                 'data': data,
             })
 
-        path = data['request'].get('path', None)
+        path = data.get('path', None)
         if not path:
             return jsonify({
                 'status': 400,
@@ -73,12 +70,10 @@ class InterfaceView(CloverView):
         #         'data': {}
         #     })
 
-    def save(self):
-        # get请求使用request.values.to_dict接收
-        # post、put、delete使用request.get_json接收
+    def create(self):
         data = request.get_json()
 
-        method = data['request'].get('method', None)
+        method = data.get('method', None)
         if not method:
             return jsonify({
                 'status': 400,
@@ -86,7 +81,7 @@ class InterfaceView(CloverView):
                 'data': data,
             })
 
-        host = data['request'].get('host', None)
+        host = data.get('host', None)
         if not host:
             return jsonify({
                 'status': 400,
@@ -94,7 +89,7 @@ class InterfaceView(CloverView):
                 'data': data,
             })
 
-        path = data['request'].get('path', None)
+        path = data.get('path', None)
         if not path:
             return jsonify({
                 'status': 400,
@@ -103,7 +98,7 @@ class InterfaceView(CloverView):
             })
 
         service = Service()
-        case_id = service.save(data)
+        case_id = service.create(data)
         return jsonify({
             'status': 0,
             'message': 'ok',

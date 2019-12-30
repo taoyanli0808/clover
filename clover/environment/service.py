@@ -138,30 +138,24 @@ class Service(object):
         """
         if 'cascader' in data:
             cascader = {}
-            table = data.pop('type', None)
-            my_data = {
-                'database': 'clover',
-                'table': table,
-            }
-            results = self.my_db.search(**my_data)
-            # _, results = self.db.search("environment", "team", {})
-            # print(results, '*' * 88)
-            for result in results:
-                if result['team'] not in cascader:
-                    cascader.setdefault(result['team'], {
-                        'label': result['team'],
-                        'value': result['team'],
+            results = TeamModel.query.\
+                with_entities(TeamModel.team,TeamModel.project).distinct().all()
+            for team, project in results:
+                if team not in cascader:
+                    cascader.setdefault(team, {
+                        'label': team,
+                        'value': team,
                         'children': [{
-                            'label': result['project'],
-                            'value': result['project']
+                            'label': project,
+                            'value': project
                         }],
                     })
                 else:
-                    labels = [item['label'] for item in cascader[result['team']]['children']]
-                    if result['project'] not in labels:
-                        cascader[result['team']]['children'].append({
-                            'label': result['project'],
-                            'value': result['project']
+                    labels = [item['label'] for item in cascader[team]['children']]
+                    if project not in labels:
+                        cascader[team]['children'].append({
+                            'label': project,
+                            'value': project
                         })
             return list(cascader.values())
         elif 'type' in data:
