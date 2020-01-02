@@ -16,7 +16,7 @@ class InterfaceView(CloverView):
 
     def debug(self):
         data = request.get_json()
-        print(data)
+
         name = data.get('name', None)
         if not name:
             return jsonify({
@@ -48,27 +48,21 @@ class InterfaceView(CloverView):
                 'message': '接口测试用例需要指定路径，例如[/taoyanli0808/clover]！',
                 'data': data,
             })
-        service = Service()
-        data = service.execute(data)
-        return jsonify({
-            'status': 0,
-            'message': 'ok',
-            'data': data,
-        })
-        # try:
-        #     service = Service()
-        #     data = service.execute(data)
-        #     return jsonify({
-        #         'status': 0,
-        #         'message': 'ok',
-        #         'data': data,
-        #     })
-        # except Exception as error:
-        #     return jsonify({
-        #         'status': 500,
-        #         'message': '运行时错误，请联系管理员！',
-        #         'data': {}
-        #     })
+
+        try:
+            service = Service()
+            data = service.execute(data)
+            return jsonify({
+                'status': 0,
+                'message': 'ok',
+                'data': data,
+            })
+        except Exception as error:
+            return jsonify({
+                'status': 500,
+                'message': '运行时错误，请联系管理员！',
+                'data': {}
+            })
 
     def create(self):
         data = request.get_json()
@@ -97,27 +91,20 @@ class InterfaceView(CloverView):
                 'data': data,
             })
 
-        service = Service()
-        case_id = service.create(data)
-        return jsonify({
-            'status': 0,
-            'message': 'ok',
-            'data': case_id,
-        })
-        # try:
-        #     service = Service()
-        #     case_id = service.save(data)
-        #     return jsonify({
-        #         'status': 0,
-        #         'message': 'ok',
-        #         'data': case_id,
-        #     })
-        # except Exception as error:
-        #     return jsonify({
-        #         'status': 500,
-        #         'message': str(error),
-        #         'data': data
-        #     })
+        try:
+            service = Service()
+            case_id = service.save(data)
+            return jsonify({
+                'status': 0,
+                'message': 'ok',
+                'data': case_id,
+            })
+        except Exception as error:
+            return jsonify({
+                'status': 500,
+                'message': str(error),
+                'data': data
+            })
 
     def trigger(self):
         # 这里支持GET与POST请求，获取参数方法不同。
@@ -183,7 +170,7 @@ class InterfaceView(CloverView):
 
         try:
             service = Service()
-            count, result = service.list(data)
+            count, result = service.search(data)
             return jsonify({
                 'status': 0,
                 'message': 'ok',

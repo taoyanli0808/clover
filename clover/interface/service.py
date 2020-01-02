@@ -14,6 +14,7 @@ from clover.common.utils.helper import derivation
 from clover.common.interface.expect import Expect
 
 from clover.exts import db
+from clover.models import query_to_dict
 from clover.interface.models import InterfaceModel
 from clover.environment.models import VariableModel
 
@@ -239,12 +240,30 @@ class Service(object):
             count += self.db.delete("interface", "case", {'_id': id})
         return count
 
-    def list(self, data):
+    def search(self, data):
         """
         :param data:
         :return:
         """
-        # count, results = self.db.search("interface", "case", data)
-        # return (count, results) if results else (0, [])
-        return 0, []
+        filter = {}
 
+        if 'team' in data and data['team']:
+            filter.setdefault('team', data.get('team'))
+
+        if 'owner' in data and data['owner']:
+            filter.setdefault('owner', data.get('owner'))
+
+        try:
+            offset = int(data.get('offset', 0))
+        except TypeError:
+            offset = 0
+
+        try:
+            limit = int(data.get('limit', 10))
+        except TypeError:
+            limit = 10
+
+        results = InterfaceModel.query.filter_by(**filter).offset(offset).limit(limit)
+        results = query_to_dict(results)
+        count = InterfaceModel.query.filter_by(**filter).count()
+        return count, results
