@@ -555,13 +555,6 @@ export default {
         })
       }
     },
-    paramsToObject (params) {
-      const newParams = {}
-      for (const p in params) {
-        newParams[p].key = params[p].value
-      }
-      return newParams
-    },
     debugCase () {
       this.$axios({
         url: '/api/v1/interface/debug',
@@ -574,7 +567,7 @@ export default {
           path: this.path,
           method: this.method,
           header: this.header,
-          param: this.paramsToObject(this.param),
+          params: this.param,
           verify: this.assert,
           extract: this.extract
         }),
@@ -618,7 +611,7 @@ export default {
           path: this.path,
           method: this.method,
           header: this.header,
-          param: this.paramsToObject(this.param),
+          params: this.param,
           verify: this.assert,
           extract: this.extract
         }),

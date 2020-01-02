@@ -46,8 +46,8 @@ class Service(object):
             for header in data['header']:
                 header['key'] = derivation(header['key'], results)
 
-        if 'param' in data:
-            for param in data['param']:
+        if 'params' in data:
+            for param in data['params']:
                 param['key'] = derivation(param['key'], results)
 
         return data
@@ -63,7 +63,7 @@ class Service(object):
         host = data.get("host")
         path = data.get("path")
         header = data.get('header', {})
-        payload = data.get('param', {})
+        payload = data.get('params', {})
         url = host + path
 
         # 将[{'a': 1}, {'b': 2}]转化为{'a': 1, 'b': 2}
@@ -164,8 +164,6 @@ class Service(object):
         :param data:
         :return:
         """
-        print(type(data['param']), data['param'])
-        data['param'] = json.loads(data['param'])
         model = InterfaceModel(**data)
         db.session.add(model)
         db.session.commit()
