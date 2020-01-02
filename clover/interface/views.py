@@ -16,7 +16,7 @@ class InterfaceView(CloverView):
 
     def debug(self):
         data = request.get_json()
-
+        print(data)
         name = data.get('name', None)
         if not name:
             return jsonify({

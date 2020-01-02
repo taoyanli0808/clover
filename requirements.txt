@@ -1,17 +1,8 @@
-werkzeug
-<<<<<<< HEAD
-requests==2.22.0
-pymongo==3.9.0
-Flask==1.1.1
-PyMySQL==0.9.3
-selenium==3.141.0
-=======
 flask==1.1.1
 flask-cors==3.0.8
 flask-script==2.0.6
 selenium==3.141.0
-pymongo==3.9.0
+pymysql==0.9.3
 requests==2.22.0
 gunicorn==20.0.4
 gevent==1.4.0
->>>>>>> master

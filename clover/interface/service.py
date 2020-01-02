@@ -164,6 +164,8 @@ class Service(object):
         :param data:
         :return:
         """
+        print(type(data['param']), data['param'])
+        data['param'] = json.loads(data['param'])
         model = InterfaceModel(**data)
         db.session.add(model)
         db.session.commit()
