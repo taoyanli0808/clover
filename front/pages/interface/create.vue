@@ -622,7 +622,7 @@ export default {
         if (res.data.status === 0) {
           this.$message({
             type: 'success',
-            message: '测试成功'
+            message: '保存用例成功！'
           })
           this.response = res.data.data.response.content
         } else {

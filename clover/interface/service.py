@@ -237,10 +237,13 @@ class Service(object):
         :param data:
         :return:
         """
-        count, id_list = 0, data.pop('id_list')
+
+
+        id_list = data.pop('id_list')
         for id in id_list:
-            count += self.db.delete("interface", "case", {'_id': id})
-        return count
+            result = InterfaceModel.query.get(id)
+            db.session.delete(result)
+            db.session.commit()
 
     def search(self, data):
         """

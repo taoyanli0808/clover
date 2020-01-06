@@ -152,8 +152,21 @@ export default {
       this.$axios
         .post('/api/v1/interface/search', params)
         .then((res) => {
-          this.total = res.data.total
-          this.data = res.data.data
+          if (res.data.status === 0) {
+            this.total = res.data.total
+            this.data = res.data.data
+          } else {
+            this.$message({
+              type: 'error',
+              message: res.data.message
+            })
+          }
+        })
+        .catch(() => {
+          this.$message({
+            type: 'error',
+            message: '服务出错，请联系管理员'
+          })
         })
     },
     handleAdd (index, row) {
@@ -175,21 +188,22 @@ export default {
     },
     handleDelete (index, row) {
       this.$confirm('此操作将永久删除该接口, 是否继续?', '删除接口', {
+        type: 'warning',
         confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
+        cancelButtonText: '取消'
       }).then(() => {
+        console.log(row.id)
         this.$axios({
           url: '/api/v1/interface/delete',
           method: 'post',
           data: JSON.stringify({
-            id_list: [row._id]
+            id_list: [row.id]
           }),
           headers: {
             'Content-Type': 'application/json;'
           }
         }).then((res) => {
-          this.fetch()
+          this.refresh()
           this.$message({
             type: 'success',
             message: '删除成功!'
@@ -211,7 +225,7 @@ export default {
       const index = []
       value.forEach((val, idx) => {
         this.data.forEach((v, i) => {
-          if (val._id === v._id) {
+          if (val.id === v.id) {
             index.push(i)
           }
         })
@@ -219,7 +233,7 @@ export default {
       this.cases = []
       const temp = index.sort()
       for (const i in temp) {
-        this.cases.push(this.data[temp[i]]._id)
+        this.cases.push(this.data[temp[i]].id)
       }
     },
     createSuite (value) {

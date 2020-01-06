@@ -157,7 +157,7 @@ class InterfaceView(CloverView):
         except Exception as error:
             return jsonify({
                 'status': 500,
-                'message': str(error),
+                'message': '服务器出错，请联系管理员！',
                 'data': data
             })
 
