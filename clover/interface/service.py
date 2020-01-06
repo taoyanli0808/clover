@@ -170,6 +170,7 @@ class Service(object):
         model = InterfaceModel(**data)
         db.session.add(model)
         db.session.commit()
+        return model.id
 
     def trigger(self, data):
         """

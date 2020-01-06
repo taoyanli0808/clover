@@ -71,7 +71,7 @@ class InterfaceView(CloverView):
         if not method:
             return jsonify({
                 'status': 400,
-                'message': 'invalid parameter [method]',
+                'message': '缺少请求方法参数！',
                 'data': data,
             })
 
@@ -79,7 +79,7 @@ class InterfaceView(CloverView):
         if not host:
             return jsonify({
                 'status': 400,
-                'message': 'invalid parameter [host]',
+                'message': '缺少请求域名！',
                 'data': data,
             })
 
@@ -87,17 +87,17 @@ class InterfaceView(CloverView):
         if not path:
             return jsonify({
                 'status': 400,
-                'message': 'invalid parameter [path]',
+                'message': '缺少请求路径！',
                 'data': data,
             })
 
         try:
             service = Service()
-            case_id = service.create(data)
+            id = service.create(data)
             return jsonify({
                 'status': 0,
                 'message': 'ok',
-                'data': case_id,
+                'data': id,
             })
         except Exception as error:
             return jsonify({
