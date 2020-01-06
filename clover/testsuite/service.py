@@ -1,31 +1,51 @@
 
-import datetime
-
-from clover.common.utils import get_friendly_id
+from clover.exts import db
+from clover.models import query_to_dict
+from clover.testsuite.models import SuiteModel
 
 
 class Service():
 
     def __init__(self):
-        self.db = Mongo()
+        pass
 
     def create(self, data):
         """
         :param data:
         :return:
         """
-        data.setdefault('_id', get_friendly_id())
-        data.setdefault('created', datetime.datetime.now())
-        id = self.db.insert("testsuite", "interface", data)
-        return id
+        model = SuiteModel(**data)
+        db.session.add(model)
+        db.session.commit()
+        return model.id
 
     def search(self, data):
         """
         :param data:
         :return:
         """
-        count, results = self.db.search("testsuite", "interface", data)
-        return (count, results) if results else (0, [])
+        filter = {}
+
+        if 'team' in data and data['team']:
+            filter.setdefault('team', data.get('team'))
+
+        if 'owner' in data and data['owner']:
+            filter.setdefault('owner', data.get('owner'))
+
+        try:
+            offset = int(data.get('offset', 0))
+        except TypeError:
+            offset = 0
+
+        try:
+            limit = int(data.get('limit', 10))
+        except TypeError:
+            limit = 10
+
+        results = SuiteModel.query.filter_by(**filter).offset(offset).limit(limit)
+        results = query_to_dict(results)
+        count = SuiteModel.query.filter_by(**filter).count()
+        return count, results
 
     def trigger(self, data):
         """

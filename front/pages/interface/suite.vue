@@ -123,8 +123,15 @@ export default {
       this.$axios
         .post('/api/v1/testsuite/search', params)
         .then((res) => {
-          this.total = res.data.total
-          this.data = res.data.data
+          if (res.data.status === 0) {
+            this.total = res.data.total
+            this.data = res.data.data
+          } else {
+            this.$message({
+              type: 'error',
+              message: res.data.message
+            })
+          }
         })
     },
     handleHistory (index, row) {
