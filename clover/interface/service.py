@@ -87,9 +87,11 @@ class Service(object):
             'content': response.text
         }
 
-        # 如果是json相应，这里对原始相应进行替换。
-        if data['response']['header']['Content-Type'].find("application/json") != -1:
+        # 框架目前只支持json数据，在这里尝试进行json数据转换
+        try:
             data['response']['json'] = json.loads(data['response']['content'])
+        except Exception:
+            data['response']['json'] = {}
 
         return data
 
