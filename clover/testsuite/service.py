@@ -19,6 +19,17 @@ class Service():
         db.session.commit()
         return model.id
 
+    def delete(self, data):
+        """
+        :param data:
+        :return:
+        """
+        id_list = data.pop('id_list')
+        for id in id_list:
+            result = SuiteModel.query.get(id)
+            db.session.delete(result)
+            db.session.commit()
+
     def search(self, data):
         """
         :param data:

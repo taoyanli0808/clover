@@ -30,7 +30,28 @@ class TestSuiteView(CloverView):
             })
 
     def delete(self):
-        pass
+        data = request.get_json()
+
+        if 'id_list' not in data or not data['id_list']:
+            return jsonify({
+                'status': 400,
+                'message': '请选择您要删除的接口！',
+                'data': data
+            })
+        try:
+            service = Service()
+            count = service.delete(data)
+            return jsonify({
+                'status': 0,
+                'message': 'ok',
+                'data': count,
+            })
+        except Exception as error:
+            return jsonify({
+                'status': 500,
+                'message': '服务器出错，请联系管理员！',
+                'data': data
+            })
 
     def update(self):
         pass
