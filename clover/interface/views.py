@@ -93,7 +93,7 @@ class InterfaceView(CloverView):
 
         try:
             service = Service()
-            case_id = service.save(data)
+            case_id = service.create(data)
             return jsonify({
                 'status': 0,
                 'message': 'ok',
