@@ -1,7 +1,10 @@
 
+from sqlalchemy.exc import ProgrammingError
+
 from clover.exts import db
 from clover.models import query_to_dict
 from clover.testsuite.models import SuiteModel
+from clover.common.utils import get_mysql_error
 
 
 class Service():
@@ -16,7 +19,12 @@ class Service():
         """
         model = SuiteModel(**data)
         db.session.add(model)
-        db.session.commit()
+        # 这是一个处理数据库异常的例子，后面最好有统一的处理方案。
+        try:
+            db.session.commit()
+        except ProgrammingError as error:
+            code, msg = get_mysql_error(error)
+            return (code, msg)
         return model.id
 
     def delete(self, data):

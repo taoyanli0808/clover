@@ -3,7 +3,6 @@
 import time
 
 from clover.common.utils import get_timestamp
-from clover.common.utils import get_friendly_id
 
 from clover.exts import db
 from clover.models import query_to_dict
@@ -69,7 +68,7 @@ class Service(object):
         """
         # 需要通过case_id先查询到数据库里的测试用例。
         # run_id是一次运行的记录，查测试报告时使用。
-        run_id = get_friendly_id()
+        run_id = 111
         cases = []
         ids = data['cases']
         for id in ids.split(','):
