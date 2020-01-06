@@ -10,8 +10,7 @@ A Simple and Easy-to-Use Automated Testing Platform
 1. keyword support
 2. test report
 3. hook & fixture
-4. use mysql replace mongodb
-5. async-validator
+4. async-validator
 
 # 关注公众号，学习更多测试知识。
 ![大猫聊测试](wechat.jpg)
