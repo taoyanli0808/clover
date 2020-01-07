@@ -127,7 +127,7 @@ export default {
         params.project = this.project
       }
       this.$axios
-        .post('/api/v1/testsuite/search', params)
+        .post('/api/v1/suite/search', params)
         .then((res) => {
           if (res.data.status === 0) {
             this.total = res.data.total
@@ -150,7 +150,7 @@ export default {
     handleAdd (index, row) {
       console.log(row)
       this.$axios({
-        url: '/api/v1/testsuite/trigger',
+        url: '/api/v1/suite/trigger',
         method: 'post',
         data: JSON.stringify(row),
         headers: {
@@ -194,7 +194,7 @@ export default {
         cancelButtonText: '取消'
       }).then(() => {
         this.$axios({
-          url: '/api/v1/testsuite/delete',
+          url: '/api/v1/suite/delete',
           method: 'post',
           data: JSON.stringify({
             id_list: [row.id]
