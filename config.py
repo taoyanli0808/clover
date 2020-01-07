@@ -1,5 +1,5 @@
 
 DEBUG = True
 
-SQLALCHEMY_DATABASE_URI='mysql://root:tyl.0808@127.0.0.1:3306/clover?charset=utf8'
+SQLALCHEMY_DATABASE_URI='mysql://root:12345678@127.0.0.1:3306/clover?charset=utf8'
 SQLALCHEMY_TRACK_MODIFICATIONS=True
