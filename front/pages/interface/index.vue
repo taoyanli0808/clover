@@ -24,6 +24,11 @@
         width="55"
       />
       <el-table-column
+        prop="id"
+        label="ID"
+        width="80"
+      />
+      <el-table-column
         prop="project"
         label="项目"
         width="180"
@@ -61,6 +66,11 @@
       <el-table-column
         prop="created"
         label="创建时间"
+        width="180"
+      />
+      <el-table-column
+        prop="updated"
+        label="更新时间"
         width="180"
       />
       <el-table-column
