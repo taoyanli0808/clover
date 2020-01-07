@@ -1,17 +1,18 @@
 <template>
   <div class="container">
-    <div>
-      <IndexCarousel />
-    </div>
+    <IndexCarousel />
+    <IndexModule />
   </div>
 </template>
 
 <script>
 import IndexCarousel from '~/components/IndexCarousel.vue'
+import IndexModule from '~/components/IndexModule.vue'
 
 export default {
   components: {
-    IndexCarousel
+    IndexCarousel,
+    IndexModule
   }
 }
 </script>
