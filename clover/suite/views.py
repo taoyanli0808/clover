@@ -3,13 +3,13 @@ from flask import jsonify
 from flask import request
 
 from clover.views import CloverView
-from clover.testsuite.service import Service
+from clover.suite.service import Service
 
 
-class TestSuiteView(CloverView):
+class SuiteView(CloverView):
 
     def __init__(self):
-        super(TestSuiteView, self).__init__()
+        super(SuiteView, self).__init__()
 
     def create(self):
         data = request.get_json()

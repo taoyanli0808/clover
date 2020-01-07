@@ -3,7 +3,7 @@ from sqlalchemy.exc import ProgrammingError
 
 from clover.exts import db
 from clover.models import query_to_dict
-from clover.testsuite.models import SuiteModel
+from clover.suite.models import SuiteModel
 from clover.common.utils import get_mysql_error
 
 
