@@ -4,7 +4,7 @@
 """
 from clover.environment.views import EnvironmentView as Environment
 from clover.interface.views import InterfaceView as Interface
-from clover.suite.views import TestSuiteView as TestSuite
+from clover.suite.views import SuiteView as TestSuite
 
 
 def map_urls(app):

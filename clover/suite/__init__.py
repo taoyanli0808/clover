@@ -2,6 +2,6 @@
 
 from flask import Blueprint
 
-testsuite = Blueprint('suite', __name__)
+suite = Blueprint('suite', __name__)
 
 from clover.suite import views
