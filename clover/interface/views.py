@@ -4,7 +4,7 @@ from flask import request
 
 from clover.views import CloverView
 from clover.interface.service import Service
-from clover.common.executor import Executor
+from clover.common.interface.executor import Executor
 
 
 class InterfaceView(CloverView):

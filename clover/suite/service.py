@@ -4,7 +4,9 @@ from sqlalchemy.exc import ProgrammingError
 from clover.exts import db
 from clover.models import query_to_dict
 from clover.suite.models import SuiteModel
+from clover.interface.models import InterfaceModel
 from clover.common.utils import get_mysql_error
+from clover.common.interface.executor import Executor
 
 
 class Service():
@@ -71,6 +73,12 @@ class Service():
         :param data:
         :return:
         """
-        for case in data['cases']:
-            _, result = self.db.search("interface", "case", {'_id': case['_id']})
-            print(result)
+        results = []
+        executor = Executor()
+        for id in data['cases']:
+            result = InterfaceModel.query.get(id)
+            result = result.to_dict()
+            result = executor.execute(result)
+            results.append(result)
+        print(result)
+        return results
