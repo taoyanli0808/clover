@@ -238,7 +238,7 @@ export default {
     },
     createSuite (value) {
       this.$axios({
-        url: '/api/v1/testsuite/create',
+        url: '/api/v1/suite/create',
         method: 'post',
         data: JSON.stringify({
           'team': this.team,

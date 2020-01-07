@@ -141,8 +141,6 @@ class InterfaceView(CloverView):
             })
 
         try:
-            # service = Service()
-            # data = service.execute(data)
             executor = Executor()
             data = executor.execute(data)
             return jsonify({

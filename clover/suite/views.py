@@ -14,6 +14,41 @@ class SuiteView(CloverView):
     def create(self):
         data = request.get_json()
 
+        if 'team' not in data or not data['team']:
+            return jsonify({
+                'status': 400,
+                'message': '请选择团队！',
+                'data': data
+            })
+
+        if 'project' not in data or not data['project']:
+            return jsonify({
+                'status': 400,
+                'message': '请选择项目！',
+                'data': data
+            })
+
+        if 'project' not in data or not data['project']:
+            return jsonify({
+                'status': 400,
+                'message': '请选择项目！',
+                'data': data
+            })
+
+        if 'type' not in data or not data['type']:
+            return jsonify({
+                'status': 400,
+                'message': '请求缺少类型参数，类型必须为[interface|automation]！',
+                'data': data
+            })
+
+        if 'cases' not in data or not data['cases']:
+            return jsonify({
+                'status': 400,
+                'message': '请选择要创建套件的用例！',
+                'data': data
+            })
+
         try:
             service = Service()
             id = service.create(data)
