@@ -50,8 +50,8 @@ class Service():
         if 'team' in data and data['team']:
             filter.setdefault('team', data.get('team'))
 
-        if 'owner' in data and data['owner']:
-            filter.setdefault('owner', data.get('owner'))
+        if 'project' in data and data['project']:
+            filter.setdefault('project', data.get('project'))
 
         try:
             offset = int(data.get('offset', 0))

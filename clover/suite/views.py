@@ -92,7 +92,10 @@ class SuiteView(CloverView):
         pass
 
     def search(self):
-        data = request.values.to_dict()
+        if request.method == 'GET':
+            data = request.values.to_dict()
+        else:
+            data = request.get_json()
 
         try:
             service = Service()
