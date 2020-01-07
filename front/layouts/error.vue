@@ -2,8 +2,12 @@
   <div class="container">
     <h1 v-if="error.statusCode === 404">
       <div class="error">
-        <el-image :src="image.page_not_found" class="image" />
-        <span>请求地址不存在，{{ second }}秒后将跳转到首页。</span>
+        <el-row>
+          <el-image :src="image.page_not_found" class="image" />
+        </el-row>
+        <el-row>
+          <span>请求地址不存在，{{ second }}秒后将跳转到首页。</span>
+        </el-row>
       </div>
     </h1>
     <h1 v-else>An error occurred</h1>
@@ -14,7 +18,7 @@
 export default {
   data () {
     return {
-      second: 0,
+      second: 5,
       image: {
         page_not_found: require('assets/img/page_not_found.jpg')
       }
@@ -22,22 +26,17 @@ export default {
   },
   props: ['error'],
   created () {
-    this.second = 5
-    this.go()
+    setInterval(this.count, 1000)
   },
   methods: {
-    go () {
-      const router = this.$router
-      let second = this.second
-      setInterval(function () {
-        if (second === 0) {
-          router.push({
-            path: '/'
-          })
-        } else {
-          second--
-        }
-      }, 1000, router, second)
+    count () {
+      if (this.second === 0) {
+        this.$router.push({
+          path: '/'
+        })
+      } else {
+        this.second--
+      }
     }
   }
 }
@@ -49,8 +48,7 @@ export default {
 }
 
 .image {
-  display: block;
-  width: 300px;
+  width: 600px;
   height: 300px;
   text-align: center;
 }
