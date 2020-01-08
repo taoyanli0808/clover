@@ -2,10 +2,10 @@ FROM python:3.7.5-alpine
 
 COPY . /clover
 
-WORKDIR /clover/
+WORKDIR /clover
 
 # 安装nodejs，npm和nginx服务，使用阿里云作为alpine源
-RUN echo "http://mirrors.aliyun.com/alpine/v3.10/main/" > /etc/apk/repositories \
+RUN echo "http://mirrors.ustc.edu.cn/alpine/v3.10/main/" > /etc/apk/repositories \
     && apk add build-base \
     && apk add nodejs \
     && apk add npm \

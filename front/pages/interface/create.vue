@@ -567,7 +567,7 @@ export default {
           path: this.path,
           method: this.method,
           header: this.header,
-          param: this.param,
+          params: this.param,
           verify: this.assert,
           extract: this.extract
         }),
@@ -611,7 +611,7 @@ export default {
           path: this.path,
           method: this.method,
           header: this.header,
-          param: this.param,
+          params: this.param,
           verify: this.assert,
           extract: this.extract
         }),
@@ -622,9 +622,15 @@ export default {
         if (res.data.status === 0) {
           this.$message({
             type: 'success',
-            message: '测试成功'
+            message: '保存用例成功！用例ID是[' + res.data.data + ']'
           })
-          this.response = res.data.data.response.content
+          /*
+          setTimeout(function () {
+            this.$router.push({
+              path: '/interface/'
+            })
+          }, 3000)
+          */
         } else {
           let level = 'info'
           if (res.data.status >= 500) {
@@ -634,7 +640,6 @@ export default {
             type: level,
             message: res.data.message
           })
-          this.response = res.data.data
         }
       }).catch(() => {
         this.$message({
