@@ -1,162 +1,15 @@
 #coding=utf-8
 
 import time
-import json
-import datetime
-
-import requests
-
-from flask import g
 
 from clover.common.utils import get_timestamp
-from clover.common.utils import get_friendly_id
-from clover.common.utils.helper import derivation
-from clover.common.interface.expect import Expect
 
 from clover.exts import db
+from clover.models import query_to_dict
 from clover.interface.models import InterfaceModel
-from clover.environment.models import VariableModel
 
 
 class Service(object):
-
-    def __init__(self):
-        g.data = []
-
-    def replace_variable(self, data):
-        """
-        # 这里对请求数据进行变量替换，将变量替换为具体值。
-        # 变量和其值可以在"配置管理 -> 全局变量"里设置。
-        # 目前支持host，header与param的变量替换。
-        # 变量与值存储使用团队与项目进行区分，不同的团队与项目允许出现同名变量。
-        :param data:
-        :return:
-        """
-        filter = {
-            'team': data.get('team'),
-            'project': data.get('project')
-        }
-        results = VariableModel.query.filter_by(**filter).all()
-        results.extend(g.data)
-
-        data['host'] = derivation(data.get('host'), results)
-        data['path'] = derivation(data.get('path'), results)
-
-        if 'header' in data:
-            for header in data['header']:
-                header['key'] = derivation(header['key'], results)
-
-        if 'param' in data:
-            for param in data['param']:
-                param['key'] = derivation(param['key'], results)
-
-        return data
-
-    def make_request(self, data):
-        """
-        :param data:
-        :return:
-        """
-        print(data)
-        # 发送http请求
-        method = data.get("method")
-        host = data.get("host")
-        path = data.get("path")
-        header = data.get('header', {})
-        payload = data.get('param', {})
-        url = host + path
-
-        # 将[{'a': 1}, {'b': 2}]转化为{'a': 1, 'b': 2}
-        if header:
-            header = {item['key']: item['value'] for item in header if item['key']}
-
-        # 将[{'a': 1}, {'b': 2}]转化为{'a': 1, 'b': 2}
-        if payload:
-            payload = {item['key']: item['value'] for item in payload}
-
-        if method == 'get':
-            response = requests.request(method, url, params=payload, headers=header)
-        else:
-            response = requests.request(method, url, data=payload, headers=header)
-
-        # 这里将响应的状态码，头信息和响应体单独存储，后面断言或提取变量会用到
-        data['response'] = {
-            'status': response.status_code,
-            'header': dict(response.headers),
-            'content': response.text
-        }
-
-        # 如果是json相应，这里对原始相应进行替换。
-        if data['response']['header']['Content-Type'].find("application/json") != -1:
-            data['response']['json'] = json.loads(data['response']['content'])
-
-        return data
-
-    def convert_format(self, data):
-        """
-        # 这个函数暂时保留，如有必要，用于后续讲xml等其它格式数据进行转换。
-        :param data:
-        :return:
-        """
-        return data
-
-    def execute_assertion(self, data):
-        """
-        :param data:
-        :return:
-        """
-        expect = Expect(data)
-        expect.test()
-        return data
-
-    def extract_variables(self, data):
-        """
-        :param data:
-        :return:
-        """
-        if 'extract' not in data or not data['extract']:
-            return data
-
-        for extract in data['extract']:
-            sel = extract['selector']
-            expr = extract['expression']
-            name = extract['expected']
-            # 从这里开始使用分隔符取数据
-            tmp = data['response']['json']
-            for item in expr.split('.'):
-                try:
-                    item = int(item)
-                    tmp = tmp[item]
-                except ValueError:
-                    tmp = tmp.get(item, None)
-                    if tmp is None:
-                        break
-            g.data.append({'name': name, 'value': tmp})
-
-        return data
-
-    def record_result(self, data):
-        """
-        :param data:
-        :return:
-        """
-        # data['_id'] = get_friendly_id()
-        # self.db.insert("interface", "history", data)
-        return data
-
-    def execute(self, data):
-        """
-        :param data:
-        :return: 返回值为元组，分别是flag，message和接口请求后的json数据。
-        """
-        self.replace_variable(data)
-        self.make_request(data)
-        self.convert_format(data)
-        self.execute_assertion(data)
-        self.extract_variables(data)
-        self.record_result(data)
-        print(g.data)
-        return data
 
     def create(self, data):
         """
@@ -167,6 +20,46 @@ class Service(object):
         model = InterfaceModel(**data)
         db.session.add(model)
         db.session.commit()
+        return model.id
+
+    def delete(self, data):
+        """
+        :param data:
+        :return:
+        """
+        id_list = data.pop('id_list')
+        for id in id_list:
+            result = InterfaceModel.query.get(id)
+            db.session.delete(result)
+            db.session.commit()
+
+    def search(self, data):
+        """
+        :param data:
+        :return:
+        """
+        filter = {}
+
+        if 'team' in data and data['team']:
+            filter.setdefault('team', data.get('team'))
+
+        if 'owner' in data and data['owner']:
+            filter.setdefault('owner', data.get('owner'))
+
+        try:
+            offset = int(data.get('offset', 0))
+        except TypeError:
+            offset = 0
+
+        try:
+            limit = int(data.get('limit', 10))
+        except TypeError:
+            limit = 10
+
+        results = InterfaceModel.query.filter_by(**filter).offset(offset).limit(limit)
+        results = query_to_dict(results)
+        count = InterfaceModel.query.filter_by(**filter).count()
+        return count, results
 
     def trigger(self, data):
         """
@@ -175,7 +68,7 @@ class Service(object):
         """
         # 需要通过case_id先查询到数据库里的测试用例。
         # run_id是一次运行的记录，查测试报告时使用。
-        run_id = get_friendly_id()
+        run_id = 111
         cases = []
         ids = data['cases']
         for id in ids.split(','):
@@ -228,23 +121,3 @@ class Service(object):
         self.db.insert('interface', 'report', data)
         print(run_id)
         return run_id
-
-    def delete(self, data):
-        """
-        :param data:
-        :return:
-        """
-        count, id_list = 0, data.pop('id_list')
-        for id in id_list:
-            count += self.db.delete("interface", "case", {'_id': id})
-        return count
-
-    def list(self, data):
-        """
-        :param data:
-        :return:
-        """
-        # count, results = self.db.search("interface", "case", data)
-        # return (count, results) if results else (0, [])
-        return 0, []
-

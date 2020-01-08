@@ -17,7 +17,7 @@ def derivation(data, results):
         print(variable)
         variable = variable[0].strip()
         for result in results:
-            if variable == result['name']:
-                return result['value']
+            if variable == result.name:
+                return result.value
     else:
         return data

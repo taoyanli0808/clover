@@ -4,6 +4,7 @@ from flask import request
 
 from clover.views import CloverView
 from clover.interface.service import Service
+from clover.common.interface.executor import Executor
 
 
 class InterfaceView(CloverView):
@@ -11,8 +12,98 @@ class InterfaceView(CloverView):
     def __init__(self):
         super(InterfaceView, self).__init__()
 
+    def create(self):
+        data = request.get_json()
+
+        method = data.get('method', None)
+        if not method:
+            return jsonify({
+                'status': 400,
+                'message': '缺少请求方法参数！',
+                'data': data,
+            })
+
+        host = data.get('host', None)
+        if not host:
+            return jsonify({
+                'status': 400,
+                'message': '缺少请求域名！',
+                'data': data,
+            })
+
+        path = data.get('path', None)
+        if not path:
+            return jsonify({
+                'status': 400,
+                'message': '缺少请求路径！',
+                'data': data,
+            })
+
+        try:
+            service = Service()
+            id = service.create(data)
+            return jsonify({
+                'status': 0,
+                'message': 'ok',
+                'data': id,
+            })
+        except Exception as error:
+            return jsonify({
+                'status': 500,
+                'message': str(error),
+                'data': data
+            })
+
+    def delete(self):
+
+        data = request.get_json()
+
+        if 'id_list' not in data or not data['id_list']:
+            return jsonify({
+                'status': 400,
+                'message': '请选择您要删除的接口！',
+                'data': data
+            })
+        try:
+            service = Service()
+            count = service.delete(data)
+            return jsonify({
+                'status': 0,
+                'message': 'ok',
+                'data': count,
+            })
+        except Exception as error:
+            return jsonify({
+                'status': 500,
+                'message': '服务器出错，请联系管理员！',
+                'data': data
+            })
+
     def update(self):
         pass
+
+    def search(self):
+
+        if request.method == 'GET':
+            data = request.values.to_dict()
+        else:
+            data = request.get_json()
+
+        try:
+            service = Service()
+            count, result = service.search(data)
+            return jsonify({
+                'status': 0,
+                'message': 'ok',
+                'data': result,
+                'total': count,
+            })
+        except Exception as error:
+            return jsonify({
+                'status': 500,
+                'message': str(error),
+                'data': data
+            })
 
     def debug(self):
         data = request.get_json()
@@ -48,76 +139,21 @@ class InterfaceView(CloverView):
                 'message': '接口测试用例需要指定路径，例如[/taoyanli0808/clover]！',
                 'data': data,
             })
-        service = Service()
-        data = service.execute(data)
-        return jsonify({
-            'status': 0,
-            'message': 'ok',
-            'data': data,
-        })
-        # try:
-        #     service = Service()
-        #     data = service.execute(data)
-        #     return jsonify({
-        #         'status': 0,
-        #         'message': 'ok',
-        #         'data': data,
-        #     })
-        # except Exception as error:
-        #     return jsonify({
-        #         'status': 500,
-        #         'message': '运行时错误，请联系管理员！',
-        #         'data': {}
-        #     })
 
-    def create(self):
-        data = request.get_json()
-
-        method = data.get('method', None)
-        if not method:
+        try:
+            executor = Executor()
+            data = executor.execute(data)
             return jsonify({
-                'status': 400,
-                'message': 'invalid parameter [method]',
+                'status': 0,
+                'message': 'ok',
                 'data': data,
             })
-
-        host = data.get('host', None)
-        if not host:
+        except Exception as error:
             return jsonify({
-                'status': 400,
-                'message': 'invalid parameter [host]',
-                'data': data,
+                'status': 500,
+                'message': '运行时错误，请联系管理员！',
+                'data': {}
             })
-
-        path = data.get('path', None)
-        if not path:
-            return jsonify({
-                'status': 400,
-                'message': 'invalid parameter [path]',
-                'data': data,
-            })
-
-        service = Service()
-        case_id = service.create(data)
-        return jsonify({
-            'status': 0,
-            'message': 'ok',
-            'data': case_id,
-        })
-        # try:
-        #     service = Service()
-        #     case_id = service.save(data)
-        #     return jsonify({
-        #         'status': 0,
-        #         'message': 'ok',
-        #         'data': case_id,
-        #     })
-        # except Exception as error:
-        #     return jsonify({
-        #         'status': 500,
-        #         'message': str(error),
-        #         'data': data
-        #     })
 
     def trigger(self):
         # 这里支持GET与POST请求，获取参数方法不同。
@@ -141,54 +177,6 @@ class InterfaceView(CloverView):
                 'status': 0,
                 'message': 'ok',
                 'data': result,
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': str(error),
-                'data': data
-            })
-
-    def delete(self):
-
-        data = request.get_json()
-
-        if 'id_list' not in data or not data['id_list']:
-            return jsonify({
-                'status': 400,
-                'message': '请选择您要删除的接口！',
-                'data': data
-            })
-        try:
-            service = Service()
-            count = service.delete(data)
-            return jsonify({
-                'status': 0,
-                'message': 'ok',
-                'data': count,
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': str(error),
-                'data': data
-            })
-
-    def search(self):
-
-        if request.method == 'GET':
-            data = request.values.to_dict()
-        else:
-            data = request.get_json()
-
-        try:
-            service = Service()
-            count, result = service.list(data)
-            return jsonify({
-                'status': 0,
-                'message': 'ok',
-                'data': result,
-                'total': count,
             })
         except Exception as error:
             return jsonify({

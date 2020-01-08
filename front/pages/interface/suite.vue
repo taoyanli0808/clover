@@ -51,6 +51,12 @@
         align="center"
       />
       <el-table-column
+        prop="updated"
+        label="更新时间"
+        width="180"
+        align="center"
+      />
+      <el-table-column
         fixed="right"
         label="操作"
         width="300"
@@ -121,10 +127,17 @@ export default {
         params.project = this.project
       }
       this.$axios
-        .post('/api/v1/testsuite/search', params)
+        .post('/api/v1/suite/search', params)
         .then((res) => {
-          this.total = res.data.total
-          this.data = res.data.data
+          if (res.data.status === 0) {
+            this.total = res.data.total
+            this.data = res.data.data
+          } else {
+            this.$message({
+              type: 'error',
+              message: res.data.message
+            })
+          }
         })
     },
     handleHistory (index, row) {
@@ -137,7 +150,7 @@ export default {
     handleAdd (index, row) {
       console.log(row)
       this.$axios({
-        url: '/api/v1/testsuite/trigger',
+        url: '/api/v1/suite/trigger',
         method: 'post',
         data: JSON.stringify(row),
         headers: {
@@ -176,25 +189,32 @@ export default {
     },
     handleDelete (index, row) {
       this.$confirm('此操作将永久删除该接口, 是否继续?', '删除接口', {
+        type: 'warning',
         confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
+        cancelButtonText: '取消'
       }).then(() => {
         this.$axios({
-          url: '/api/v1/testsuite/delete',
+          url: '/api/v1/suite/delete',
           method: 'post',
           data: JSON.stringify({
-            id_list: [row._id]
+            id_list: [row.id]
           }),
           headers: {
             'Content-Type': 'application/json;'
           }
         }).then((res) => {
-          this.fetch()
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
-          })
+          if (res.data.status === 0) {
+            this.refresh()
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            })
+          } else {
+            this.$message({
+              type: 'error',
+              message: res.data.message
+            })
+          }
         })
       }).catch(() => {
         this.$message({

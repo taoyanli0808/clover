@@ -8,7 +8,7 @@ from clover.exts import db
 
 
 blueprints = [
-    'clover.testsuite:testsuite',
+    'clover.suite:suite',
     'clover.interface:interface',
     'clover.environment:environment',
 ]
