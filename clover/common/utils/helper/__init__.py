@@ -1,11 +1,13 @@
 
 import re
+import os
 import json
 import unittest
 
 import requests
 
 from .expect import Expect
+from clover.common.utils.HTMLTestRunner import HTMLTestRunner
 
 
 def derivation(data, results):
@@ -100,14 +102,14 @@ def run_case_use_unittest(cases):
         test_case = loader.loadTestsFromTestCase(CloverCase)
         suite.addTest(test_case)
     # 使用runner运行suite
-    runner = unittest.TextTestRunner()
+    path = os.path.join(os.getcwd(), 'logs', 'Clover测试报告.html')
+    report = open(path, 'w', encoding='utf-8')
+    runner = HTMLTestRunner(
+        stream=report,
+        verbosity=2,
+        title='Clover测试报告',
+        description='Clover测试报告-HTMLTestRunner版'
+    )
     result = runner.run(suite)
-    print(result.failures)
-    print(result.errors)
-    print(result.skipped)
-    print(result.expectedFailures)
-    print(result.unexpectedSuccesses)
-    print(result.testsRun)
-    print(50 * '*')
-    print(cases)
+    report.close()
     return result
