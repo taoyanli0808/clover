@@ -71,7 +71,8 @@ class Service(object):
         id = data.get('id')
         model = InterfaceModel.query.get(id)
         case = model.to_dict()
+        # 运行测试用例，注意execute的参数是list。
         executor = Executor()
-        result = executor.execute(case)
+        result = executor.execute([case])
         print(result)
         return run_id

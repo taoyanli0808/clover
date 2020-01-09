@@ -73,12 +73,15 @@ class Service():
         :param data:
         :return:
         """
-        results = []
+        # ！attention 这里用例的执行顺序有保障么？
+        # 查询出所有需要运行的用例
+        cases = db.session.query(
+            InterfaceModel
+        ).filter(
+            InterfaceModel.id.in_(tuple(data['cases']))
+        ).all()
+        cases = query_to_dict(cases)
+        # 执行用例并获得运行结果
         executor = Executor()
-        for id in data['cases']:
-            result = InterfaceModel.query.get(id)
-            result = result.to_dict()
-            result = executor.execute(result)
-            results.append(result)
-        print(result)
-        return results
+        result = executor.execute(cases)
+        return result

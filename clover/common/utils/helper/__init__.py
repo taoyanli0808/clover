@@ -34,7 +34,6 @@ def send_request(data):
     :param data:
     :return:
     """
-    print(data)
     # 发送http请求
     method = data.get("method")
     host = data.get("host")
@@ -85,21 +84,30 @@ def _make_test(data):
     return test_abc
 
 
-def run_case_use_unittest(data):
+def run_case_use_unittest(cases):
     """
     :param data:
     :return:
     """
+    suite = unittest.TestSuite()
     loader = unittest.TestLoader()
-    # 使用type函数创建TestCase的子类，使用反射方法创建测试用例CloverCase
-    CloverCase = type('TestCloverCase', (unittest.TestCase,), {})
-    test_method = _make_test(data)
-    setattr(CloverCase, 'test_abc', test_method)
-    # loader对象的loadTestsFromTestCase会返回一个suite对象
-    suite = loader.loadTestsFromTestCase(CloverCase)
+    for i, case in enumerate(cases):
+        # 使用type函数创建TestCase的子类，使用反射方法创建测试用例CloverCase
+        CloverCase = type('TestCloverCase_' + str(i), (unittest.TestCase,), {})
+        test_method = _make_test(case)
+        setattr(CloverCase, 'test_' + str(i), test_method)
+        # loader对象的loadTestsFromTestCase会返回一个suite对象
+        test_case = loader.loadTestsFromTestCase(CloverCase)
+        suite.addTest(test_case)
     # 使用runner运行suite
     runner = unittest.TextTestRunner()
     result = runner.run(suite)
-    print(type(result))
-    print(result)
-    return data
+    print(result.failures)
+    print(result.errors)
+    print(result.skipped)
+    print(result.expectedFailures)
+    print(result.unexpectedSuccesses)
+    print(result.testsRun)
+    print(50 * '*')
+    print(cases)
+    return result

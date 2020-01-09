@@ -74,17 +74,19 @@ class Executor():
         # self.db.insert("interface", "history", data)
         return data
 
-    def execute(self, data):
+    def execute(self, cases):
         """
-        :param data:
+        :param cases:
         :return: 返回值为元组，分别是flag，message和接口请求后的json数据。
         """
-        self.replace_variable(data)
-        # self.make_request(data)
-        # self.convert_format(data)
-        # self.execute_assertion(data)
-        run_case_use_unittest(data)
-        self.extract_variables(data)
-        self.record_result(data)
+        for case in cases:
+            self.replace_variable(case)
+
+        report = run_case_use_unittest(cases)
+
+        for case in cases:
+            print(case)
+            self.extract_variables(case)
+            self.record_result(case)
         print(g.data)
-        return data
+        return cases
