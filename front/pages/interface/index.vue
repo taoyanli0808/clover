@@ -81,12 +81,12 @@
       >
         <template slot-scope="scope">
           <el-button
-            @click="handleAdd(scope.$index, scope.row)"
+            @click="handleRun(scope.$index, scope.row)"
             size="mini"
-            icon="el-icon-plus"
+            icon="el-icon-video-play"
             type="primary"
           >
-            添加
+            运行
           </el-button>
           <el-button
             @click="handleEdit(scope.$index, scope.row)"
@@ -179,9 +179,33 @@ export default {
           })
         })
     },
-    handleAdd (index, row) {
-      this.$router.push({
-        path: '/interface/create'
+    handleRun (index, row) {
+      this.$axios({
+        url: '/api/v1/interface/trigger',
+        method: 'post',
+        data: JSON.stringify({
+          id: row.id
+        }),
+        headers: {
+          'Content-Type': 'application/json;'
+        }
+      }).then((res) => {
+        if (res.data.status === 0) {
+          this.$message({
+            type: 'success',
+            message: '运行用例成功!'
+          })
+        } else {
+          this.$message({
+            type: 'warning',
+            message: res.data.message
+          })
+        }
+      }).catch(() => {
+        this.$message({
+          type: 'error',
+          message: '运行接口用例时发生错误!'
+        })
       })
     },
     handleEdit (index, row) {
