@@ -2,7 +2,7 @@
 from sqlalchemy.exc import ProgrammingError
 
 from clover.exts import db
-from clover.models import query_to_dict
+from clover.models import query_to_dict, soft_delete
 from clover.suite.models import SuiteModel
 from clover.interface.models import InterfaceModel
 from clover.common.utils import get_mysql_error
@@ -37,15 +37,14 @@ class Service():
         id_list = data.pop('id_list')
         for id in id_list:
             result = SuiteModel.query.get(id)
-            db.session.delete(result)
-            db.session.commit()
+            soft_delete(result)
 
     def search(self, data):
         """
         :param data:
         :return:
         """
-        filter = {}
+        filter = {'enable': 0}
 
         if 'team' in data and data['team']:
             filter.setdefault('team', data.get('team'))
