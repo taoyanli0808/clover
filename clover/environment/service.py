@@ -3,7 +3,7 @@ import json
 import datetime
 
 from clover.exts import db
-from clover.models import query_to_dict
+from clover.models import query_to_dict, soft_delete
 from clover.environment.models import TeamModel
 from clover.environment.models import VariableModel
 
@@ -38,13 +38,11 @@ class Service(object):
         if table == 'team':
             model = TeamModel.query.get(data['id'])
             if model is not None:
-                db.session.delete(model)
-                db.session.commit()
+                soft_delete(model)
         elif table == 'variable':
             model = VariableModel.query.get(data['id'])
             if model is not None:
-                db.session.delete(model)
-                db.session.commit()
+                soft_delete(model)
         else:
             pass
 
@@ -94,7 +92,7 @@ class Service(object):
         :return:
         """
         table = data.get('type', None)  # 表名由前端传入。。。
-        filter = {}
+        filter = {'enable': 0}
 
         if 'team' in data and data['team']:
             filter.setdefault('team', data.get('team'))
@@ -111,7 +109,6 @@ class Service(object):
             limit = int(data.get('limit', 10))
         except TypeError:
             limit = 10
-
         if table == 'team':
             results = TeamModel.query.filter_by(**filter)\
                 .offset(offset).limit(limit)
@@ -139,7 +136,9 @@ class Service(object):
         if 'cascader' in data:
             cascader = {}
             results = TeamModel.query.\
-                with_entities(TeamModel.team,TeamModel.project).distinct().all()
+                with_entities(TeamModel.team, TeamModel.project).\
+                filter(TeamModel.enable == 0).\
+                distinct().all()
             for team, project in results:
                 if team not in cascader:
                     cascader.setdefault(team, {
@@ -160,12 +159,14 @@ class Service(object):
             return list(cascader.values())
         elif 'type' in data:
             if data['key'] == 'team':
-                results = TeamModel.query.with_entities(TeamModel.team)\
-                    .distinct().all()
+                results = TeamModel.query.with_entities(TeamModel.team).\
+                    filter(TeamModel.enable == 0).\
+                    distinct().all()
                 return [r[0] for r in results]
             elif data['key'] == 'owner':
-                results = TeamModel.query.with_entities(TeamModel.owner) \
-                    .distinct().all()
+                results = TeamModel.query.with_entities(TeamModel.owner).\
+                    filter(TeamModel.enable == 0).\
+                    distinct().all()
                 return [r[0] for r in results]
             else:
                 return []
