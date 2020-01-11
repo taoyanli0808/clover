@@ -162,25 +162,32 @@ class InterfaceView(CloverView):
         else:
             data = request.get_json()
 
-        cases = data.get('cases', None)
-        if not cases:
+        id = data.get('id', None)
+        if not id:
             return jsonify({
                 'status': 400,
-                'message': 'invalid parameter [cases]',
+                'message': '运行接口用例需要指定ID参数',
                 'data': data,
             })
 
-        try:
-            service = Service()
-            result = service.trigger(data)
-            return jsonify({
-                'status': 0,
-                'message': 'ok',
-                'data': result,
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': str(error),
-                'data': data
-            })
+        service = Service()
+        result = service.trigger(data)
+        return jsonify({
+            'status': 0,
+            'message': 'ok',
+            'data': result,
+        })
+        # try:
+        #     service = Service()
+        #     result = service.trigger(data)
+        #     return jsonify({
+        #         'status': 0,
+        #         'message': 'ok',
+        #         'data': result,
+        #     })
+        # except Exception as error:
+        #     return jsonify({
+        #         'status': 500,
+        #         'message': str(error),
+        #         'data': data
+        #     })

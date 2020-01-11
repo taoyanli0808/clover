@@ -1,12 +1,7 @@
-
-import json
-
-import requests
-
 from flask import g
 
 from clover.common.utils.helper import derivation
-from clover.common.interface.expect import Expect
+from clover.common.utils.helper import run_case_use_unittest
 from clover.environment.models import VariableModel
 
 
@@ -44,65 +39,6 @@ class Executor():
 
         return data
 
-    def make_request(self, data):
-        """
-        :param data:
-        :return:
-        """
-        print(data)
-        # 发送http请求
-        method = data.get("method")
-        host = data.get("host")
-        path = data.get("path")
-        header = data.get('header', {})
-        payload = data.get('params', {})
-        url = host + path
-
-        # 将[{'a': 1}, {'b': 2}]转化为{'a': 1, 'b': 2}
-        if header:
-            header = {item['key']: item['value'] for item in header if item['key']}
-
-        # 将[{'a': 1}, {'b': 2}]转化为{'a': 1, 'b': 2}
-        if payload:
-            payload = {item['key']: item['value'] for item in payload}
-
-        if method == 'get':
-            response = requests.request(method, url, params=payload, headers=header)
-        else:
-            response = requests.request(method, url, data=payload, headers=header)
-
-        # 这里将响应的状态码，头信息和响应体单独存储，后面断言或提取变量会用到
-        data['response'] = {
-            'status': response.status_code,
-            'header': dict(response.headers),
-            'content': response.text
-        }
-
-        # 框架目前只支持json数据，在这里尝试进行json数据转换
-        try:
-            data['response']['json'] = json.loads(data['response']['content'])
-        except Exception:
-            data['response']['json'] = {}
-
-        return data
-
-    def convert_format(self, data):
-        """
-        # 这个函数暂时保留，如有必要，用于后续讲xml等其它格式数据进行转换。
-        :param data:
-        :return:
-        """
-        return data
-
-    def execute_assertion(self, data):
-        """
-        :param data:
-        :return:
-        """
-        expect = Expect(data)
-        expect.test()
-        return data
-
     def extract_variables(self, data):
         """
         :param data:
@@ -138,16 +74,19 @@ class Executor():
         # self.db.insert("interface", "history", data)
         return data
 
-    def execute(self, data):
+    def execute(self, cases):
         """
-        :param data:
+        :param cases:
         :return: 返回值为元组，分别是flag，message和接口请求后的json数据。
         """
-        self.replace_variable(data)
-        self.make_request(data)
-        self.convert_format(data)
-        self.execute_assertion(data)
-        self.extract_variables(data)
-        self.record_result(data)
+        for case in cases:
+            self.replace_variable(case)
+
+        report = run_case_use_unittest(cases)
+
+        for case in cases:
+            print(case)
+            self.extract_variables(case)
+            self.record_result(case)
         print(g.data)
-        return data
+        return cases
