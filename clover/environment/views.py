@@ -181,7 +181,7 @@ class EnvironmentView(CloverView):
 class KeywordView(CloverView):
 
     def __init__(self):
-        self.servce = KeywordService()
+        self.service = KeywordService()
 
     def create(self):
         """
@@ -211,7 +211,7 @@ class KeywordView(CloverView):
             })
 
         try:
-            result = self.servce.create(data)
+            result = self.service.create(data)
             return jsonify({
                 'status': 0,
                 'message': "创建关键字成功！",
@@ -228,19 +228,79 @@ class KeywordView(CloverView):
         """
         :return:
         """
-        pass
+        data = request.get_json()
+
+        if 'id' not in data or not data['id']:
+            return jsonify({
+                'status': 400,
+                'message': "删除关键字时缺少必要的ID",
+                'data': data
+            })
+
+        try:
+            id = self.service.delete(data)
+            return jsonify({
+                'status': 0,
+                'message': 'ok',
+                'data': id
+            })
+        except Exception as error:
+            return jsonify({
+                'status': 500,
+                'message': str(error),
+                'traceback': traceback.format_stack(),
+                'data': data
+            })
 
     def update(self):
         """
         :return:
         """
-        pass
+        data = request.get_json()
+
+        if 'id' not in data or not data['id']:
+            return jsonify({
+                'status': 400,
+                'message': "更新关键字时缺少必要的ID",
+                'data': data
+            })
+
+        try:
+            id = self.service.update(data)
+            return jsonify({
+                'status': 0,
+                'message': 'ok',
+                'data': id
+            })
+        except Exception as error:
+            return jsonify({
+                'status': 500,
+                'message': str(error),
+                'traceback': traceback.format_stack(),
+                'data': data
+            })
 
     def search(self):
         """
         :return:
         """
-        pass
+        data = request.values.to_dict()
+
+        try:
+            total, result = self.service.search(data)
+            return jsonify({
+                'status': 0,
+                'message': 'ok',
+                'data': result,
+                'total': total,
+            })
+        except Exception as error:
+            return jsonify({
+                'status': 500,
+                'message': str(error),
+                'traceback': traceback.format_stack(),
+                'data': data
+            })
 
     def debug(self):
         """
@@ -270,7 +330,7 @@ class KeywordView(CloverView):
             })
 
         try:
-            result = self.servce.debug(data)
+            result = self.service.debug(data)
             return jsonify({
                 'status': 0,
                 'message': "创建关键字成功！",

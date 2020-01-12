@@ -5,6 +5,7 @@ import datetime
 from clover.exts import db
 from clover.models import query_to_dict, soft_delete
 from clover.environment.models import TeamModel
+from clover.environment.models import KeywordModel
 from clover.environment.models import VariableModel
 
 
@@ -197,29 +198,66 @@ class KeywordService(object):
         #     'mock': mock,
         #     'snippet': snippet,
         # })
-        print(result)
-        return result
+        # print(result)
+        # return result
 
     def delete(self, data):
         """
         :param data:
         :return:
         """
-        pass
+        model = KeywordModel.query.get(data['id'])
+        if model is not None:
+            soft_delete(model)
 
     def update(self, data):
         """
         :param data:
         :return:
         """
-        pass
+        old_model = KeywordModel.query.get(data['id'])
+        if old_model is None:
+            model = TeamModel(**data)
+            db.session.add(model)
+            db.session.commit()
+        else:
+            old_model.team = data['team']
+            old_model.project = data['project']
+            old_model.owner = data['owner']
+            old_model.name = data['name']
+            old_model.keyword = data['keyword']
+            old_model.mock = data['mock']
+            old_model.updated = datetime.datetime.now()
+            db.session.commit()
 
     def search(self, data):
         """
         :param data:
         :return:
         """
-        pass
+        filter = {'enable': 0}
+
+        if 'team' in data and data['team']:
+            filter.setdefault('team', data.get('team'))
+
+        if 'owner' in data and data['owner']:
+            filter.setdefault('owner', data.get('owner'))
+
+        try:
+            offset = int(data.get('offset', 0))
+        except TypeError:
+            offset = 0
+
+        try:
+            limit = int(data.get('limit', 10))
+        except TypeError:
+            limit = 10
+
+        results = KeywordModel.query.filter_by(**filter) \
+                .offset(offset).limit(limit)
+        results = query_to_dict(results)
+        count = KeywordModel.query.filter_by(**filter).count()
+        return count, results
 
     def debug(self, data):
         """
