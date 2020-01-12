@@ -5,7 +5,7 @@ from clover.exts import db
 from clover.models import query_to_dict, soft_delete
 from clover.suite.models import SuiteModel
 from clover.interface.models import InterfaceModel
-from clover.common.utils import get_mysql_error
+from clover.common import get_mysql_error
 from clover.common.executor import Executor
 
 

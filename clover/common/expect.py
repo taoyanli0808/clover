@@ -1,5 +1,5 @@
 
-from clover.common.utils.extract import Extract
+from clover.common.extract import Extract
 
 
 class Expect(Extract):

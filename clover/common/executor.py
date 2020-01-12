@@ -1,7 +1,7 @@
 from flask import g
 
-from clover.common.utils.helper import derivation
-from clover.common.utils.helper import run_case_use_unittest
+from clover.common import derivation
+from clover.common import run_case_use_unittest
 from clover.environment.models import VariableModel
 
 
