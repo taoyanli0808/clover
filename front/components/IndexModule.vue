@@ -1,7 +1,7 @@
 <template>
   <div class="block">
-    <el-row v-for="(module, i) in modules" :key="module.title" >
-      <div class="module" v-if="i % 2 === 0">
+    <el-row v-for="(module, i) in modules" :key="module.title">
+      <div v-if="i % 2 === 0" class="module">
         <el-col :span="10">
           <el-image
             :src="module.image"
@@ -17,7 +17,7 @@
           </el-row>
         </el-col>
       </div>
-      <div class="module" v-else>
+      <div v-else class="module">
         <el-col :span="14">
           <span class="title">{{ module.title }}</span>
           <span class="content">{{ module.content }}</span>
@@ -29,7 +29,6 @@
           />
         </el-col>
       </div>
-
     </el-row>
   </div>
 </template>

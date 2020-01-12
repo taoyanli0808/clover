@@ -10,12 +10,15 @@
         </el-row>
       </div>
     </h1>
-    <h1 v-else>An error occurred</h1>
+    <h1 v-else>
+      An error occurred
+    </h1>
   </div>
 </template>
 
 <script>
 export default {
+  props: ['error'],
   data () {
     return {
       second: 5,
@@ -24,7 +27,6 @@ export default {
       }
     }
   },
-  props: ['error'],
   created () {
     setInterval(this.count, 1000)
   },

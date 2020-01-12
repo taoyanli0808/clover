@@ -3,6 +3,7 @@
     v-model="cascader"
     :options="options"
     @change="handleChange"
+    placeholder="请选择团队和项目"
     clearable
   />
 </template>
@@ -37,3 +38,10 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.el-cascader {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+</style>

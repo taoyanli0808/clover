@@ -226,7 +226,6 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消'
       }).then(() => {
-        console.log(row.id)
         this.$axios({
           url: '/api/v1/interface/delete',
           method: 'post',

@@ -10,9 +10,9 @@
       style="width: 100%"
     >
       <el-table-column
-        prop="project"
-        label="项目"
-        width="180"
+        prop="id"
+        label="ID"
+        width="50"
         align="center"
       />
       <el-table-column
@@ -22,8 +22,20 @@
         align="center"
       />
       <el-table-column
+        prop="project"
+        label="项目"
+        width="180"
+        align="center"
+      />
+      <el-table-column
         prop="type"
         label="类型"
+        width="180"
+        align="center"
+      />
+      <el-table-column
+        prop="cases"
+        label="用例列表"
         width="180"
         align="center"
       />
@@ -59,7 +71,7 @@
       <el-table-column
         fixed="right"
         label="操作"
-        width="300"
+        width="200"
         align="center"
       >
         <template slot-scope="scope">
@@ -70,14 +82,6 @@
             type="primary"
           >
             运行
-          </el-button>
-          <el-button
-            @click="handleEdit(scope.$index, scope.row)"
-            size="mini"
-            icon="el-icon-edit"
-            type="warning"
-          >
-            编辑
           </el-button>
           <el-button
             @click="handleDelete(scope.$index, scope.row)"
@@ -132,6 +136,9 @@ export default {
           if (res.data.status === 0) {
             this.total = res.data.total
             this.data = res.data.data
+            for (const i in this.data) {
+              this.data[i].cases = this.data[i].cases.join(',')
+            }
           } else {
             this.$message({
               type: 'error',
@@ -148,7 +155,6 @@ export default {
       })
     },
     handleAdd (index, row) {
-      console.log(row)
       this.$axios({
         url: '/api/v1/suite/trigger',
         method: 'post',
@@ -174,18 +180,6 @@ export default {
           message: res.data.message
         })
       })
-    },
-    handleEdit (index, row) {
-      this.$message({
-        showClose: true,
-        message: '付费功能，暂不开放！',
-        type: 'error'
-      })
-      /*
-      this.$router.push({
-        path: '/interface/edit'
-      })
-      */
     },
     handleDelete (index, row) {
       this.$confirm('此操作将永久删除该接口, 是否继续?', '删除接口', {

@@ -34,10 +34,10 @@
                     clearable
                   >
                     <el-option
-                      v-for="method in methods"
-                      :key="method"
-                      :label="method"
-                      :value="method"
+                      v-for="m in methods"
+                      :key="m"
+                      :label="m"
+                      :value="m"
                     />
                   </el-select>
                 </el-input>

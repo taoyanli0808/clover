@@ -1,6 +1,6 @@
 <template>
   <div class="block">
-    <el-carousel :interval="5000" type="card" :height="height">
+    <el-carousel :interval="5000" :height="height" type="card">
       <el-carousel-item v-for="image in images" :key="image.alt">
         <el-image :src="image.src" style="width: 100%; height: 100%" />
       </el-carousel-item>
