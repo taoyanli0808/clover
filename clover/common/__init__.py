@@ -41,7 +41,7 @@ def derivation(data, results):
     if not data or not results:
         return data
 
-    variable = re.findall(r'\{(.+?)\}', data)
+    variable = re.findall(r'\$\{(.+?)\}', data)
     if variable:
         print(variable)
         variable = variable[0].strip()
