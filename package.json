@@ -16,6 +16,7 @@
     "element-ui": "^2.4.11",
     "nuxt": "^2.0.0",
     "sortablejs": "^1.10.2",
+    "vue2-ace-editor": "0.0.15",
     "vuedraggable": "^2.23.2"
   },
   "devDependencies": {

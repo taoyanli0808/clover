@@ -31,6 +31,9 @@
       <el-menu-item index="3-2">
         <a href="/config/variable">变量配置</a>
       </el-menu-item>
+      <el-menu-item index="3-3">
+        <a href="/config/keyword">关键字配置</a>
+      </el-menu-item>
     </el-submenu>
     <el-menu-item index="4">
       <a href="https://github.com/taoyanli0808/clover" target="_blank">
