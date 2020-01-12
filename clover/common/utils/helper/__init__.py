@@ -6,7 +6,7 @@ import unittest
 
 import requests
 
-from .expect import Expect
+from clover.common.utils.expect import Expect
 from clover.common.utils.HTMLTestRunner import HTMLTestRunner
 
 
