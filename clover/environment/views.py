@@ -5,6 +5,7 @@ from flask import request
 from flask import jsonify
 
 from clover.environment.service import Service
+from clover.environment.service import KeywordService
 from clover.views import CloverView
 
 
@@ -176,28 +177,44 @@ class EnvironmentView(CloverView):
                 'data': data
             })
 
-    def debug(self):
+
+class KeywordView(CloverView):
+
+    def __init__(self):
+        self.servce = KeywordService()
+
+    def create(self):
+        """
+        :return:
+        """
         data = request.get_json()
-        if 'mock' not in data or not data['mock']:
+
+        if 'name' not in data or not data['name']:
             return jsonify({
                 'status': 400,
-                'message': 'invalid parameter [mock]!',
+                'message': '关键字需要定义名称!',
                 'data': data
             })
 
         if 'snippet' not in data or not data['snippet']:
             return jsonify({
                 'status': 400,
-                'message': 'invalid parameter [snippet]!',
+                'message': '关键字缺少实现代码!',
+                'data': data
+            })
+
+        if 'mock' not in data or not data['mock']:
+            return jsonify({
+                'status': 400,
+                'message': '关键字缺少必要的测试数据!',
                 'data': data
             })
 
         try:
-            service = Service()
-            result = service.debug(data)
+            result = self.servce.create(data)
             return jsonify({
                 'status': 0,
-                'message': "ok",
+                'message': "创建关键字成功！",
                 'data': result
             })
         except Exception as error:
@@ -207,29 +224,56 @@ class EnvironmentView(CloverView):
                 'data': data
             })
 
-    def save(self):
+    def delete(self):
+        """
+        :return:
+        """
+        pass
+
+    def update(self):
+        """
+        :return:
+        """
+        pass
+
+    def search(self):
+        """
+        :return:
+        """
+        pass
+
+    def debug(self):
+        """
+        :return:
+        """
         data = request.get_json()
 
-        if 'mock' not in data or not data['mock']:
+        if 'name' not in data or not data['name']:
             return jsonify({
                 'status': 400,
-                'message': 'invalid parameter [mock]!',
+                'message': '关键字需要定义名称!',
                 'data': data
             })
 
         if 'snippet' not in data or not data['snippet']:
             return jsonify({
                 'status': 400,
-                'message': 'invalid parameter [snippet]!',
+                'message': '关键字缺少实现代码!',
+                'data': data
+            })
+
+        if 'mock' not in data or not data['mock']:
+            return jsonify({
+                'status': 400,
+                'message': '关键字缺少必要的测试数据!',
                 'data': data
             })
 
         try:
-            service = Service()
-            result = service.save(data)
+            result = self.servce.debug(data)
             return jsonify({
                 'status': 0,
-                'message': "ok",
+                'message': "创建关键字成功！",
                 'data': result
             })
         except Exception as error:

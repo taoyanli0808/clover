@@ -3,6 +3,7 @@
 # /api/version/module/function
 """
 from clover.environment.views import EnvironmentView as Environment
+from clover.environment.views import KeywordView as Keyword
 from clover.interface.views import InterfaceView as Interface
 from clover.suite.views import SuiteView as TestSuite
 
@@ -49,6 +50,39 @@ def map_urls(app):
     app.add_url_rule(
         "/api/v1/environment/save",
         view_func=environment,
+        methods=['POST'],
+        strict_slashes=False,
+    )
+
+    # 关键字相关路由与视图
+    keyword = Keyword.as_view("keyword")
+    app.add_url_rule(
+        "/api/v1/keyword/create",
+        view_func=keyword,
+        methods=['POST'],
+        strict_slashes=False,
+    )
+    app.add_url_rule(
+        "/api/v1/keyword/delete",
+        view_func=keyword,
+        methods=['POST'],
+        strict_slashes=False,
+    )
+    app.add_url_rule(
+        "/api/v1/keyword/update",
+        view_func=keyword,
+        methods=['POST'],
+        strict_slashes=False,
+    )
+    app.add_url_rule(
+        "/api/v1/keyword/search",
+        view_func=keyword,
+        methods=['GET'],
+        strict_slashes=False,
+    )
+    app.add_url_rule(
+        "/api/v1/keyword/debug",
+        view_func=keyword,
         methods=['POST'],
         strict_slashes=False,
     )
