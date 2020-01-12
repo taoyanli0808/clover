@@ -9,43 +9,25 @@ from clover.environment.models import KeywordModel
 from clover.environment.models import VariableModel
 
 
-class Service(object):
-
-    def __init__(self): pass
+class TeamService(object):
 
     def create(self, data):
         """
         :param data:
         :return:
         """
-        table = data.pop('type', None)  # 表名由前端传入。。。
-        if table == 'team':
-            model = TeamModel(**data)
-            db.session.add(model)
-            db.session.commit()
-        elif table == 'variable':
-            model = VariableModel(**data)
-            db.session.add(model)
-            db.session.commit()
-        else:
-            pass
+        model = TeamModel(**data)
+        db.session.add(model)
+        db.session.commit()
 
     def detele(self, data):
         """
         :param data:
         :return:
         """
-        table = data.pop('type', None)
-        if table == 'team':
-            model = TeamModel.query.get(data['id'])
-            if model is not None:
-                soft_delete(model)
-        elif table == 'variable':
-            model = VariableModel.query.get(data['id'])
-            if model is not None:
-                soft_delete(model)
-        else:
-            pass
+        model = TeamModel.query.get(data['id'])
+        if model is not None:
+            soft_delete(model)
 
     def update(self, data):
         """
@@ -54,35 +36,17 @@ class Service(object):
         :param data:
         :return:
         """
-        table = data.pop('type', None)
-        if table == 'team':
-            old_model = TeamModel.query.get(data['id'])
-            if old_model is None:
-                model = TeamModel(**data)
-                db.session.add(model)
-                db.session.commit()
-            else:
-                old_model.team = data['team']
-                old_model.project = data['project']
-                old_model.owner = data['owner']
-                old_model.updated = datetime.datetime.now()
-                db.session.commit()
-        elif table == 'variable':
-            old_model = VariableModel.query.get(data['id'])
-            if old_model is None:
-                model = VariableModel(**data)
-                db.session.add(model)
-                db.session.commit()
-            else:
-                old_model.team = data['team']
-                old_model.project = data['project']
-                old_model.owner = data['owner']
-                old_model.name = data['name']
-                old_model.value = data['value']
-                old_model.updated = datetime.datetime.now()
-                db.session.commit()
+        old_model = TeamModel.query.get(data['id'])
+        if old_model is None:
+            model = TeamModel(**data)
+            db.session.add(model)
+            db.session.commit()
         else:
-            pass
+            old_model.team = data['team']
+            old_model.project = data['project']
+            old_model.owner = data['owner']
+            old_model.updated = datetime.datetime.now()
+            db.session.commit()
 
     def search(self, data):
         """
@@ -92,7 +56,6 @@ class Service(object):
         :param data:
         :return:
         """
-        table = data.get('type', None)  # 表名由前端传入。。。
         filter = {'enable': 0}
 
         if 'team' in data and data['team']:
@@ -110,20 +73,133 @@ class Service(object):
             limit = int(data.get('limit', 10))
         except TypeError:
             limit = 10
-        if table == 'team':
-            results = TeamModel.query.filter_by(**filter)\
+
+        results = TeamModel.query.filter_by(**filter)\
                 .offset(offset).limit(limit)
-            results = query_to_dict(results)
-            count = TeamModel.query.filter_by(**filter).count()
-            return count, results
-        elif table == 'variable':
-            results = VariableModel.query.filter_by(**filter) \
-                .offset(offset).limit(limit)
-            results = query_to_dict(results)
-            count = VariableModel.query.filter_by(**filter).count()
-            return count, results
+        results = query_to_dict(results)
+        count = TeamModel.query.filter_by(**filter).count()
+        return count, results
+
+    def aggregate(self, data):
+        """
+        {'type': 'team', 'key': 'team'}
+        {'type': 'team', 'key': 'owner'}
+        # cascader: 按照element ui库cascader需要的数据格式返回数据。
+        #           团队和项目配置数据不会特别多，因此无需过多关注性能。
+        :param data:
+        :return: 所有数据
+        """
+        if 'cascader' in data:
+            cascader = {}
+            results = TeamModel.query.\
+                with_entities(TeamModel.team, TeamModel.project).\
+                filter(TeamModel.enable == 0).\
+                distinct().all()
+            for team, project in results:
+                if team not in cascader:
+                    cascader.setdefault(team, {
+                        'label': team,
+                        'value': team,
+                        'children': [{
+                            'label': project,
+                            'value': project
+                        }],
+                    })
+                else:
+                    labels = [item['label'] for item in cascader[team]['children']]
+                    if project not in labels:
+                        cascader[team]['children'].append({
+                            'label': project,
+                            'value': project
+                        })
+            return list(cascader.values())
+        elif 'type' in data:
+            if data['key'] == 'team':
+                results = TeamModel.query.with_entities(TeamModel.team).\
+                    filter(TeamModel.enable == 0).\
+                    distinct().all()
+                return [r[0] for r in results]
+            elif data['key'] == 'owner':
+                results = TeamModel.query.with_entities(TeamModel.owner).\
+                    filter(TeamModel.enable == 0).\
+                    distinct().all()
+                return [r[0] for r in results]
+            else:
+                return []
+
+
+class VariableService(object):
+
+    def create(self, data):
+        """
+        :param data:
+        :return:
+        """
+        model = VariableModel(**data)
+        db.session.add(model)
+        db.session.commit()
+
+    def detele(self, data):
+        """
+        :param data:
+        :return:
+        """
+        model = VariableModel.query.get(data['id'])
+        if model is not None:
+            soft_delete(model)
+
+    def update(self, data):
+        """
+        # 使用id作为条件，更新数据库重的数据记录。
+        # 通过id查不到数据时增作为一条新的记录存入。
+        :param data:
+        :return:
+        """
+        old_model = VariableModel.query.get(data['id'])
+        if old_model is None:
+            model = VariableModel(**data)
+            db.session.add(model)
+            db.session.commit()
         else:
-            pass
+            old_model.team = data['team']
+            old_model.project = data['project']
+            old_model.owner = data['owner']
+            old_model.name = data['name']
+            old_model.value = data['value']
+            old_model.updated = datetime.datetime.now()
+            db.session.commit()
+
+    def search(self, data):
+        """
+        type=team&team=team1
+        limit=10&skip=0&type=team
+        NOTE: 有两种传参查询方式，需要多data做相应处理
+        :param data:
+        :return:
+        """
+        filter = {'enable': 0}
+
+        if 'team' in data and data['team']:
+            filter.setdefault('team', data.get('team'))
+
+        if 'owner' in data and data['owner']:
+            filter.setdefault('owner', data.get('owner'))
+
+        try:
+            offset = int(data.get('offset', 0))
+        except TypeError:
+            offset = 0
+
+        try:
+            limit = int(data.get('limit', 10))
+        except TypeError:
+            limit = 10
+
+        results = VariableModel.query.filter_by(**filter) \
+                .offset(offset).limit(limit)
+        results = query_to_dict(results)
+        count = VariableModel.query.filter_by(**filter).count()
+        return count, results
 
     def aggregate(self, data):
         """

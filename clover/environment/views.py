@@ -4,25 +4,23 @@ import traceback
 from flask import request
 from flask import jsonify
 
-from clover.environment.service import Service
+from clover.environment.service import TeamService
 from clover.environment.service import KeywordService
+from clover.environment.service import VariableService
 from clover.views import CloverView
 
 
-class EnvironmentView(CloverView):
+class TeamView(CloverView):
 
     def __init__(self):
-        super(EnvironmentView, self).__init__()
+        super(TeamView, self).__init__()
+        self.service = TeamService()
 
     def create(self):
-
+        """
+        :return:
+        """
         data = request.get_json()
-        if 'type' not in data or not data['type']:
-            return jsonify({
-                'status': 400,
-                'message': "invalid parameter type[{0}]".format(data['type']),
-                'data': data
-            })
 
         if 'team' not in data or not data['team']:
             return jsonify({
@@ -46,8 +44,7 @@ class EnvironmentView(CloverView):
             })
 
         try:
-            service = Service()
-            id = service.create(data)
+            id = self.service.create(data)
             return jsonify({
                 'status': 0,
                 'message': 'ok',
@@ -62,15 +59,10 @@ class EnvironmentView(CloverView):
             })
 
     def delete(self):
-
+        """
+        :return:
+        """
         data = request.get_json()
-
-        if 'type' not in data or not data['type']:
-            return jsonify({
-                'status': 400,
-                'message': "invalid parameter type[{0}]".format(data['type']),
-                'data': data
-            })
 
         if 'id' not in data or not data['id']:
             return jsonify({
@@ -80,8 +72,7 @@ class EnvironmentView(CloverView):
             })
 
         try:
-            service = Service()
-            id = service.detele(data)
+            id = self.service.detele(data)
             return jsonify({
                 'status': 0,
                 'message': 'ok',
@@ -96,15 +87,10 @@ class EnvironmentView(CloverView):
             })
 
     def update(self):
-
+        """
+        :return:
+        """
         data = request.get_json()
-
-        if 'type' not in data or not data['type']:
-            return jsonify({
-                'status': 400,
-                'message': "invalid parameter type[{0}]".format(data['type']),
-                'data': data
-            })
 
         if 'id' not in data or not data['id']:
             return jsonify({
@@ -114,8 +100,7 @@ class EnvironmentView(CloverView):
             })
 
         try:
-            service = Service()
-            id = service.update(data)
+            id = self.service.update(data)
             return jsonify({
                 'status': 0,
                 'message': 'ok',
@@ -130,19 +115,13 @@ class EnvironmentView(CloverView):
             })
 
     def search(self):
-
+        """
+        :return:
+        """
         data = request.values.to_dict()
 
-        if 'type' not in data or not data['type']:
-            return jsonify({
-                'status': 400,
-                'message': "invalid parameter type[{0}]".format(data['type']),
-                'data': data
-            })
-
         try:
-            service = Service()
-            total, result = service.search(data)
+            total, result = self.service.search(data)
             return jsonify({
                 'status': 0,
                 'message': 'ok',
@@ -158,12 +137,161 @@ class EnvironmentView(CloverView):
             })
 
     def aggregate(self):
-
+        """
+        :return:
+        """
         data = request.get_json()
 
         try:
-            service = Service()
-            data = service.aggregate(data)
+            data = self.service.aggregate(data)
+            return jsonify({
+                'status': 0,
+                'message': 'ok',
+                'data': data
+            })
+        except Exception as error:
+            return jsonify({
+                'status': 500,
+                'message': str(error),
+                'traceback': traceback.format_stack(),
+                'data': data
+            })
+
+
+class VariableView(CloverView):
+
+    def __init__(self):
+        super(VariableView, self).__init__()
+        self.service = VariableService()
+
+    def create(self):
+        """
+        :return:
+        """
+        data = request.get_json()
+
+        if 'team' not in data or not data['team']:
+            return jsonify({
+                'status': 400,
+                'message': "invalid parameter team[{0}]".format(data['team']),
+                'data': data
+            })
+
+        if 'project' not in data or not data['project']:
+            return jsonify({
+                'status': 400,
+                'message': "invalid parameter project[{0}]".format(data['project']),
+                'data': data
+            })
+
+        if 'owner' not in data or not data['owner']:
+            return jsonify({
+                'status': 400,
+                'message': "invalid parameter owner[{0}]".format(data['owner']),
+                'data': data
+            })
+
+        try:
+            id = self.service.create(data)
+            return jsonify({
+                'status': 0,
+                'message': 'ok',
+                'data': id
+            })
+        except Exception as error:
+            return jsonify({
+                'status': 500,
+                'message': str(error),
+                'traceback': traceback.format_stack(),
+                'data': data
+            })
+
+    def delete(self):
+        """
+        :return:
+        """
+        data = request.get_json()
+
+        if 'id' not in data or not data['id']:
+            return jsonify({
+                'status': 400,
+                'message': "invalid parameter id[{0}]".format(data['id']),
+                'data': data
+            })
+
+        try:
+            id = self.service.detele(data)
+            return jsonify({
+                'status': 0,
+                'message': 'ok',
+                'data': id
+            })
+        except Exception as error:
+            return jsonify({
+                'status': 500,
+                'message': str(error),
+                'traceback': traceback.format_stack(),
+                'data': data
+            })
+
+    def update(self):
+        """
+        :return:
+        """
+        data = request.get_json()
+
+        if 'id' not in data or not data['id']:
+            return jsonify({
+                'status': 400,
+                'message': "invalid parameter id[{0}]".format(data['id']),
+                'data': data
+            })
+
+        try:
+            id = self.service.update(data)
+            return jsonify({
+                'status': 0,
+                'message': 'ok',
+                'data': id
+            })
+        except Exception as error:
+            return jsonify({
+                'status': 500,
+                'message': str(error),
+                'traceback': traceback.format_stack(),
+                'data': data
+            })
+
+    def search(self):
+        """
+        :return:
+        """
+        data = request.values.to_dict()
+
+        try:
+            total, result = self.service.search(data)
+            return jsonify({
+                'status': 0,
+                'message': 'ok',
+                'data': result,
+                'total': total,
+            })
+        except Exception as error:
+            return jsonify({
+                'status': 500,
+                'message': str(error),
+                'traceback': traceback.format_stack(),
+                'data': data
+            })
+
+    def aggregate(self):
+        """
+        :return:
+        """
+        data = request.get_json()
+
+        try:
+            data = self.service.aggregate(data)
             return jsonify({
                 'status': 0,
                 'message': 'ok',
@@ -181,6 +309,7 @@ class EnvironmentView(CloverView):
 class KeywordView(CloverView):
 
     def __init__(self):
+        super(KeywordView, self).__init__()
         self.service = KeywordService()
 
     def create(self):

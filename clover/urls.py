@@ -2,54 +2,75 @@
 # url mapping for views
 # /api/version/module/function
 """
-from clover.environment.views import EnvironmentView as Environment
+from clover.environment.views import TeamView as Team
 from clover.environment.views import KeywordView as Keyword
+from clover.environment.views import VariableView as Variable
 from clover.interface.views import InterfaceView as Interface
 from clover.suite.views import SuiteView as TestSuite
 
 
 def map_urls(app):
     # 配置管理相关路由与视图
-    environment = Environment.as_view("environment")
+    team = Team.as_view("team")
     app.add_url_rule(
-        "/api/v1/environment/create",
-        view_func=environment,
+        "/api/v1/team/create",
+        view_func=team,
         methods=['POST'],
         strict_slashes=False,
     )
     app.add_url_rule(
-        "/api/v1/environment/delete",
-        view_func=environment,
+        "/api/v1/team/delete",
+        view_func=team,
         methods=['POST'],
         strict_slashes=False,
     )
     app.add_url_rule(
-        "/api/v1/environment/update",
-        view_func=environment,
+        "/api/v1/team/update",
+        view_func=team,
         methods=['POST'],
         strict_slashes=False,
     )
     app.add_url_rule(
-        "/api/v1/environment/search",
-        view_func=environment,
+        "/api/v1/team/search",
+        view_func=team,
         methods=['GET'],
         strict_slashes=False,
     )
     app.add_url_rule(
-        "/api/v1/environment/aggregate",
-        view_func=environment,
+        "/api/v1/team/aggregate",
+        view_func=team,
+        methods=['POST'],
+        strict_slashes=False,
+    )
+
+    variable = Variable.as_view("variable")
+    app.add_url_rule(
+        "/api/v1/variable/create",
+        view_func=variable,
         methods=['POST'],
         strict_slashes=False,
     )
     app.add_url_rule(
-        "/api/v1/environment/debug",
-        view_func=environment,
+        "/api/v1/variable/delete",
+        view_func=variable,
         methods=['POST'],
         strict_slashes=False,
     )
     app.add_url_rule(
-        "/api/v1/environment/save",
-        view_func=environment,
+        "/api/v1/variable/update",
+        view_func=variable,
+        methods=['POST'],
+        strict_slashes=False,
+    )
+    app.add_url_rule(
+        "/api/v1/variable/search",
+        view_func=variable,
+        methods=['GET'],
+        strict_slashes=False,
+    )
+    app.add_url_rule(
+        "/api/v1/variable/aggregate",
+        view_func=variable,
         methods=['POST'],
         strict_slashes=False,
     )
