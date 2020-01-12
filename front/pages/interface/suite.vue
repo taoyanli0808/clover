@@ -7,12 +7,18 @@
     </el-row>
     <el-table
       :data="data"
-      style="width: 100%"
+      style="width: 100%;"
     >
       <el-table-column
         prop="id"
         label="ID"
         width="50"
+        align="ceDnter"
+      />
+      <el-table-column
+        prop="project"
+        label="项目"
+        width="180"
         align="center"
       />
       <el-table-column
@@ -35,7 +41,7 @@
       />
       <el-table-column
         prop="cases"
-        label="用例列表"
+        label="用例"
         width="180"
         align="center"
       />
