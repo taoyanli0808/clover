@@ -432,7 +432,6 @@ class KeywordView(CloverView):
 
         try:
             result = self.service.debug(data)
-            print(result)
             return jsonify({
                 'status': 0,
                 'message': "创建关键字成功！",

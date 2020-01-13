@@ -212,23 +212,23 @@ class KeywordService(object):
         :param data:
         :return:
         """
+        team = data.get('team')
+        project = data.get('project')
         mock = json.loads(data.get('mock'))
-        snippet = data.get('snippet')
-        func = re.findall(r'def\s+(.+?)\(', snippet)
+        keyword = data.get('keyword')
+        func = re.findall(r'def\s+(.+?)\(', keyword)
         name = func[0] if func else ""
-        print({
+        data = {
+            'team': team,
+            'project': project,
             'name': name,
             'mock': mock,
-            'snippet': snippet,
-        })
-        # 这里待使用模型实现
-        # result = self.db.insert("environment", "snippet", {
-        #     'name': name,
-        #     'mock': mock,
-        #     'snippet': snippet,
-        # })
-        # print(result)
-        # return result
+            'snippet': keyword,
+        }
+        model = KeywordModel(**data)
+        db.session.add(model)
+        db.session.commit()
+        return model.id
 
     def delete(self, data):
         """
@@ -299,13 +299,7 @@ class KeywordService(object):
         mock = json.loads(data.get('mock'))
         keyword = data.get('keyword')
         func = re.findall(r'def\s+(.+?):', keyword)
-        print(50 * '*')
-        print(mock)
-        print(keyword)
-        print(func)
         if func:
             keyword += '\n' + func[0]
             exec(keyword, {'data': mock})
-            print(func)
-            print(data)
         return mock
