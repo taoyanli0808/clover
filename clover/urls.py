@@ -68,12 +68,6 @@ def map_urls(app):
         methods=['GET'],
         strict_slashes=False,
     )
-    app.add_url_rule(
-        "/api/v1/variable/aggregate",
-        view_func=variable,
-        methods=['POST'],
-        strict_slashes=False,
-    )
 
     # 关键字相关路由与视图
     keyword = Keyword.as_view("keyword")

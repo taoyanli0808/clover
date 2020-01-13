@@ -22,7 +22,7 @@ export default {
   methods: {
     getCascader () {
       this.$axios
-        .post('/api/v1/environment/aggregate', { cascader: null })
+        .post('/api/v1/team/aggregate', { cascader: null })
         .then((res) => {
           this.options = res.data.data
         })

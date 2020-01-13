@@ -266,7 +266,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$axios({
-          url: '/api/v1/environment/delete',
+          url: '/api/v1/variable/delete',
           method: 'post',
           data: JSON.stringify({
             type: 'variable',
@@ -292,7 +292,7 @@ export default {
     addVariable () {
       this.addDialogVisible = false
       this.$axios({
-        url: '/api/v1/environment/create',
+        url: '/api/v1/variable/create',
         method: 'post',
         data: JSON.stringify(this.add),
         headers: {
@@ -312,7 +312,7 @@ export default {
     editVariable () {
       this.editDialogVisible = false
       this.$axios({
-        url: '/api/v1/environment/update',
+        url: '/api/v1/variable/update',
         method: 'post',
         data: JSON.stringify(this.edit),
         headers: {
@@ -335,7 +335,7 @@ export default {
         params.owner = this.owner
       }
       this.$axios
-        .get('/api/v1/environment/search', {
+        .get('/api/v1/variable/search', {
           params
         })
         .then((res) => {
@@ -355,7 +355,7 @@ export default {
       this.add.team = value
       this.project = []
       this.$axios
-        .get('/api/v1/environment/search', {
+        .get('/api/v1/variable/search', {
           params: {
             type: 'team',
             team: value
@@ -382,7 +382,7 @@ export default {
       this.edit.team = value
       this.project = []
       this.$axios
-        .get('/api/v1/environment/search', {
+        .get('/api/v1/variable/search', {
           params: {
             type: 'team',
             team: value

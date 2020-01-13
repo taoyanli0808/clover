@@ -284,27 +284,6 @@ class VariableView(CloverView):
                 'data': data
             })
 
-    def aggregate(self):
-        """
-        :return:
-        """
-        data = request.get_json()
-
-        try:
-            data = self.service.aggregate(data)
-            return jsonify({
-                'status': 0,
-                'message': 'ok',
-                'data': data
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': str(error),
-                'traceback': traceback.format_stack(),
-                'data': data
-            })
-
 
 class KeywordView(CloverView):
 

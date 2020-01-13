@@ -201,53 +201,6 @@ class VariableService(object):
         count = VariableModel.query.filter_by(**filter).count()
         return count, results
 
-    def aggregate(self, data):
-        """
-        {'type': 'team', 'key': 'team'}
-        {'type': 'team', 'key': 'owner'}
-        # cascader: 按照element ui库cascader需要的数据格式返回数据。
-        #           团队和项目配置数据不会特别多，因此无需过多关注性能。
-        :param data:
-        :return: 所有数据
-        """
-        if 'cascader' in data:
-            cascader = {}
-            results = TeamModel.query.\
-                with_entities(TeamModel.team, TeamModel.project).\
-                filter(TeamModel.enable == 0).\
-                distinct().all()
-            for team, project in results:
-                if team not in cascader:
-                    cascader.setdefault(team, {
-                        'label': team,
-                        'value': team,
-                        'children': [{
-                            'label': project,
-                            'value': project
-                        }],
-                    })
-                else:
-                    labels = [item['label'] for item in cascader[team]['children']]
-                    if project not in labels:
-                        cascader[team]['children'].append({
-                            'label': project,
-                            'value': project
-                        })
-            return list(cascader.values())
-        elif 'type' in data:
-            if data['key'] == 'team':
-                results = TeamModel.query.with_entities(TeamModel.team).\
-                    filter(TeamModel.enable == 0).\
-                    distinct().all()
-                return [r[0] for r in results]
-            elif data['key'] == 'owner':
-                results = TeamModel.query.with_entities(TeamModel.owner).\
-                    filter(TeamModel.enable == 0).\
-                    distinct().all()
-                return [r[0] for r in results]
-            else:
-                return []
-
 
 class KeywordService(object):
 

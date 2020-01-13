@@ -28,7 +28,7 @@ export default {
   methods: {
     getTeam () {
       this.$axios({
-        url: '/api/v1/environment/aggregate',
+        url: '/api/v1/team/aggregate',
         method: 'post',
         data: JSON.stringify({
           type: 'team',
