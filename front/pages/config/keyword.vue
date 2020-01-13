@@ -4,6 +4,7 @@
       <el-col :span="3">
         <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
       </el-col>
+      </el-col>
       <el-col
         :span="3"
         :offset="15"
@@ -31,9 +32,9 @@
     <el-row :gutter="20">
       <el-col :span="12">
         <editor
-          ref="snippet"
-          v-model="content"
-          @init="snippetInit"
+          ref="keyword"
+          v-model="keyword"
+          @init="keywordInit"
           lang="python"
           theme="twilight"
           height="480"
@@ -42,7 +43,7 @@
       <el-col :span="12">
         <editor
           ref="mock"
-          v-model="data"
+          v-model="mock"
           @init="mockInit"
           lang="json"
           theme="twilight"
@@ -65,17 +66,47 @@ export default {
     return {
       team: '',
       project: '',
-      content: '# 这里使用python写自定义关键字',
-      data: '{"status": 0, "message": "ok", "data": {}}'
+      keyword: '# 这里使用python写自定义关键字',
+      mock: '{"status": 0, "message": "ok", "data": {}}'
     }
   },
   mounted () {
-    this.setSnippetEditor()
+    this.setKeywordEditor()
     this.setMockEditor()
   },
   methods: {
     handleDebug () {
-      console.log(this.content)
+      this.$axios({
+        url: '/api/v1/keyword/debug',
+        method: 'post',
+        data: JSON.stringify({
+          'team': this.team,
+          'project': this.project,
+          'keyword': this.keyword,
+          'mock': this.mock
+        }),
+        headers: {
+          'Content-Type': 'application/json;'
+        }
+      }).then((res) => {
+        if (res.data.status === 0) {
+          this.mock = JSON.stringify(res.data.data)
+          this.$message({
+            type: 'success',
+            message: res.data.message
+          })
+        } else {
+          this.$message({
+            type: 'error',
+            message: res.data.message
+          })
+        }
+      }).catch(() => {
+        this.$message({
+          type: 'error',
+          message: '服务器偷懒了！'
+        })
+      })
     },
     handleAdd (value) {
       console.log(value)
@@ -84,7 +115,7 @@ export default {
       this.team = value.team
       this.project = value.project
     },
-    snippetInit () {
+    keywordInit () {
       require('brace/ext/language_tools')
       require('brace/mode/python')
       require('brace/mode/sql')
@@ -95,8 +126,8 @@ export default {
       require('brace/mode/json')
       require('brace/theme/twilight')
     },
-    setSnippetEditor () {
-      const editor = this.$refs.snippet.editor
+    setKeywordEditor () {
+      const editor = this.$refs.keyword.editor
       editor.getSession().setTabSize(4)
       editor.setFontSize(18)
     },

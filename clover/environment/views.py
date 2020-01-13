@@ -416,14 +416,7 @@ class KeywordView(CloverView):
         """
         data = request.get_json()
 
-        if 'name' not in data or not data['name']:
-            return jsonify({
-                'status': 400,
-                'message': '关键字需要定义名称!',
-                'data': data
-            })
-
-        if 'snippet' not in data or not data['snippet']:
+        if 'keyword' not in data or not data['keyword']:
             return jsonify({
                 'status': 400,
                 'message': '关键字缺少实现代码!',
@@ -439,6 +432,7 @@ class KeywordView(CloverView):
 
         try:
             result = self.service.debug(data)
+            print(result)
             return jsonify({
                 'status': 0,
                 'message': "创建关键字成功！",

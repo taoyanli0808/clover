@@ -297,14 +297,15 @@ class KeywordService(object):
         """
         # 这里是否需要try except兜一下？
         mock = json.loads(data.get('mock'))
-        snippet = data.get('snippet')
-        func = re.findall(r'def\s+(.+?):', snippet)
+        keyword = data.get('keyword')
+        func = re.findall(r'def\s+(.+?):', keyword)
+        print(50 * '*')
+        print(mock)
+        print(keyword)
+        print(func)
         if func:
-            snippet += '\n' + func[0]
-            exec(snippet, {'data': mock})
+            keyword += '\n' + func[0]
+            exec(keyword, {'data': mock})
+            print(func)
+            print(data)
         return mock
-
-
-if __name__ == '__main__':
-    service = Service()
-    print(service.aggregate({'cascader': None}))
