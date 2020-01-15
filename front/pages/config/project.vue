@@ -164,14 +164,12 @@ export default {
       page: 0,
       addDialogVisible: false,
       add: {
-        type: 'team',
         team: '',
         project: '',
         owner: ''
       },
       editDialogVisible: false,
       edit: {
-        type: 'team',
         team: '',
         project: '',
         owner: ''
@@ -208,7 +206,6 @@ export default {
           url: '/api/v1/team/delete',
           method: 'post',
           data: JSON.stringify({
-            type: 'team',
             id: row.id
           }),
           headers: {
@@ -258,7 +255,6 @@ export default {
       const params = {
         limit: this.limit,
         offset: this.page * this.limit,
-        type: 'team'
       }
       if (this.team !== '') {
         params.team = this.team

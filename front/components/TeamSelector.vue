@@ -31,7 +31,6 @@ export default {
         url: '/api/v1/team/aggregate',
         method: 'post',
         data: JSON.stringify({
-          type: 'team',
           key: 'team'
         }),
         headers: {

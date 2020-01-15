@@ -212,7 +212,6 @@ export default {
       page: 0,
       addDialogVisible: false,
       add: {
-        type: 'variable',
         team: '',
         project: '',
         owner: '',
@@ -221,7 +220,6 @@ export default {
       },
       editDialogVisible: false,
       edit: {
-        type: 'variable',
         team: '',
         project: '',
         owner: '',
@@ -269,7 +267,6 @@ export default {
           url: '/api/v1/variable/delete',
           method: 'post',
           data: JSON.stringify({
-            type: 'variable',
             id: row.id
           }),
           headers: {
@@ -326,7 +323,6 @@ export default {
       const params = {
         limit: this.limit,
         skip: this.page * this.limit,
-        type: 'variable'
       }
       if (this.team !== '') {
         params.team = this.team
@@ -357,7 +353,6 @@ export default {
       this.$axios
         .get('/api/v1/variable/search', {
           params: {
-            type: 'team',
             team: value
           }
         })
@@ -384,7 +379,6 @@ export default {
       this.$axios
         .get('/api/v1/variable/search', {
           params: {
-            type: 'team',
             team: value
           }
         })
