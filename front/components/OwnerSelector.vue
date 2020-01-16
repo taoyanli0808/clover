@@ -2,7 +2,7 @@
   <el-select
     v-model="owner"
     @change="selectOwner"
-    placeholder="请选择"
+    placeholder="请选择负责人"
     clearable
   >
     <el-option
