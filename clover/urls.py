@@ -10,6 +10,8 @@ from clover.suite.views import SuiteView as TestSuite
 
 
 def map_urls(app):
+    # 版本相关路由与视图带增加
+    
     # 配置管理相关路由与视图
     team = Team.as_view("team")
     app.add_url_rule(
