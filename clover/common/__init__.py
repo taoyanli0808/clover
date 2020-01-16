@@ -43,7 +43,6 @@ def derivation(data, results):
 
     variable = re.findall(r'\$\{(.+?)\}', data)
     if variable:
-        print(variable)
         variable = variable[0].strip()
         for result in results:
             if variable == result.name:

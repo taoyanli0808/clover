@@ -31,11 +31,11 @@ class Executor():
 
         if 'header' in data:
             for header in data['header']:
-                header['key'] = derivation(header['key'], results)
+                header['value'] = derivation(header['value'], results)
 
         if 'params' in data:
             for param in data['params']:
-                param['key'] = derivation(param['key'], results)
+                param['value'] = derivation(param['value'], results)
 
         return data
 
@@ -85,8 +85,6 @@ class Executor():
         report = run_case_use_unittest(cases)
 
         for case in cases:
-            print(case)
             self.extract_variables(case)
             self.record_result(case)
-        print(g.data)
         return cases
