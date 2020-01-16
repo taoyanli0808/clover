@@ -17,6 +17,7 @@ class InterfaceModel(CloverModel):
     path = db.Column(db.String(64), comment="请求路径")
     header = db.Column(db.JSON, comment="http请求头")
     params = db.Column(db.JSON, comment="http请求参数")
+    body = db.Column(db.JSON, comment="http请求体")
     verify = db.Column(db.JSON, comment="响应断言")
     extract = db.Column(db.JSON, comment="提取响应参数")
     enable = db.Column(db.Integer, default=0, comment="0有效，1无效")

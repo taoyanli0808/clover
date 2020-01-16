@@ -61,7 +61,8 @@ def send_request(data):
     host = data.get("host")
     path = data.get("path")
     header = data.get('header', {})
-    payload = data.get('params', {})
+    params = data.get('params', {})
+    body = data.get('body', {})
     url = host + path
 
     # 将[{'a': 1}, {'b': 2}]转化为{'a': 1, 'b': 2}
@@ -69,13 +70,19 @@ def send_request(data):
         header = {item['key']: item['value'] for item in header if item['key']}
 
     # 将[{'a': 1}, {'b': 2}]转化为{'a': 1, 'b': 2}
-    if payload:
-        payload = {item['key']: item['value'] for item in payload}
+    if params:
+        params = {item['key']: item['value'] for item in params}
 
-    if method == 'get':
-        response = requests.request(method, url, params=payload, headers=header)
-    else:
-        response = requests.request(method, url, data=payload, headers=header)
+    # 将[{'a': 1}, {'b': 2}]转化为{'a': 1, 'b': 2}
+    if body:
+        body = {item['key']: item['value'] for item in body}
+
+    response = requests.request(
+        method, url,
+        params=params,
+        data=body,
+        headers=header
+    )
 
     # 这里将响应的状态码，头信息和响应体单独存储，后面断言或提取变量会用到
     data['response'] = {

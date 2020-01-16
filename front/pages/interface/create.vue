@@ -178,7 +178,70 @@
               </el-table-column>
             </el-table>
           </el-tab-pane>
-          <el-tab-pane label="添加断言" name="fourth">
+          <el-tab-pane label="请求体" name="fourth">
+            <el-table
+              :data="body"
+              class="tb-edit"
+              style="width: 100%"
+              highlight-current-row
+              border
+            >
+              <el-table-column
+                label="KEY"
+                width="180"
+                header-align="center"
+              >
+                <template scope="scope">
+                  <el-input
+                    v-model="scope.row.key"
+                    size="small"
+                    placeholder="请输入内容"
+                  />
+                  <span>
+                    {{ scope.row.key }}
+                  </span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="VALUE"
+                width="180"
+                header-align="center"
+              >
+                <template scope="scope">
+                  <el-input
+                    v-model="scope.row.value"
+                    size="small"
+                    placeholder="请输入内容"
+                  />
+                  <span>
+                    {{ scope.row.value }}
+                  </span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="操作"
+                align="center"
+              >
+                <template scope="scope">
+                  <el-button
+                    @click="addBodyTableRow(scope.$index, scope.row)"
+                    size="small"
+                    type="primary"
+                  >
+                    添加
+                  </el-button>
+                  <el-button
+                    @click="deleteBodyTableRow(scope.$index, scope.row)"
+                    size="small"
+                    type="danger"
+                  >
+                    删除
+                  </el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-tab-pane>
+          <el-tab-pane label="添加断言" name="five">
             <el-table
               ref="assertTable"
               :data="assert"
@@ -197,7 +260,7 @@
                   <el-select v-model="scope.row.extractor" placeholder="请选择">
                     <el-option
                       label="delimiter"
-                      value="re"
+                      value="delimiter"
                     />
                     <el-option
                       label="re"
@@ -303,7 +366,7 @@
               </el-table-column>
             </el-table>
           </el-tab-pane>
-          <el-tab-pane label="提取响应" name="five">
+          <el-tab-pane label="提取响应" name="six">
             <el-table
               ref="extractTable"
               :data="extract"
@@ -457,6 +520,10 @@ export default {
         key: '',
         value: ''
       }],
+      body: [{
+        key: '',
+        value: ''
+      }],
       assert: [{
         extractor: '',
         expression: '',
@@ -507,6 +574,21 @@ export default {
       this.param = this.param.filter(item => item.key !== row.key)
       if (Array.prototype.isPrototypeOf(this.param) && this.param.length === 0) {
         this.param.push({
+          key: '',
+          value: ''
+        })
+      }
+    },
+    addBodyTableRow (index, row) {
+      this.body.push({
+        key: '',
+        value: ''
+      })
+    },
+    deleteBodyTableRow (index, row) {
+      this.body = this.body.filter(item => item.key !== row.key)
+      if (Array.prototype.isPrototypeOf(this.body) && this.body.length === 0) {
+        this.body.push({
           key: '',
           value: ''
         })
@@ -568,6 +650,7 @@ export default {
           method: this.method,
           header: this.header,
           params: this.param,
+          body: this.body,
           verify: this.assert,
           extract: this.extract
         }),
@@ -612,6 +695,7 @@ export default {
           method: this.method,
           header: this.header,
           params: this.param,
+          body: this.body,
           verify: this.assert,
           extract: this.extract
         }),

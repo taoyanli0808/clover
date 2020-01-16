@@ -37,6 +37,10 @@ class Executor():
             for param in data['params']:
                 param['value'] = derivation(param['value'], results)
 
+        if 'body' in data:
+            for param in data['body']:
+                param['value'] = derivation(param['value'], results)
+
         return data
 
     def extract_variables(self, data):
