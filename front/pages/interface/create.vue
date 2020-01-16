@@ -263,8 +263,12 @@
                       value="delimiter"
                     />
                     <el-option
-                      label="re"
-                      value="re"
+                      label="regular"
+                      value="regular"
+                    />
+                    <el-option
+                      label="keyword"
+                      value="keyword"
                     />
                   </el-select>
                 </template>
@@ -293,8 +297,36 @@
                 <template scope="scope">
                   <el-select v-model="scope.row.comparator" placeholder="请选择">
                     <el-option
-                      label="contains"
-                      value="contains"
+                      label="等于"
+                      value="equal"
+                    />
+                    <el-option
+                      label="不等于"
+                      value="not_equal"
+                    />
+                    <el-option
+                      label="包含"
+                      value="contain"
+                    />
+                    <el-option
+                      label="不包含"
+                      value="not_contain"
+                    />
+                    <el-option
+                      label="大于"
+                      value="greater"
+                    />
+                    <el-option
+                      label="大于等于"
+                      value="not_less"
+                    />
+                    <el-option
+                      label="小于"
+                      value="less"
+                    />
+                    <el-option
+                      label="小于等于"
+                      value="not_greater"
                     />
                   </el-select>
                 </template>

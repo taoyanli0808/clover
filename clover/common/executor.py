@@ -1,14 +1,23 @@
+
+import json
+
+import requests
+
 from flask import g
 
 from clover.common import derivation
-from clover.common import run_case_use_unittest
+from clover.common import convert_type
+from clover.common.extractor import Extractor
+from clover.common.validator import Validator
 from clover.environment.models import VariableModel
 
 
 class Executor():
 
-    def __init__(self):
+    def __init__(self, type='trigger'):
         g.data = []
+        self.type = type
+        self.report = {}
 
     def replace_variable(self, data):
         """
@@ -42,6 +51,82 @@ class Executor():
                 param['value'] = derivation(param['value'], results)
 
         return data
+
+    def send_request(self, data):
+        """
+        :param data:
+        :return:
+        """
+        # 发送http请求
+        method = data.get("method")
+        host = data.get("host")
+        path = data.get("path")
+        header = data.get('header', {})
+        params = data.get('params', {})
+        body = data.get('body', {})
+        url = host + path
+
+        # 将[{'a': 1}, {'b': 2}]转化为{'a': 1, 'b': 2}
+        if header:
+            header = {item['key']: item['value'] for item in header if item['key']}
+
+        # 将[{'a': 1}, {'b': 2}]转化为{'a': 1, 'b': 2}
+        if params:
+            params = {item['key']: item['value'] for item in params}
+
+        # 将[{'a': 1}, {'b': 2}]转化为{'a': 1, 'b': 2}
+        if body:
+            body = {item['key']: item['value'] for item in body}
+
+        response = requests.request(
+            method, url,
+            params=params,
+            data=body,
+            headers=header
+        )
+
+        # 这里将响应的状态码，头信息和响应体单独存储，后面断言或提取变量会用到
+        data['response'] = {
+            'status': response.status_code,
+            'header': dict(response.headers),
+            'content': response.text
+        }
+
+        # 框架目前只支持json数据，在这里尝试进行json数据转换
+        try:
+            data['response']['json'] = json.loads(data['response']['content'])
+        except Exception:
+            data['response']['json'] = {"message": "亲爱的小伙伴，目前接口仅支持json格式！"}
+
+        return data
+
+    def validate_request(self, data):
+        """
+        :param data:
+        :return:
+        """
+        validator = Validator()
+        for verify in data['verify']:
+            # 判断提取器是否合法，只支持三种提取器
+            _extractor = verify.get('extractor', 'delimiter')
+            if _extractor not in ['delimiter', 'regular', 'keyword']:
+                # 这里最好给一个报错
+                continue
+            # 提取需要进行断言的数据
+            extractor = Extractor(_extractor)
+            expression = verify.get('expression', None)
+            variable = extractor.extract(data['response']['content'], expression, '.')
+
+            expected = verify.get('expected', None)
+            # 转化预期结果为需要的数据类型，数据类型相同才能比较嘛
+            convertor = verify.get('convertor', None)
+            variable = convert_type(convertor, variable)
+            expected = convert_type(convertor, expected)
+
+            # 获取比较器进行断言操作
+            comparator = verify.get('comparator', None)
+
+            result = validator.compare(comparator, variable, expected)
 
     def extract_variables(self, data):
         """
@@ -85,10 +170,11 @@ class Executor():
         """
         for case in cases:
             self.replace_variable(case)
-
-        report = run_case_use_unittest(cases)
-
-        for case in cases:
+            self.send_request(case)
+            self.validate_request(case)
             self.extract_variables(case)
             self.record_result(case)
-        return cases
+        if self.type == 'debug':
+            return cases
+        else:
+            return self.report
