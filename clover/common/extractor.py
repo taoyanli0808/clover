@@ -3,16 +3,31 @@ import re
 import json
 
 
-class Extract():
+class Extractor():
 
-    def __init__(self, type="delimiter"):
+    VALID_TYPE = ['delimiter', 'regular', 'keyword']
+
+    def __init__(self, type=''):
         """
         :param type:
         """
-        if type not in ["delimiter", "re"]:
-            self.type = "delimiter"
+        self.type = 'delimiter' if type not in Extractor.VALID_TYPE else type
+
+    def extract(self, data, expression, separator='.'):
+        """
+        :param data:
+        :param expression:
+        :param separator:
+        :return:
+        """
+        if self.type == 'delimiter':
+            return self.extract_by_delimiter(data, expression, separator)
+        elif self.type == 'regular':
+            return self.extract_by_re(data, expression)
+        elif self.type == 'keyword':
+            return data
         else:
-            self.type = type
+            return data
 
     @staticmethod
     def extract_by_re(data, pattern):
@@ -31,7 +46,6 @@ class Extract():
         match = re.findall(pattern, data)
         return match[0] if match else None
 
-
     @staticmethod
     def extract_by_delimiter(data, expression, separator='.'):
         """
@@ -41,10 +55,10 @@ class Extract():
         :param separator: 指定的分隔符
         :return: None如果提取失败
         """
-
         # 表达式必须是字符串，否则无法继续处理
         if not isinstance(expression, str):
             return None
+
         expression = expression.split(separator)
 
         # 如果data是字符串则默认是json数据，转为python对象。
@@ -59,6 +73,7 @@ class Extract():
         # 如果数据是字典则索引是字符串
         # 其它情况暂时按照错误处理
         for expr in expression:
+            expr = expr.strip()
             try:
                 expr = int(expr)
                 data = data[expr]
@@ -73,7 +88,7 @@ class Extract():
 
 
 if __name__ == '__main__':
-    extract = Extract()
+    extract = Extractor()
     data = '{"status": 0, "message": "ok", "data": [{"price": "13"}, {"price": "15"}]}'
     print(extract.extract_by_delimiter(data, "data.-1.price"))
     print(extract.extract_by_re(data, r'\"status\": (.*?),'))

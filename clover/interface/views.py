@@ -141,7 +141,7 @@ class InterfaceView(CloverView):
             })
 
         try:
-            executor = Executor()
+            executor = Executor('debug')
             data = executor.execute([data])
             return jsonify({
                 'status': 0,
