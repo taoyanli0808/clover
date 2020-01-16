@@ -113,7 +113,7 @@ class TeamService(object):
                             'value': project
                         })
             return list(cascader.values())
-        elif 'type' in data:
+        else:
             if data['key'] == 'team':
                 results = TeamModel.query.with_entities(TeamModel.team).\
                     filter(TeamModel.enable == 0).\
