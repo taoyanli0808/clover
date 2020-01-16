@@ -88,7 +88,7 @@ def send_request(data):
     try:
         data['response']['json'] = json.loads(data['response']['content'])
     except Exception:
-        data['response']['json'] = {}
+        data['response']['json'] = {"message": "亲爱的小伙伴，目前接口仅支持json格式！"}
 
     return data
 

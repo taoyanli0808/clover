@@ -64,12 +64,10 @@ class Service(object):
         """
         # 需要通过case_id先查询到数据库里的测试用例。
         # run_id是一次运行的记录，查测试报告时使用。
-        run_id = 111
         id = data.get('id')
         model = InterfaceModel.query.get(id)
         case = model.to_dict()
         # 运行测试用例，注意execute的参数是list。
         executor = Executor()
         result = executor.execute([case])
-        print(result)
-        return run_id
+        return id
