@@ -580,7 +580,7 @@ export default {
             type: 'success',
             message: '测试成功'
           })
-          this.response = res.data.data.response.content
+          this.response = JSON.stringify(res.data.data[0].response.json, null, 4)
         } else {
           let level = 'info'
           if (res.data.status >= 500) {

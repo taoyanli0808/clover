@@ -142,7 +142,7 @@ class InterfaceView(CloverView):
 
         try:
             executor = Executor()
-            data = executor.execute(data)
+            data = executor.execute([data])
             return jsonify({
                 'status': 0,
                 'message': 'ok',
@@ -169,18 +169,24 @@ class InterfaceView(CloverView):
                 'message': '运行接口用例需要指定ID参数',
                 'data': data,
             })
-
-        try:
-            service = Service()
-            result = service.trigger(data)
-            return jsonify({
-                'status': 0,
-                'message': 'ok',
-                'data': result,
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': str(error),
-                'data': data
-            })
+        service = Service()
+        result = service.trigger(data)
+        return jsonify({
+            'status': 0,
+            'message': 'ok',
+            'data': result,
+        })
+        # try:
+        #     service = Service()
+        #     result = service.trigger(data)
+        #     return jsonify({
+        #         'status': 0,
+        #         'message': 'ok',
+        #         'data': result,
+        #     })
+        # except Exception as error:
+        #     return jsonify({
+        #         'status': 500,
+        #         'message': str(error),
+        #         'data': data
+        #     })
