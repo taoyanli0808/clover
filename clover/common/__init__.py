@@ -2,7 +2,9 @@
 import re
 import os
 import time
-import unittest
+import platform
+
+from config import VERSION
 
 from clover.common.HTMLTestRunner import HTMLTestRunner
 
@@ -66,3 +68,11 @@ def convert_type(convertor, data):
             return str(data)
     except ValueError:
         return data
+
+
+def get_system_info():
+    return {
+        'platform': platform.system(),
+        'python': platform.python_version(),
+        'clover': VERSION,
+    }

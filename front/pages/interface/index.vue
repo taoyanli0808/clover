@@ -49,11 +49,6 @@
         width="80"
       />
       <el-table-column
-        prop="name"
-        label="用例"
-        width="180"
-      />
-      <el-table-column
         prop="host"
         label="域名"
         width="180"
@@ -183,9 +178,7 @@ export default {
       this.$axios({
         url: '/api/v1/interface/trigger',
         method: 'post',
-        data: JSON.stringify({
-          id: row.id
-        }),
+        data: JSON.stringify(row),
         headers: {
           'Content-Type': 'application/json;'
         }

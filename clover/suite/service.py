@@ -82,5 +82,5 @@ class Service():
         cases = query_to_dict(cases)
         # 执行用例并获得运行结果
         executor = Executor()
-        result = executor.execute(cases)
+        result = executor.execute(cases, data)
         return result

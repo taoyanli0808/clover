@@ -69,5 +69,5 @@ class Service(object):
         case = model.to_dict()
         # 运行测试用例，注意execute的参数是list。
         executor = Executor()
-        result = executor.execute([case])
-        return id
+        result = executor.execute([case], data)
+        return result

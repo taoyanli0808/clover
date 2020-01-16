@@ -1,5 +1,6 @@
 
 DEBUG = True
+VERSION = '0.1.16'
 
 MYSQL = {
     'user': 'clover',

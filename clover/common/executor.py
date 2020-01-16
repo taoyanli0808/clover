@@ -1,14 +1,19 @@
 
 import json
-
-import requests
+import datetime
 
 from flask import g
+from requests import request
+from sqlalchemy.exc import ProgrammingError
 
+from clover.exts import db
 from clover.common import derivation
 from clover.common import convert_type
+from clover.common import get_mysql_error
+from clover.common import get_system_info
 from clover.common.extractor import Extractor
 from clover.common.validator import Validator
+from clover.report.models import ReportModel
 from clover.environment.models import VariableModel
 
 
@@ -17,7 +22,7 @@ class Executor():
     def __init__(self, type='trigger'):
         g.data = []
         self.type = type
-        self.report = {}
+        self.result = {}
 
     def replace_variable(self, data):
         """
@@ -78,7 +83,7 @@ class Executor():
         if body:
             body = {item['key']: item['value'] for item in body}
 
-        response = requests.request(
+        response = request(
             method, url,
             params=params,
             data=body,
@@ -105,28 +110,41 @@ class Executor():
         :param data:
         :return:
         """
+        self.result.setdefault(data['name'], [])
         validator = Validator()
         for verify in data['verify']:
-            # 判断提取器是否合法，只支持三种提取器
-            _extractor = verify.get('extractor', 'delimiter')
-            if _extractor not in ['delimiter', 'regular', 'keyword']:
-                # 这里最好给一个报错
-                continue
-            # 提取需要进行断言的数据
-            extractor = Extractor(_extractor)
-            expression = verify.get('expression', None)
-            variable = extractor.extract(data['response']['content'], expression, '.')
+            try:
+                # 判断提取器是否合法，只支持三种提取器
+                _extractor = verify.get('extractor', 'delimiter')
+                if _extractor not in ['delimiter', 'regular', 'keyword']:
+                    # 这里最好给一个报错
+                    continue
+                # 提取需要进行断言的数据
+                extractor = Extractor(_extractor)
+                expression = verify.get('expression', None)
+                variable = extractor.extract(data['response']['content'], expression, '.')
 
-            expected = verify.get('expected', None)
-            # 转化预期结果为需要的数据类型，数据类型相同才能比较嘛
-            convertor = verify.get('convertor', None)
-            variable = convert_type(convertor, variable)
-            expected = convert_type(convertor, expected)
+                expected = verify.get('expected', None)
+                # 转化预期结果为需要的数据类型，数据类型相同才能比较嘛
+                convertor = verify.get('convertor', None)
+                variable = convert_type(convertor, variable)
+                expected = convert_type(convertor, expected)
 
-            # 获取比较器进行断言操作
-            comparator = verify.get('comparator', None)
+                # 获取比较器进行断言操作
+                comparator = verify.get('comparator', None)
 
-            result = validator.compare(comparator, variable, expected)
+                result = validator.compare(comparator, variable, expected)
+                result = 'passed' if result else 'failed'
+                verify.setdefault('result', {
+                    'status': result,
+                    'actual': variable,
+                    'expect': expected,
+                    'operate': comparator,
+                })
+                self.result[data['name']].append(verify)
+            except Exception:
+                verify.setdefault('status', 'error')
+                self.result[data['name']].append(verify)
 
     def extract_variables(self, data):
         """
@@ -163,18 +181,50 @@ class Executor():
         # self.db.insert("interface", "history", data)
         return data
 
-    def execute(self, cases):
+    def execute(self, cases, data=None):
         """
         :param cases:
+        :param data:
         :return: 返回值为元组，分别是flag，message和接口请求后的json数据。
         """
+        start = datetime.datetime.now()
         for case in cases:
+            case_start = datetime.datetime.now()
             self.replace_variable(case)
             self.send_request(case)
-            self.validate_request(case)
+            status = self.validate_request(case)
             self.extract_variables(case)
             self.record_result(case)
+            case_end = datetime.datetime.now()
+            self.result.setdefault(data['name'], {
+                'start': case_start,
+                'end': case_end,
+                'duraton': (case_end - case_start).total_seconds(),
+                'status': status
+            })
+        end = datetime.datetime.now()
+
+        # 调试模式不生成测试报告！
         if self.type == 'debug':
             return cases
-        else:
-            return self.report
+
+        report = {
+            'team': data['team'],
+            'project': data['project'],
+            'type': 'interface',
+            'start': start,
+            'end': end,
+            'duration': (end - start).total_seconds(),
+            'platform': get_system_info(),
+            'status': self.result,
+            'detail': []
+        }
+        model = ReportModel(**report)
+        db.session.add(model)
+        # 这是一个处理数据库异常的例子，后面最好有统一的处理方案。
+        try:
+            db.session.commit()
+        except ProgrammingError as error:
+            code, msg = get_mysql_error(error)
+            return (code, msg)
+        return model.id
