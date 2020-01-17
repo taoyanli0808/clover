@@ -231,10 +231,15 @@ class Executor():
         if self.type == 'debug':
             return cases
 
+        # 这里是一个适配操作，如果report字段存在则用于报告的name属性，
+        # 否则这里取套件或者是接口的name属性给report的name属性，相当
+        # 与可以让用户传递最终测试报告的报告名，仅此而已。
+        # https://github.com/taoyanli0808/clover/issues/39
+        name = data['report'] if 'report' in data and data['report'] else data['name']
         report = {
             'team': data['team'],
             'project': data['project'],
-            'name': data['name'],
+            'name': name,
             'type': 'interface',
             'start': start,
             'end': end,

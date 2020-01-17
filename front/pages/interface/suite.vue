@@ -82,7 +82,7 @@
       >
         <template slot-scope="scope">
           <el-button
-            @click="handleAdd(scope.$index, scope.row)"
+            @click="handleRun(scope.$index, scope.row)"
             size="mini"
             icon="el-icon-caret-right"
             type="primary"
@@ -160,30 +160,43 @@ export default {
         type: 'error'
       })
     },
-    handleAdd (index, row) {
-      this.$axios({
-        url: '/api/v1/suite/trigger',
-        method: 'post',
-        data: JSON.stringify(row),
-        headers: {
-          'Content-Type': 'application/json;'
-        }
-      }).then((res) => {
-        if (res.data.status === 0) {
+    handleRun (index, row) {
+      this.$prompt('请输入报告名', '运行套件', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消'
+      }).then(({ value }) => {
+        this.$axios({
+          url: '/api/v1/suite/trigger',
+          method: 'post',
+          data: JSON.stringify({
+            report: value,
+            ...row
+          }),
+          headers: {
+            'Content-Type': 'application/json;'
+          }
+        }).then((res) => {
+          if (res.data.status === 0) {
+            this.$message({
+              type: 'success',
+              message: '触发成功!'
+            })
+          } else {
+            this.$message({
+              type: 'warning',
+              message: res.data.message
+            })
+          }
+        }).catch((res) => {
           this.$message({
-            type: 'success',
-            message: '触发成功!'
-          })
-        } else {
-          this.$message({
-            type: 'warning',
+            type: 'error',
             message: res.data.message
           })
-        }
-      }).catch((res) => {
+        })
+      }).catch(() => {
         this.$message({
-          type: 'error',
-          message: res.data.message
+          type: 'info',
+          message: '取消运行！'
         })
       })
     },

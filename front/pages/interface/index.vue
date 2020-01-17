@@ -175,29 +175,42 @@ export default {
         })
     },
     handleRun (index, row) {
-      this.$axios({
-        url: '/api/v1/interface/trigger',
-        method: 'post',
-        data: JSON.stringify(row),
-        headers: {
-          'Content-Type': 'application/json;'
-        }
-      }).then((res) => {
-        if (res.data.status === 0) {
+      this.$prompt('请输入报告名', '运行接口', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消'
+      }).then(({ value }) => {
+        this.$axios({
+          url: '/api/v1/interface/trigger',
+          method: 'post',
+          data: JSON.stringify({
+            report: value,
+            ...row
+          }),
+          headers: {
+            'Content-Type': 'application/json;'
+          }
+        }).then((res) => {
+          if (res.data.status === 0) {
+            this.$message({
+              type: 'success',
+              message: '运行用例成功!'
+            })
+          } else {
+            this.$message({
+              type: 'warning',
+              message: res.data.message
+            })
+          }
+        }).catch(() => {
           this.$message({
-            type: 'success',
-            message: '运行用例成功!'
+            type: 'error',
+            message: '运行接口用例时发生错误!'
           })
-        } else {
-          this.$message({
-            type: 'warning',
-            message: res.data.message
-          })
-        }
+        })
       }).catch(() => {
         this.$message({
-          type: 'error',
-          message: '运行接口用例时发生错误!'
+          type: 'info',
+          message: '取消运行！'
         })
       })
     },
