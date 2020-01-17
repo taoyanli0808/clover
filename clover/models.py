@@ -16,6 +16,10 @@ def query_to_dict(results):
     for result in results:
         result['created'] = result['created'].strftime('%Y-%m-%d %H:%M:%S')
         result['updated'] = result['updated'].strftime('%Y-%m-%d %H:%M:%S')
+        if 'start' in result:
+            result['start'] = result['start'].strftime('%Y-%m-%d %H:%M:%S')
+        if 'end' in result:
+            result['end'] = result['end'].strftime('%Y-%m-%d %H:%M:%S')
     return results
 
 

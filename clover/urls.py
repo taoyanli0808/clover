@@ -6,7 +6,8 @@ from clover.environment.views import TeamView as Team
 from clover.environment.views import KeywordView as Keyword
 from clover.environment.views import VariableView as Variable
 from clover.interface.views import InterfaceView as Interface
-from clover.suite.views import SuiteView as TestSuite
+from clover.suite.views import SuiteView as Suite
+from clover.report.views import ReportView as Report
 
 
 def map_urls(app):
@@ -138,35 +139,43 @@ def map_urls(app):
     )
 
     # 测试套件相关路由与视图
-    testsuite = TestSuite.as_view("suite")
+    suite = Suite.as_view("suite")
     app.add_url_rule(
         "/api/v1/suite/create",
-        view_func=testsuite,
+        view_func=suite,
         methods=['POST'],
         strict_slashes=False,
     )
     app.add_url_rule(
         "/api/v1/suite/delete",
-        view_func=testsuite,
+        view_func=suite,
         methods=['POST'],
         strict_slashes=False,
     )
     app.add_url_rule(
         "/api/v1/suite/update",
-        view_func=testsuite,
+        view_func=suite,
         methods=['POST'],
         strict_slashes=False,
     )
     app.add_url_rule(
         "/api/v1/suite/search",
-        view_func=testsuite,
+        view_func=suite,
         methods=['GET', 'POST'],
         strict_slashes=False,
     )
     app.add_url_rule(
         "/api/v1/suite/trigger",
-        view_func=testsuite,
+        view_func=suite,
         methods=['POST'],
         strict_slashes=False,
     )
 
+    # 测试报告相关路由与视图
+    report = Report.as_view("report")
+    app.add_url_rule(
+        "/api/v1/report/search",
+        view_func=report,
+        methods=['POST'],
+        strict_slashes=False,
+    )

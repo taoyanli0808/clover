@@ -242,7 +242,7 @@ class Executor():
             'platform': get_system_info(),
             'detail': self.result,
         }
-        
+
         model = ReportModel(**report)
         db.session.add(model)
         # 这是一个处理数据库异常的例子，后面最好有统一的处理方案。

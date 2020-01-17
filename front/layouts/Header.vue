@@ -36,6 +36,9 @@
       </el-menu-item>
     </el-submenu>
     <el-menu-item index="4">
+      <a href="/report">查看报告</a>
+    </el-menu-item>
+    <el-menu-item index="5">
       <a href="https://github.com/taoyanli0808/clover" target="_blank">
         加入我们
       </a>
