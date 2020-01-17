@@ -25,21 +25,21 @@ class TeamView(CloverView):
         if 'team' not in data or not data['team']:
             return jsonify({
                 'status': 400,
-                'message': "invalid parameter team[{0}]".format(data['team']),
+                'message': "无效的team[{0}]参数！".format(data['team']),
                 'data': data
             })
 
         if 'project' not in data or not data['project']:
             return jsonify({
                 'status': 400,
-                'message': "invalid parameter project[{0}]".format(data['project']),
+                'message': "无效的project[{0}]参数！".format(data['project']),
                 'data': data
             })
 
         if 'owner' not in data or not data['owner']:
             return jsonify({
                 'status': 400,
-                'message': "invalid parameter owner[{0}]".format(data['owner']),
+                'message': "无效的owner[{0}]参数！".format(data['owner']),
                 'data': data
             })
 
@@ -47,7 +47,7 @@ class TeamView(CloverView):
             id = self.service.create(data)
             return jsonify({
                 'status': 0,
-                'message': 'ok',
+                'message': '成功创建团队与项目！',
                 'data': id
             })
         except Exception as error:
@@ -67,7 +67,7 @@ class TeamView(CloverView):
         if 'id' not in data or not data['id']:
             return jsonify({
                 'status': 400,
-                'message': "invalid parameter id[{0}]".format(data['id']),
+                'message': "无效的id[{0}]参数！".format(data['id']),
                 'data': data
             })
 
@@ -75,7 +75,7 @@ class TeamView(CloverView):
             id = self.service.detele(data)
             return jsonify({
                 'status': 0,
-                'message': 'ok',
+                'message': '成功删除数据！',
                 'data': id
             })
         except Exception as error:
@@ -95,7 +95,7 @@ class TeamView(CloverView):
         if 'id' not in data or not data['id']:
             return jsonify({
                 'status': 400,
-                'message': "invalid parameter id[{0}]".format(data['id']),
+                'message': "无效的id[{0}]参数！".format(data['id']),
                 'data': data
             })
 
@@ -173,21 +173,35 @@ class VariableView(CloverView):
         if 'team' not in data or not data['team']:
             return jsonify({
                 'status': 400,
-                'message': "invalid parameter team[{0}]".format(data['team']),
+                'message': "无效的team[{0}]参数！".format(data['team']),
                 'data': data
             })
 
         if 'project' not in data or not data['project']:
             return jsonify({
                 'status': 400,
-                'message': "invalid parameter project[{0}]".format(data['project']),
+                'message': "无效的project[{0}]参数！".format(data['project']),
                 'data': data
             })
 
         if 'owner' not in data or not data['owner']:
             return jsonify({
                 'status': 400,
-                'message': "invalid parameter owner[{0}]".format(data['owner']),
+                'message': "无效的owner[{0}]参数！".format(data['owner']),
+                'data': data
+            })
+
+        if 'name' not in data or not data['name']:
+            return jsonify({
+                'status': 400,
+                'message': "无效的name[{0}]参数！".format(data['name']),
+                'data': data
+            })
+
+        if 'value' not in data or not data['value']:
+            return jsonify({
+                'status': 400,
+                'message': "无效的value[{0}]参数！".format(data['value']),
                 'data': data
             })
 
@@ -215,7 +229,7 @@ class VariableView(CloverView):
         if 'id' not in data or not data['id']:
             return jsonify({
                 'status': 400,
-                'message': "invalid parameter id[{0}]".format(data['id']),
+                'message': "无效的id[{0}]参数！".format(data['id']),
                 'data': data
             })
 
@@ -243,7 +257,7 @@ class VariableView(CloverView):
         if 'id' not in data or not data['id']:
             return jsonify({
                 'status': 400,
-                'message': "invalid parameter id[{0}]".format(data['id']),
+                'message': "无效的id[{0}]参数！".format(data['id']),
                 'data': data
             })
 

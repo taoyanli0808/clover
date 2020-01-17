@@ -145,7 +145,7 @@
     >
       <el-form ref="form" label-width="80px">
         <el-form-item label="团队名称">
-          <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
+          <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject"/>
         </el-form-item>
         <el-form-item label="负责人">
           <el-input v-model="owner" />
@@ -270,7 +270,24 @@ export default {
         this.value = ''
         this.addSelectTeam = ''
         this.selectProject = ''
+        if (res.data.status === 0) {
+          this.refresh()
+          this.$message({
+            type: 'success',
+            message: res.data.message
+          })
+        } else {
+          this.$message({
+            type: 'warning',
+            message: res.data.message
+          })
+        }
         this.refresh()
+      }).catch(() => {
+        this.$message({
+          type: 'error',
+          message: '服务端错误，请联系管理员！'
+        })
       })
     },
     editVariable () {

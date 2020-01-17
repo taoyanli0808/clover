@@ -7,49 +7,17 @@
       <el-col :span="3">
         <OwnerSelector v-on:selectedOwner="selectedOwner" />
       </el-col>
-      <el-col
-        :span="3"
-        :offset="15"
-      >
-        <el-button
-          @click="handleAdd"
-          icon="el-icon-plus"
-          type="primary"
-        >
+      <el-col :span="3" :offset="15">
+        <el-button @click="handleAdd" icon="el-icon-plus" type="primary">
           创建项目
         </el-button>
       </el-col>
     </el-row>
-    <el-table
-      :data="data"
-      style="width: 100%"
-      stripe
-      border
-    >
-      <el-table-column
-        prop="id"
-        label="ID"
-        width="90"
-        align="center"
-      />
-      <el-table-column
-        prop="team"
-        label="团队"
-        width="200"
-        align="center"
-      />
-      <el-table-column
-        prop="project"
-        label="项目"
-        width="200"
-        align="center"
-      />
-      <el-table-column
-        prop="owner"
-        label="负责人"
-        width="200"
-        align="center"
-      />
+    <el-table :data="data" style="width: 100%" stripe border>
+      <el-table-column prop="id" label="ID" width="90" align="center" />
+      <el-table-column prop="team" label="团队" width="200" align="center" />
+      <el-table-column prop="project" label="项目" width="200" align="center" />
+      <el-table-column prop="owner" label="负责人" width="200" align="center" />
       <el-table-column
         prop="created"
         label="创建日期"
@@ -62,12 +30,7 @@
         width="200"
         align="center"
       />
-      <el-table-column
-        fixed="right"
-        label="操作"
-        width="300"
-        align="center"
-      >
+      <el-table-column fixed="right" label="操作" width="300" align="center">
         <template slot-scope="scope">
           <el-button
             @click="handleAdd(scope.$index, scope.row)"
@@ -102,11 +65,7 @@
       background
       layout="total, prev, pager, next, jumper"
     />
-    <el-dialog
-      :visible.sync="addDialogVisible"
-      width="30%"
-      title="添加项目"
-    >
+    <el-dialog :visible.sync="addDialogVisible" width="30%" title="添加项目">
       <el-form ref="form" :model="add" label-width="80px">
         <el-form-item label="团队名称">
           <el-input v-model="add.team" />
@@ -123,11 +82,7 @@
         <el-button @click="addProject" type="primary">确 定</el-button>
       </span>
     </el-dialog>
-    <el-dialog
-      :visible.sync="editDialogVisible"
-      width="30%"
-      title="编辑项目"
-    >
+    <el-dialog :visible.sync="editDialogVisible" width="30%" title="编辑项目">
       <el-form ref="form" :model="edit" label-width="80px">
         <el-form-item label="团队名称">
           <el-input v-model="edit.team" />
@@ -235,7 +190,24 @@ export default {
           'Content-Type': 'application/json;'
         }
       }).then((res) => {
-        this.refresh()
+        console.log(res)
+        if (res.data.status === 0) {
+          this.refresh()
+          this.$message({
+            type: 'success',
+            message: res.data.message
+          })
+        } else {
+          this.$message({
+            type: 'warning',
+            message: res.data.message
+          })
+        }
+      }).catch(() => {
+        this.$message({
+          type: 'error',
+          message: '服务端错误，请联系管理员！'
+        })
       })
     },
     editProject () {
