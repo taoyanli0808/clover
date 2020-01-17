@@ -204,7 +204,7 @@ export default {
     handleEdit (index, row) {
       this.$message({
         showClose: true,
-        message: '付费功能，暂不开放！',
+        message: '开发者正在加班加点开发，很快就可以用喽！',
         type: 'error'
       })
       /*
