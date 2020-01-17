@@ -118,14 +118,16 @@ export default {
           } else {
             this.$message({
               type: 'error',
-              message: res.data.message
+              message: res.data.message,
+              center: true
             })
           }
         })
         .catch(() => {
           this.$message({
             type: 'error',
-            message: '服务出错，请联系管理员'
+            message: '服务出错，请联系管理员',
+            center: true
           })
         })
     },

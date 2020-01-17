@@ -148,16 +148,17 @@ export default {
           } else {
             this.$message({
               type: 'error',
-              message: res.data.message
+              message: res.data.message,
+              center: true
             })
           }
         })
     },
     handleHistory (index, row) {
       this.$message({
-        showClose: true,
         message: '开发者正在加班加点开发，很快就可以用喽！',
-        type: 'error'
+        type: 'error',
+        center: true
       })
     },
     handleRun (index, row) {
@@ -179,24 +180,28 @@ export default {
           if (res.data.status === 0) {
             this.$message({
               type: 'success',
-              message: '触发成功!'
+              message: '触发成功!',
+              center: true
             })
           } else {
             this.$message({
               type: 'warning',
-              message: res.data.message
+              message: res.data.message,
+              center: true
             })
           }
         }).catch((res) => {
           this.$message({
             type: 'error',
-            message: res.data.message
+            message: res.data.message,
+            center: true
           })
         })
       }).catch(() => {
         this.$message({
           type: 'info',
-          message: '取消运行！'
+          message: '取消运行！',
+          center: true
         })
       })
     },
@@ -220,19 +225,22 @@ export default {
             this.refresh()
             this.$message({
               type: 'success',
-              message: '删除成功!'
+              message: '删除成功!',
+              center: true
             })
           } else {
             this.$message({
               type: 'error',
-              message: res.data.message
+              message: res.data.message,
+              center: true
             })
           }
         })
       }).catch(() => {
         this.$message({
           type: 'info',
-          message: '已取消删除'
+          message: '已取消删除',
+          center: true
         })
       })
     },

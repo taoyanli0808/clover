@@ -693,7 +693,8 @@ export default {
         if (res.data.status === 0) {
           this.$message({
             type: 'success',
-            message: '测试成功'
+            message: '测试成功',
+            center: true
           })
           this.response = JSON.stringify(res.data.data[0].response.json, null, 4)
         } else {
@@ -703,14 +704,16 @@ export default {
           }
           this.$message({
             type: level,
-            message: res.data.message
+            message: res.data.message,
+            center: true
           })
           this.response = res.data.data
         }
       }).catch(() => {
         this.$message({
           type: 'error',
-          message: '服务器偷懒了！'
+          message: '服务器偷懒了！',
+          center: true
         })
       })
     },
@@ -738,7 +741,8 @@ export default {
         if (res.data.status === 0) {
           this.$message({
             type: 'success',
-            message: '保存用例成功！用例ID是[' + res.data.data + ']'
+            message: '保存用例成功！用例ID是[' + res.data.data + ']',
+            center: true
           })
           /*
           setTimeout(function () {
@@ -754,13 +758,15 @@ export default {
           }
           this.$message({
             type: level,
-            message: res.data.message
+            message: res.data.message,
+            center: true
           })
         }
       }).catch(() => {
         this.$message({
           type: 'error',
-          message: '服务器偷懒了！'
+          message: '服务器偷懒了！',
+          center: true
         })
       })
     }

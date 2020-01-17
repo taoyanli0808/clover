@@ -93,18 +93,21 @@ export default {
           this.mock = JSON.stringify(res.data.data)
           this.$message({
             type: 'success',
-            message: res.data.message
+            message: res.data.message,
+            center: true
           })
         } else {
           this.$message({
             type: 'error',
-            message: res.data.message
+            message: res.data.message,
+            center: true
           })
         }
       }).catch(() => {
         this.$message({
           type: 'error',
-          message: '服务器偷懒了！'
+          message: '服务器偷懒了！',
+          center: true
         })
       })
     },

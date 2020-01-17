@@ -237,13 +237,15 @@ export default {
           this.refresh()
           this.$message({
             type: 'success',
-            message: '删除成功!'
+            message: '删除成功!',
+            center: true
           })
         })
       }).catch(() => {
         this.$message({
           type: 'info',
-          message: '已取消删除'
+          message: '已取消删除',
+          center: true
         })
       })
     },
@@ -274,19 +276,22 @@ export default {
           this.refresh()
           this.$message({
             type: 'success',
-            message: res.data.message
+            message: res.data.message,
+            center: true
           })
         } else {
           this.$message({
             type: 'warning',
-            message: res.data.message
+            message: res.data.message,
+            center: true
           })
         }
         this.refresh()
       }).catch(() => {
         this.$message({
           type: 'error',
-          message: '服务端错误，请联系管理员！'
+          message: '服务端错误，请联系管理员！',
+          center: true
         })
       })
     },
