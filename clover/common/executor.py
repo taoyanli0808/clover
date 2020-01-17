@@ -96,6 +96,7 @@ class Executor():
                 data=body,
                 headers=header
             )
+            self.result[data['name']]['elapsed'] = response.elapsed.microseconds
         except InvalidURL:
             self.status = 601
             self.message = "您输入接口信息有误，URL格式非法，请确认！"
@@ -133,7 +134,7 @@ class Executor():
         :param data:
         :return:
         """
-        self.result.setdefault(data['name'], [])
+        self.result[data['name']]['result'] = []
         validator = Validator()
         for verify in data['verify']:
             try:
@@ -158,16 +159,16 @@ class Executor():
 
                 result = validator.compare(comparator, variable, expected)
                 result = 'passed' if result else 'failed'
-                verify.setdefault('result', {
+                self.result[data['name']]['result'].append({
                     'status': result,
                     'actual': variable,
                     'expect': expected,
                     'operate': comparator,
                 })
-                self.result[data['name']].append(verify)
             except Exception:
-                verify.setdefault('status', 'error')
-                self.result[data['name']].append(verify)
+                self.result[data['name']]['result'].append({
+                    'status': 'error'
+                })
 
     def extract_variables(self, data):
         """
@@ -216,19 +217,14 @@ class Executor():
         """
         start = datetime.datetime.now()
         for case in cases:
-            case_start = datetime.datetime.now()
+            self.result.setdefault(case['name'], {})
+            self.result[case['name']]['start'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             self.replace_variable(case)
             self.send_request(case)
-            status = self.validate_request(case)
+            self.validate_request(case)
             self.extract_variables(case)
             self.record_result(case)
-            case_end = datetime.datetime.now()
-            self.result.setdefault(data['name'], {
-                'start': case_start,
-                'end': case_end,
-                'duraton': (case_end - case_start).total_seconds(),
-                'status': status
-            })
+            self.result[case['name']]['end'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         end = datetime.datetime.now()
 
         # 调试模式不生成测试报告！
@@ -238,14 +234,15 @@ class Executor():
         report = {
             'team': data['team'],
             'project': data['project'],
+            'name': data['name'],
             'type': 'interface',
             'start': start,
             'end': end,
             'duration': (end - start).total_seconds(),
             'platform': get_system_info(),
-            'status': self.result,
-            'detail': []
+            'detail': self.result,
         }
+        
         model = ReportModel(**report)
         db.session.add(model)
         # 这是一个处理数据库异常的例子，后面最好有统一的处理方案。

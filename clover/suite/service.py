@@ -74,10 +74,11 @@ class Service():
         """
         # ！attention 这里用例的执行顺序有保障么？
         # 查询出所有需要运行的用例
+        case_list = tuple(data['cases'].split(','))
         cases = db.session.query(
             InterfaceModel
         ).filter(
-            InterfaceModel.id.in_(tuple(data['cases']))
+            InterfaceModel.id.in_(case_list)
         ).all()
         cases = query_to_dict(cases)
         # 执行用例并获得运行结果
