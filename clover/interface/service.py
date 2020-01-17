@@ -57,6 +57,15 @@ class Service(object):
         count = InterfaceModel.query.filter_by(**filter).count()
         return count, results
 
+    def debug(self, data):
+        """
+        :param data:
+        :return:
+        """
+        executor = Executor('debug')
+        result = executor.execute([data], data)
+        return executor.status, executor.message, result
+
     def trigger(self, data):
         """
         :param data:
@@ -70,4 +79,4 @@ class Service(object):
         # 运行测试用例，注意execute的参数是list。
         executor = Executor()
         result = executor.execute([case], data)
-        return result
+        return executor.status, executor.message, result

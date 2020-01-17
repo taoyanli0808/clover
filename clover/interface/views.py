@@ -4,7 +4,6 @@ from flask import request
 
 from clover.views import CloverView
 from clover.interface.service import Service
-from clover.common.executor import Executor
 
 
 class InterfaceView(CloverView):
@@ -141,12 +140,12 @@ class InterfaceView(CloverView):
             })
 
         try:
-            executor = Executor('debug')
-            data = executor.execute([data])
+            service = Service()
+            status, message, result = service.debug(data)
             return jsonify({
-                'status': 0,
-                'message': 'ok',
-                'data': data,
+                'status': status,
+                'message': message,
+                'data': result,
             })
         except Exception as error:
             return jsonify({

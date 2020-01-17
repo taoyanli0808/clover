@@ -4,6 +4,10 @@ import datetime
 
 from flask import g
 from requests import request
+from requests.exceptions import InvalidURL
+from requests.exceptions import MissingSchema
+from requests.exceptions import InvalidSchema
+from requests.exceptions import ConnectionError
 from sqlalchemy.exc import ProgrammingError
 
 from clover.exts import db
@@ -21,6 +25,8 @@ class Executor():
 
     def __init__(self, type='trigger'):
         g.data = []
+        self.status = 0
+        self.message = 'ok'
         self.type = type
         self.result = {}
 
@@ -83,12 +89,29 @@ class Executor():
         if body:
             body = {item['key']: item['value'] for item in body}
 
-        response = request(
-            method, url,
-            params=params,
-            data=body,
-            headers=header
-        )
+        try:
+            response = request(
+                method, url,
+                params=params,
+                data=body,
+                headers=header
+            )
+        except InvalidURL:
+            self.status = 601
+            self.message = "您输入接口信息有误，URL格式非法，请确认！"
+            return data
+        except MissingSchema:
+            self.status = 602
+            self.message = "您输入接口缺少协议格式，请增加[http(s)://]协议头！"
+            return data
+        except InvalidSchema:
+            self.status = 603
+            self.message = "不支持的接口协议，请使用[http(s)://]协议头！"
+            return data
+        except ConnectionError:
+            self.status = 604
+            self.message = "当链接到服务器时出错，请确认域名[{}]是否正确！".format(data.get('host'))
+            return data
 
         # 这里将响应的状态码，头信息和响应体单独存储，后面断言或提取变量会用到
         data['response'] = {
@@ -151,6 +174,10 @@ class Executor():
         :param data:
         :return:
         """
+        # 这里是临时加的，这里要详细看下如何处理。
+        if 'response' not in data:
+            return
+
         if 'extract' not in data or not data['extract']:
             return data
 
