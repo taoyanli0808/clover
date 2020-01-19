@@ -53,7 +53,7 @@ export default {
           'number': 0,
           'description': '套件数量',
           'icon': 'el-icon-s-grid',
-          'color': '#EAF1DD'
+          'color': '#DDD9C3'
         }
       }
     }
