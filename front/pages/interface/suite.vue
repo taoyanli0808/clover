@@ -100,6 +100,12 @@
         </template>
       </el-table-column>
     </el-table>
+    <el-pagination
+      @current-change="handleCurrentChange"
+      :total="total"
+      background
+      layout="total, prev, pager, next, jumper"
+    />
   </div>
 </template>
 
