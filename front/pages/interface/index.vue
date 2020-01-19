@@ -149,10 +149,14 @@ export default {
         }
       })
     },
+    handleCurrentChange (value) {
+      this.page = value - 1
+      this.refresh()
+    },
     refresh () {
       const params = {
         limit: this.limit,
-        skip: this.page * this.limit
+        offset: this.page * this.limit
       }
       if (this.team !== '') {
         params.team = this.team
