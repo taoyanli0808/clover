@@ -1,0 +1,48 @@
+
+from flask import jsonify
+
+from clover.views import CloverView
+from clover.common import get_system_info
+from clover.common import get_python_dependency
+from clover.common import get_nodejs_dependency
+
+
+class IndexView(CloverView):
+
+    def __init__(self):
+        super(IndexView, self).__init__()
+
+    def create(self):
+        pass
+
+    def delete(self):
+        pass
+
+    def update(self):
+        pass
+
+    def search(self):
+        pass
+
+    def info(self):
+        """
+        :param data:
+        :return:
+        """
+        try:
+            info = {
+                **get_system_info(),
+                'python-dependency': get_python_dependency(),
+                'nodejs-dependency': get_nodejs_dependency()
+            }
+            return jsonify({
+                'status': 0,
+                'message': 'clover平台信息。',
+                'data': info
+            })
+        except Exception as error:
+            return jsonify({
+                'status': 500,
+                'message': '运行出错，请联系管理员！',
+                'data': str(error)
+            })

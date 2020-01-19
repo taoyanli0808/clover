@@ -8,10 +8,19 @@ from clover.environment.views import VariableView as Variable
 from clover.interface.views import InterfaceView as Interface
 from clover.suite.views import SuiteView as Suite
 from clover.report.views import ReportView as Report
+from clover.index.views import IndexView as Index
 
 
 def map_urls(app):
     # 版本相关路由与视图带增加
+    # 配置管理相关路由与视图
+    index = Index.as_view("index")
+    app.add_url_rule(
+        "/api/v1/index/info",
+        view_func=index,
+        methods=['GET'],
+        strict_slashes=False,
+    )
 
     # 配置管理相关路由与视图
     team = Team.as_view("team")
