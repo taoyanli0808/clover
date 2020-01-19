@@ -90,6 +90,7 @@ export default {
   background-color: #F2F2F2;
   padding-top: 20px;
   padding-bottom: 20px;
+  margin-top: -20px;
   margin-left: -20px;
   margin-right: -20px;
 }
