@@ -27,6 +27,7 @@ export default {
   },
   methods: {
     getOwner () {
+      this.owners = []
       this.$axios({
         url: '/api/v1/team/aggregate',
         method: 'post',

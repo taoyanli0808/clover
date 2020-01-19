@@ -2,10 +2,16 @@
   <div class="block">
     <el-row :gutter="20">
       <el-col :span="3">
-        <TeamSelector v-on:selectedTeam="selectedTeam" />
+        <TeamSelector
+          ref="teamSelector"
+          v-on:selectedTeam="selectedTeam"
+        />
       </el-col>
       <el-col :span="3">
-        <OwnerSelector v-on:selectedOwner="selectedOwner" />
+        <OwnerSelector
+          ref="ownerSelector"
+          v-on:selectedOwner="selectedOwner"
+        />
       </el-col>
       <el-col :span="3" :offset="15">
         <el-button @click="handleAdd" icon="el-icon-plus" type="primary">
@@ -167,18 +173,29 @@ export default {
             'Content-Type': 'application/json;'
           }
         }).then((res) => {
-          this.refresh()
-          this.$message({
-            type: 'success',
-            message: '删除成功!',
-            center: true
-          })
-          this.$message({
-            type: 'warning',
-            message: '团队与项目关联的变量不会被删除，请手动删除！',
-            center: true,
-            offset: 60
-          })
+          if (res.data.status === 0) {
+            this.refresh()
+            this.$message({
+              type: 'success',
+              message: '删除成功!',
+              center: true
+            })
+            this.$message({
+              type: 'warning',
+              message: '团队与项目关联的变量不会被删除，请手动删除！',
+              center: true,
+              offset: 60
+            })
+            // 创建团队后下拉框不更新 #8 https://github.com/taoyanli0808/clover/issues/8
+            this.$refs.teamSelector.getTeam()
+            this.$refs.ownerSelector.getOwner()
+          } else {
+            this.$message({
+              type: 'warning',
+              message: res.data.message,
+              center: true
+            })
+          }
         })
       }).catch(() => {
         this.$message({
@@ -198,7 +215,6 @@ export default {
           'Content-Type': 'application/json;'
         }
       }).then((res) => {
-        console.log(res)
         if (res.data.status === 0) {
           this.refresh()
           this.$message({
@@ -206,6 +222,9 @@ export default {
             message: res.data.message,
             center: true
           })
+          // 创建团队后下拉框不更新 #8 https://github.com/taoyanli0808/clover/issues/8
+          this.$refs.teamSelector.getTeam()
+          this.$refs.ownerSelector.getOwner()
         } else {
           this.$message({
             type: 'warning',
@@ -231,7 +250,18 @@ export default {
           'Content-Type': 'application/json;'
         }
       }).then((res) => {
-        this.refresh()
+        if (res.data.status === 0) {
+          // 创建团队后下拉框不更新 #8 https://github.com/taoyanli0808/clover/issues/8
+          this.$refs.teamSelector.getTeam()
+          this.$refs.ownerSelector.getOwner()
+          this.refresh()
+        } else {
+          this.$message({
+            type: 'warning',
+            message: res.data.message,
+            center: true
+          })
+        }
       })
     },
     refresh () {

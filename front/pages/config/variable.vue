@@ -234,12 +234,20 @@ export default {
             'Content-Type': 'application/json;'
           }
         }).then((res) => {
-          this.refresh()
-          this.$message({
-            type: 'success',
-            message: '删除成功!',
-            center: true
-          })
+          if (res.data.status === 0) {
+            this.refresh()
+            this.$message({
+              type: 'success',
+              message: '删除成功!',
+              center: true
+            })
+          } else {
+            this.$message({
+              type: 'warning',
+              message: res.data.message,
+              center: true
+            })
+          }
         })
       }).catch(() => {
         this.$message({
@@ -312,10 +320,18 @@ export default {
           'Content-Type': 'application/json;'
         }
       }).then((res) => {
-        this.team = ''
-        this.project = ''
-        this.owner = ''
-        this.refresh()
+        if (res.data.status === 0) {
+          this.team = ''
+          this.project = ''
+          this.owner = ''
+          this.refresh()
+        } else {
+          this.$message({
+            type: 'warning',
+            message: res.data.message,
+            center: true
+          })
+        }
       })
     },
     refresh () {
