@@ -1,17 +1,20 @@
 <template>
   <div class="container">
     <IndexCarousel />
+    <IndexBanner />
     <IndexModule />
   </div>
 </template>
 
 <script>
 import IndexCarousel from '~/components/IndexCarousel.vue'
+import IndexBanner from '~/components/IndexBanner.vue'
 import IndexModule from '~/components/IndexModule.vue'
 
 export default {
   components: {
     IndexCarousel,
+    IndexBanner,
     IndexModule
   }
 }
