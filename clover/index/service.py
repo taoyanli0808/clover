@@ -2,6 +2,7 @@
 from sqlalchemy import func
 
 from clover.exts import db
+from clover.models import query_to_dict
 from clover.suite.models import SuiteModel
 from clover.interface.models import InterfaceModel
 from clover.environment.models import TeamModel
@@ -15,12 +16,48 @@ class Service():
         """
         :return:
         """
+        team = TeamModel.query.with_entities(
+            TeamModel.team
+        ).filter(
+            TeamModel.enable == 0
+        ).distinct().count()
+
+        project = TeamModel.query.with_entities(
+            TeamModel.project
+        ).filter(
+            TeamModel.enable == 0
+        ).distinct().count()
+
+        interface = InterfaceModel.query.with_entities(
+            InterfaceModel
+        ).filter(
+            InterfaceModel.enable == 0
+        ).distinct().count()
+
+        suite = SuiteModel.query.with_entities(
+            SuiteModel
+        ).filter(
+            SuiteModel.enable == 0
+        ).distinct().count()
+
+        variable = VariableModel.query.with_entities(
+            VariableModel
+        ).filter(
+            VariableModel.enable == 0
+        ).distinct().count()
+
+        keyword = KeywordModel.query.with_entities(
+            KeywordModel
+        ).filter(
+            KeywordModel.enable == 0
+        ).distinct().count()
+
         count = {
-            'team': TeamModel.query.with_entities(TeamModel.team).distinct().count(),
-            'project': db.session.query(func.count(TeamModel.enable == 0)).scalar(),
-            'interface': db.session.query(func.count(InterfaceModel.enable == 0)).scalar(),
-            'suite': db.session.query(func.count(SuiteModel.enable == 0)).scalar(),
-            'variable': db.session.query(func.count(VariableModel.enable == 0)).scalar(),
-            'keyword': db.session.query(func.count(KeywordModel.enable == 0)).scalar(),
+            'team': team,
+            'project': project,
+            'interface': interface,
+            'suite': suite,
+            'variable': variable,
+            'keyword': keyword,
         }
         return count
