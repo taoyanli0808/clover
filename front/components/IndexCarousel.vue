@@ -2,7 +2,7 @@
   <div class="block">
     <el-carousel :interval="5000" :height="height" type="card">
       <el-carousel-item v-for="image in images" :key="image.alt">
-        <el-image :src="image.src" style="width: 100%; height: 100%" />
+        <el-image :src="image.src" style="width: 100%; height: 100%;" />
       </el-carousel-item>
     </el-carousel>
   </div>
@@ -22,7 +22,7 @@ export default {
     }
   },
   mounted () {
-    this.height = 0.85 * `${document.documentElement.clientHeight}` + 'px'
+    this.height = 0.5 * `${document.documentElement.clientHeight}` + 'px'
   }
 }
 </script>
