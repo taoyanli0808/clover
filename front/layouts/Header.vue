@@ -39,7 +39,7 @@
     <el-menu-item index="/report">
       查看报告
     </el-menu-item>
-    <el-menu-item index="5">
+    <el-menu-item index="keep">
       <a href="https://github.com/taoyanli0808/clover" target="_blank">
         加入我们
       </a>
@@ -51,9 +51,14 @@
 export default {
   methods: {
     handleSelect (key, keyPath) {
-      this.$router.push({
-        path: key
-      })
+      if (key === 'keep') {
+        // eslint-disable-next-line no-console
+        console.log(key)
+      } else {
+        this.$router.push({
+          path: key
+        })
+      }
     }
   }
 }
