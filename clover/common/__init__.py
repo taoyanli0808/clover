@@ -42,14 +42,14 @@ def derivation(data, results):
     if not data or not results:
         return data
 
-    variable = re.findall(r'\$\{(.+?)\}', data)
-    if variable:
-        variable = variable[0].strip()
-        for result in results:
-            if variable == result.name:
-                return result.value
-    else:
-        return data
+    variables = re.findall(r'\$\{(.+?)\}', data)
+    for variable in variables:
+        if variable:
+            variable = variable.strip()
+            for result in results:
+                if variable == result.name:
+                    data = data.replace('${' + variable + '}', result.value)
+    return data
 
 
 def convert_type(convertor, data):
