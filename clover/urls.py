@@ -189,6 +189,12 @@ def map_urls(app):
     # 测试报告相关路由与视图
     report = Report.as_view("report")
     app.add_url_rule(
+        "/api/v1/report/delete",
+        view_func=report,
+        methods=['POST'],
+        strict_slashes=False,
+    )
+    app.add_url_rule(
         "/api/v1/report/search",
         view_func=report,
         methods=['POST'],

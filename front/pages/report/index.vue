@@ -32,7 +32,7 @@
       <el-table-column
         prop="type"
         label="类型"
-        width="180"
+        width="120"
       />
       <el-table-column
         prop="start"
@@ -47,12 +47,12 @@
       <el-table-column
         prop="duration"
         label="运行时间"
-        width="80"
+        width="120"
       />
       <el-table-column
         fixed="right"
         label="操作"
-        width="300"
+        width="200"
         align="center"
       >
         <template slot-scope="scope">
@@ -149,11 +149,51 @@ export default {
       this.page = value - 1
       this.refresh()
     },
-    handleOpen (value) {
-      console.log(value)
+    handleOpen (value, row) {
+      console.log(value, row)
     },
-    handleDelete (value) {
-      console.log(value)
+    handleDelete (value, row) {
+      this.$confirm('此操作将删除该测试报告, 是否继续?', '删除报告', {
+        type: 'warning',
+        confirmButtonText: '确定',
+        cancelButtonText: '取消'
+      }).then(() => {
+        this.$axios({
+          url: '/api/v1/report/delete',
+          method: 'post',
+          data: JSON.stringify(row),
+          headers: {
+            'Content-Type': 'application/json;'
+          }
+        }).then((res) => {
+          if (res.data.status === 0) {
+            this.refresh()
+            this.$message({
+              type: 'success',
+              message: '删除成功!',
+              center: true
+            })
+          } else {
+            this.$message({
+              type: 'warning',
+              message: res.data.message,
+              center: true
+            })
+          }
+        }).catch(() => {
+          this.$message({
+            type: 'error',
+            message: '运行时错误，请联系管理员！',
+            center: true
+          })
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除',
+          center: true
+        })
+      })
     }
   }
 }

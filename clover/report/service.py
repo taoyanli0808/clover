@@ -23,7 +23,9 @@ class Service():
         :param data:
         :return:
         """
-        pass
+        id = data.get('id')
+        result = ReportModel.query.get(id)
+        soft_delete(result)
 
     def search(self, data):
         """
