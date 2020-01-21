@@ -66,8 +66,8 @@
         />
         <el-table-column
           prop="elapsed"
-          label="请求时间"
-          width="100"
+          label="请求时间(ms)"
+          width="120"
         />
         <el-table-column
           prop="operate"
@@ -118,7 +118,8 @@ export default {
       failed: 0,
       error: 0,
       skip: 0,
-      percent: 0.0
+      percent: 0.0,
+      fail_or_error: false
     }
   },
   mounted () {
@@ -169,7 +170,7 @@ export default {
               hc2: this.data.start,
               hc3: '结束时间',
               hc4: this.data.end,
-              hc5: '持续时间',
+              hc5: '持续时间(ms)',
               hc6: this.data.duration
             })
             this.headers.push({
@@ -188,6 +189,14 @@ export default {
               hc5: this.skip,
               hc6: (100 * (this.success / this.total)).toFixed(2) + '%'
             })
+            if (this.fail_or_error) {
+              this.$message({
+                type: 'error',
+                message: '测试报告中检测到断言失败或错误，请关注！',
+                center: true,
+                offset: 160
+              })
+            }
           } else {
             this.$message({
               type: 'warning',
@@ -223,9 +232,11 @@ export default {
       }
       if (status === 'failed') {
         this.failed++
+        this.fail_or_error = true
       }
       if (status === 'error') {
         this.error++
+        this.fail_or_error = true
       }
       if (status === 'skip') {
         this.skip++
