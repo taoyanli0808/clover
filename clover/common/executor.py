@@ -11,6 +11,7 @@ from requests.exceptions import ConnectionError
 from sqlalchemy.exc import ProgrammingError
 
 from clover.exts import db
+from clover.models import query_to_dict
 from clover.common import derivation
 from clover.common import convert_type
 from clover.common import get_mysql_error
@@ -30,38 +31,44 @@ class Executor():
         self.type = type
         self.result = {}
 
-    def replace_variable(self, data):
+    def replace_variable(self, case, data):
         """
         # 这里对请求数据进行变量替换，将变量替换为具体值。
         # 变量和其值可以在"配置管理 -> 全局变量"里设置。
         # 目前支持host，header与param的变量替换。
         # 变量与值存储使用团队与项目进行区分，不同的团队与项目允许出现同名变量。
+        :param case:
         :param data:
         :return:
         """
         filter = {
-            'team': data.get('team'),
-            'project': data.get('project')
+            'team': case.get('team'),
+            'project': case.get('project')
         }
         results = VariableModel.query.filter_by(**filter).all()
-        results.extend(g.data)
 
-        data['host'] = derivation(data.get('host'), results)
-        data['path'] = derivation(data.get('path'), results)
+        keyword = {
+            'extract': g.data,
+            'trigger': data['variables'],
+            'default': query_to_dict(results),
+        }
 
-        if 'header' in data:
-            for header in data['header']:
-                header['value'] = derivation(header['value'], results)
+        case['host'] = derivation(case.get('host'), keyword)
+        case['path'] = derivation(case.get('path'), keyword)
 
-        if 'params' in data:
-            for param in data['params']:
-                param['value'] = derivation(param['value'], results)
+        if 'header' in case:
+            for header in case['header']:
+                header['value'] = derivation(header['value'], keyword)
 
-        if 'body' in data:
-            for param in data['body']:
-                param['value'] = derivation(param['value'], results)
+        if 'params' in case:
+            for param in case['params']:
+                param['value'] = derivation(param['value'], keyword)
 
-        return data
+        if 'body' in case:
+            for param in case['body']:
+                param['value'] = derivation(param['value'], keyword)
+
+        return case
 
     def send_request(self, data):
         """
@@ -219,7 +226,7 @@ class Executor():
         for case in cases:
             self.result.setdefault(case['name'], {})
             self.result[case['name']]['start'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            self.replace_variable(case)
+            self.replace_variable(case, data)
             self.send_request(case)
             self.validate_request(case)
             self.extract_variables(case)
