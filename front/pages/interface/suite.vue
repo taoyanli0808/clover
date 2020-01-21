@@ -106,6 +106,24 @@
       background
       layout="total, prev, pager, next, jumper"
     />
+    <el-dialog :visible.sync="dialogFormVisible" title="运行套件">
+      <el-form>
+        <el-form-item label="测试报告名称">
+          <el-input v-model="report" autocomplete="off"/>
+        </el-form-item>
+        <el-form-item label="动态替换变量">
+          <el-input
+            v-model="variables"
+            type="textarea"
+            placeholder="key:val形式，使用英文;或者换行分隔。"
+          />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取消</el-button>
+        <el-button @click="runCase" type="primary" >确定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -124,7 +142,11 @@ export default {
       page: 0,
       team: '',
       project: '',
-      cases: []
+      cases: [],
+      column: {},
+      report: '',
+      variables: '',
+      dialogFormVisible: false
     }
   },
   mounted () {
@@ -172,45 +194,52 @@ export default {
       })
     },
     handleRun (index, row) {
-      this.$prompt('请输入报告名', '运行套件', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消'
-      }).then(({ value }) => {
-        this.$axios({
-          url: '/api/v1/suite/trigger',
-          method: 'post',
-          data: JSON.stringify({
-            report: value,
-            ...row
-          }),
-          headers: {
-            'Content-Type': 'application/json;'
-          }
-        }).then((res) => {
-          if (res.data.status === 0) {
-            this.$message({
-              type: 'success',
-              message: '触发成功!',
-              center: true
-            })
-          } else {
-            this.$message({
-              type: 'warning',
-              message: res.data.message,
-              center: true
-            })
-          }
-        }).catch((res) => {
+      this.dialogFormVisible = true
+      this.column = row
+    },
+    runCase () {
+      const params = {
+        report: this.report,
+        ...this.column
+      }
+      if (this.variables) {
+        params.variables = []
+        const tmpstr = this.variables.replace(/\n/g, ';')
+        const variables = tmpstr.split(';')
+        for (const index in variables) {
+          const variable = variables[index].split(':')
+          params.variables.push({
+            name: variable[0],
+            value: variable[1]
+          })
+        }
+      }
+      this.$axios({
+        url: '/api/v1/suite/trigger',
+        method: 'post',
+        data: JSON.stringify(params),
+        headers: {
+          'Content-Type': 'application/json;'
+        }
+      }).then((res) => {
+        if (res.data.status === 0) {
           this.$message({
-            type: 'error',
+            type: 'success',
+            message: '运行用例成功!',
+            center: true
+          })
+        } else {
+          this.$message({
+            type: 'warning',
             message: res.data.message,
             center: true
           })
-        })
+        }
+        this.dialogFormVisible = false
       }).catch(() => {
         this.$message({
-          type: 'info',
-          message: '取消运行！',
+          type: 'error',
+          message: '运行接口用例时发生错误!',
           center: true
         })
       })
