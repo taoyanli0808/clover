@@ -32,29 +32,22 @@ class ReportView(CloverView):
                 'message': '删除测试报告时缺少必须的测试报告ID参数',
                 'data': data,
             })
-        service = Service()
-        service.delete(data)
-        return jsonify({
-            'status': 0,
-            'message': '成功测试报告{0}'.format(data['id']),
-            'data': {'id': data['id']},
-            'total': 1
-        })
-        # try:
-        #     service = Service()
-        #     service.delete(data)
-        #     return jsonify({
-        #         'status': 0,
-        #         'message': '成功测试报告{0}'.format(data['id']),
-        #         'data': {'id': data['id']},
-        #         'total': 1
-        #     })
-        # except Exception as error:
-        #     return jsonify({
-        #         'status': 500,
-        #         'message': '服务异常，请联系管理员！',
-        #         'data': str(error)
-        #     })
+
+        try:
+            service = Service()
+            service.delete(data)
+            return jsonify({
+                'status': 0,
+                'message': '成功测试报告{0}'.format(data['id']),
+                'data': {'id': data['id']},
+                'total': 1
+            })
+        except Exception as error:
+            return jsonify({
+                'status': 500,
+                'message': '服务异常，请联系管理员！',
+                'data': str(error)
+            })
 
     def update(self):
         pass

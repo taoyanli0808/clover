@@ -149,10 +149,15 @@ export default {
       this.page = value - 1
       this.refresh()
     },
-    handleOpen (value, row) {
-      console.log(value, row)
+    handleOpen (index, row) {
+      this.$router.push({
+        path: '/report/detail',
+        query: {
+          id: index
+        }
+      })
     },
-    handleDelete (value, row) {
+    handleDelete (index, row) {
       this.$confirm('此操作将删除该测试报告, 是否继续?', '删除报告', {
         type: 'warning',
         confirmButtonText: '确定',

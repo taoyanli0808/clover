@@ -34,6 +34,16 @@ class Service():
         """
         filter = {'enable': 0}
 
+        # 如果按照id查询则返回唯一的数据或None
+        if 'id' in data and data['id']:
+            filter.setdefault('id', data.get('id'))
+            result = ReportModel.query.get(data['id'])
+            count = 1 if result else 0
+            result = query_to_dict([result])[0] if result else None
+
+            return count, result
+
+        # 普通查询配置查询参数
         if 'team' in data and data['team']:
             filter.setdefault('team', data.get('team'))
 
