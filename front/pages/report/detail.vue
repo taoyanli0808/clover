@@ -1,85 +1,58 @@
 <template>
   <div class="container">
     <el-row>
-      <h1>{{ data.name || 'Clover测试报告' }}</h1>
+      <div class="report">{{ data.name || 'Clover测试报告' }}</div>
     </el-row>
     <el-row>
-      <h2>Summary</h2>
+      <div class="title">Summary</div>
     </el-row>
     <el-row>
-      <el-col :span="4">
-        <div>部门</div>
-      </el-col>
-      <el-col :span="4">
-        <div>{{ data.team }}</div>
-      </el-col>
-      <el-col :span="4">
-        <div>项目</div>
-      </el-col>
-      <el-col :span="4">
-        {{ data.project }}
-      </el-col>
-      <el-col :span="4">
-        <div>类型</div>
-      </el-col>
-      <el-col :span="4">
-        {{ data.type }}
-      </el-col>
+      <el-table
+        :data="headers"
+        :show-header="false"
+        style="width: 100%"
+        border
+      >
+        <el-table-column
+          prop="hc1"
+          min-width="16.66%"
+        />
+        <el-table-column
+          prop="hc2"
+          min-width="16.66%"
+        />
+        <el-table-column
+          prop="hc3"
+          min-width="16.66%"
+        />
+        <el-table-column
+          prop="hc4"
+          min-width="16.66%"
+        />
+        <el-table-column
+          prop="hc5"
+          min-width="16.66%"
+        />
+        <el-table-column
+          prop="hc6"
+          min-width="16.66%"
+        />
+      </el-table>
     </el-row>
     <el-row>
-      <el-col :span="4">
-        <div>Clover平台</div>
-      </el-col>
-      <el-col :span="4">
-        <div>{{ data.platform.clover }}</div>
-      </el-col>
-      <el-col :span="4">
-        <div>Python</div>
-      </el-col>
-      <el-col :span="4">
-        {{ data.platform.python }}
-      </el-col>
-      <el-col :span="4">
-        <div>操作系统</div>
-      </el-col>
-      <el-col :span="4">
-        {{ data.platform.platform }}
-      </el-col>
-    </el-row>
-
-    <el-row>
-      <el-col :span="4">
-        <div>开始时间</div>
-      </el-col>
-      <el-col :span="4">
-        <div>{{ data.start }}</div>
-      </el-col>
-      <el-col :span="4">
-        <div>结束时间</div>
-      </el-col>
-      <el-col :span="4">
-        {{ data.end }}
-      </el-col>
-      <el-col :span="4">
-        <div>运行时间</div>
-      </el-col>
-      <el-col :span="4">
-        {{ data.duration }}
-      </el-col>
-    </el-row>
-    <el-row>
-      <h2>Detail</h2>
+      <div class="title">Detail</div>
     </el-row>
     <el-row>
       <el-table
         :data="results"
+        :row-class-name="tableRowClassName"
         style="width: 100%"
         border
       >
         <el-table-column
           prop="name"
           label="用例名"
-          width="180"
+          width="200"
         />
         <el-table-column
           prop="start"
@@ -94,16 +67,36 @@
         <el-table-column
           prop="elapsed"
           label="请求时间"
+          width="100"
+        />
+        <el-table-column
+          prop="operate"
+          label="比较操作"
           width="180"
         />
         <el-table-column
-          prop="elapsed"
-          label="请求时间"
+          prop="expect"
+          label="期盼结果"
+          width="180"
+        />
+        <el-table-column
+          prop="actual"
+          label="实际结果"
           width="180"
         />
         <el-table-column
           prop="status"
-          label="状态"/>
+          label="状态"
+        >
+          <template slot-scope="scope">
+            <el-tag
+              :type="scope.row.status === 'passed' ? 'success' : 'error'"
+              disable-transitions
+            >
+              {{scope.row.status}}
+            </el-tag>
+          </template>
+        </el-table-column>
       </el-table>
     </el-row>
   </div>
@@ -114,10 +107,18 @@ export default {
   data () {
     return {
       data: {
-        platform: {},
+        platform: {
+        },
         detail: {}
       },
-      results: []
+      headers: [],
+      results: [],
+      total: 0,
+      success: 0,
+      failed: 0,
+      error: 0,
+      skip: 0,
+      percent: 0.0
     }
   },
   mounted () {
@@ -130,21 +131,63 @@ export default {
         .then((res) => {
           if (res.data.status === 0) {
             this.data = res.data.data
+            // 这里是报告的详细数据。
             for (const name in this.data.detail) {
               for (const index in this.data.detail[name].result) {
                 this.results.push({
                   name,
                   start: this.data.detail[name].start,
                   end: this.data.detail[name].end,
-                  elapsed: this.data.detail[name].elapsed,
+                  elapsed: this.data.detail[name].elapsed || 0,
                   status: this.data.detail[name].result[index].status,
-                  actual: this.data.detail[name].result[index].actual,
-                  expect: this.data.detail[name].result[index].expect,
-                  operate: this.data.detail[name].result[index].operate
+                  actual: this.data.detail[name].result[index].actual || '-',
+                  expect: this.data.detail[name].result[index].expect || '-',
+                  operate: this.data.detail[name].result[index].operate || '-'
                 })
+                this.countStatus(this.data.detail[name].result[index].status)
               }
             }
-            console.log(this.results)
+            // 这里是报告的表头数据。
+            this.headers.push({
+              hc1: '部门',
+              hc2: this.data.team,
+              hc3: '项目',
+              hc4: this.data.project,
+              hc5: '类型',
+              hc6: this.data.type
+            })
+            this.headers.push({
+              hc1: 'Clover平台',
+              hc2: this.data.platform.clover,
+              hc3: 'Python',
+              hc4: this.data.platform.python,
+              hc5: '操作系统',
+              hc6: this.data.platform.platform
+            })
+            this.headers.push({
+              hc1: '开始时间',
+              hc2: this.data.start,
+              hc3: '结束时间',
+              hc4: this.data.end,
+              hc5: '持续时间',
+              hc6: this.data.duration
+            })
+            this.headers.push({
+              hc1: '全部',
+              hc2: '成功',
+              hc3: '失败',
+              hc4: '错误',
+              hc5: '跳过',
+              hc6: '通过率'
+            })
+            this.headers.push({
+              hc1: this.total,
+              hc2: this.success,
+              hc3: this.failed,
+              hc4: this.error,
+              hc5: this.skip,
+              hc6: (100 * (this.success / this.total)).toFixed(2) + '%'
+            })
           } else {
             this.$message({
               type: 'warning',
@@ -160,6 +203,34 @@ export default {
             center: true
           })
         })
+    },
+    tableRowClassName ({ row, rowIndex }) {
+      if (row.status === 'passed') {
+        return 'success'
+      } else if (row.status === 'error') {
+        return 'danger'
+      } else if (row.status === 'failed') {
+        return 'warning'
+      } else if (row.status === 'skip') {
+        return 'info'
+      } else {
+        return 'primary'
+      }
+    },
+    countStatus (status) {
+      if (status === 'passed') {
+        this.success++
+      }
+      if (status === 'failed') {
+        this.failed++
+      }
+      if (status === 'error') {
+        this.error++
+      }
+      if (status === 'skip') {
+        this.skip++
+      }
+      this.total++
     }
   }
 }
@@ -169,5 +240,18 @@ export default {
 .container {
   padding-left: 36px;
   padding-right: 36px;
+}
+
+.report {
+  padding-top: 20px;
+  padding-bottom: 20px;
+  font-size: 36px;
+  text-align: center;
+}
+
+.title {
+  padding-top: 20px;
+  padding-bottom: 20px;
+  font-size: 20px;
 }
 </style>

@@ -60,7 +60,11 @@ class Service():
         except TypeError:
             limit = 10
 
-        results = ReportModel.query.filter_by(**filter).offset(offset).limit(limit)
+        results = ReportModel.query.filter_by(
+            **filter
+        ).order_by(
+            ReportModel.created.desc()
+        ).offset(offset).limit(limit)
         results = query_to_dict(results)
         count = ReportModel.query.filter_by(**filter).count()
         return count, results

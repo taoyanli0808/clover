@@ -8,6 +8,7 @@
     <el-table
       :data="data"
       style="width: 100%"
+      border
     >
       <el-table-column
         prop="id"
@@ -116,11 +117,9 @@ export default {
       if (this.project !== '') {
         params.project = this.project
       }
-      console.log(params)
       this.$axios
         .post('/api/v1/report/search', params)
         .then((res) => {
-          console.log(res)
           if (res.data.status === 0) {
             this.total = res.data.total
             this.data = res.data.data
@@ -153,7 +152,7 @@ export default {
       this.$router.push({
         path: '/report/detail',
         query: {
-          id: index
+          id: row.id
         }
       })
     },
