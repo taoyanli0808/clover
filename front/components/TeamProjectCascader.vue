@@ -41,7 +41,6 @@ export default {
 
 <style scoped>
 .el-cascader {
-  padding-top: 20px;
   padding-bottom: 20px;
 }
 </style>

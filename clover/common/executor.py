@@ -49,7 +49,7 @@ class Executor():
 
         keyword = {
             'extract': g.data,
-            'trigger': data['variables'],
+            'trigger': data.get('variables', []),
             'default': query_to_dict(results),
         }
 

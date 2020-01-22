@@ -1,518 +1,369 @@
 <template>
-  <div>
-    <el-row :gutter="20">
-      <el-col :span="12">
-        <el-tabs
-          v-model="activeName"
+  <div class="container">
+    <el-row>
+      <el-col :span="10">
+        <el-input
+          v-model="host"
+          placeholder="https://github.com"
+          class="input-with-select"
+          clearable
         >
-          <el-tab-pane label="基本信息" name="first">
-            <el-form
-              ref="form"
+          <template slot="prepend">
+            <el-select
+              slot="prepend"
+              @change="selectMethod"
+              v-model="method"
+              placeholder="请求方法"
+              style="width:120px;"
+              clearable
             >
-              <el-form-item label="业务与项目">
-                <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
-              </el-form-item>
-              <el-form-item label="用例名称">
-                <el-input
-                  v-model="name"
-                  placeholder="clover接口测试用例"
-                  clearable
-                />
-              </el-form-item>
-              <el-form-item label="测试域名">
-                <el-input
-                  v-model="host"
-                  placeholder="https://github.com"
-                  class="input-with-select"
-                  clearable
-                >
-                  <el-select
-                    slot="prepend"
-                    @change="selectMethod"
-                    v-model="method"
-                    placeholder="请求方法"
-                    clearable
-                  >
-                    <el-option
-                      v-for="m in methods"
-                      :key="m"
-                      :label="m"
-                      :value="m"
-                    />
-                  </el-select>
-                </el-input>
-              </el-form-item>
-              <el-form-item label="请求路径">
-                <el-input
-                  v-model="path"
-                  placeholder="/taoyanli0808/clover"
-                  clearable
-                />
-              </el-form-item>
-            </el-form>
-          </el-tab-pane>
-          <el-tab-pane label="请求头信息" name="second">
-            <el-table
-              ref="headerTable"
-              :data="header"
-              class="tb-edit"
-              style="width: 100%"
-              highlight-current-row
-              border
-            >
-              <el-table-column
-                label="KEY"
-                width="180"
-                align="center"
-              >
-                <template scope="scope">
-                  <el-input
-                    v-model="scope.row.key"
-                    size="small"
-                    placeholder="请输入内容"
-                  />
-                  <span>
-                    {{ scope.row.key }}
-                  </span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                label="VALUE"
-                width="180"
-                align="center"
-              >
-                <template scope="scope">
-                  <el-input
-                    v-model="scope.row.value"
-                    size="small"
-                    placeholder="请输入内容"
-                  />
-                  <span>
-                    {{ scope.row.value }}
-                  </span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                label="操作"
-                align="center"
-              >
-                <template scope="scope">
-                  <el-button
-                    @click="addHeaderTableRow(scope.$index, scope.row)"
-                    size="small"
-                    type="primary"
-                  >
-                    添加
-                  </el-button>
-                  <el-button
-                    @click="deleteHeaderTableRow(scope.$index, scope.row)"
-                    size="small"
-                    type="danger"
-                  >
-                    删除
-                  </el-button>
-                </template>
-              </el-table-column>
-            </el-table>
-          </el-tab-pane>
-          <el-tab-pane label="请求参数" name="third">
-            <el-table
-              :data="param"
-              class="tb-edit"
-              style="width: 100%"
-              highlight-current-row
-              border
-            >
-              <el-table-column
-                label="KEY"
-                width="180"
-                header-align="center"
-              >
-                <template scope="scope">
-                  <el-input
-                    v-model="scope.row.key"
-                    size="small"
-                    placeholder="请输入内容"
-                  />
-                  <span>
-                    {{ scope.row.key }}
-                  </span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                label="VALUE"
-                width="180"
-                header-align="center"
-              >
-                <template scope="scope">
-                  <el-input
-                    v-model="scope.row.value"
-                    size="small"
-                    placeholder="请输入内容"
-                  />
-                  <span>
-                    {{ scope.row.value }}
-                  </span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                label="操作"
-                align="center"
-              >
-                <template scope="scope">
-                  <el-button
-                    @click="addParameterTableRow(scope.$index, scope.row)"
-                    size="small"
-                    type="primary"
-                  >
-                    添加
-                  </el-button>
-                  <el-button
-                    @click="deleteParameterTableRow(scope.$index, scope.row)"
-                    size="small"
-                    type="danger"
-                  >
-                    删除
-                  </el-button>
-                </template>
-              </el-table-column>
-            </el-table>
-          </el-tab-pane>
-          <el-tab-pane label="请求体" name="fourth">
-            <el-table
-              :data="body"
-              class="tb-edit"
-              style="width: 100%"
-              highlight-current-row
-              border
-            >
-              <el-table-column
-                label="KEY"
-                width="180"
-                header-align="center"
-              >
-                <template scope="scope">
-                  <el-input
-                    v-model="scope.row.key"
-                    size="small"
-                    placeholder="请输入内容"
-                  />
-                  <span>
-                    {{ scope.row.key }}
-                  </span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                label="VALUE"
-                width="180"
-                header-align="center"
-              >
-                <template scope="scope">
-                  <el-input
-                    v-model="scope.row.value"
-                    size="small"
-                    placeholder="请输入内容"
-                  />
-                  <span>
-                    {{ scope.row.value }}
-                  </span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                label="操作"
-                align="center"
-              >
-                <template scope="scope">
-                  <el-button
-                    @click="addBodyTableRow(scope.$index, scope.row)"
-                    size="small"
-                    type="primary"
-                  >
-                    添加
-                  </el-button>
-                  <el-button
-                    @click="deleteBodyTableRow(scope.$index, scope.row)"
-                    size="small"
-                    type="danger"
-                  >
-                    删除
-                  </el-button>
-                </template>
-              </el-table-column>
-            </el-table>
-          </el-tab-pane>
-          <el-tab-pane label="添加断言" name="five">
-            <el-table
-              ref="assertTable"
-              :data="assert"
-              @row-click="currentAssertTableChange"
-              class="tb-edit"
-              style="width: 100%"
-              highlight-current-row
-              border
-            >
-              <el-table-column
-                label="EXTRACTOR"
-                width="180"
-                align="center"
-              >
-                <template scope="scope">
-                  <el-select v-model="scope.row.extractor" placeholder="请选择">
-                    <el-option
-                      label="delimiter"
-                      value="delimiter"
-                    />
-                    <el-option
-                      label="regular"
-                      value="regular"
-                    />
-                    <el-option
-                      label="keyword"
-                      value="keyword"
-                    />
-                  </el-select>
-                </template>
-              </el-table-column>
-              <el-table-column
-                label="EXPRESSION"
-                width="180"
-                align="center"
-              >
-                <template scope="scope">
-                  <el-input
-                    v-model="scope.row.expression"
-                    size="small"
-                    placeholder="请输入内容"
-                  />
-                  <span>
-                    {{ scope.row.expression }}
-                  </span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                label="COMPARATOR"
-                width="180"
-                align="center"
-              >
-                <template scope="scope">
-                  <el-select v-model="scope.row.comparator" placeholder="请选择">
-                    <el-option
-                      label="等于"
-                      value="equal"
-                    />
-                    <el-option
-                      label="不等于"
-                      value="not_equal"
-                    />
-                    <el-option
-                      label="包含"
-                      value="contain"
-                    />
-                    <el-option
-                      label="不包含"
-                      value="not_contain"
-                    />
-                    <el-option
-                      label="大于"
-                      value="greater"
-                    />
-                    <el-option
-                      label="大于等于"
-                      value="not_less"
-                    />
-                    <el-option
-                      label="小于"
-                      value="less"
-                    />
-                    <el-option
-                      label="小于等于"
-                      value="not_greater"
-                    />
-                  </el-select>
-                </template>
-              </el-table-column>
-              <el-table-column
-                label="CONVERTOR"
-                width="180"
-                align="center"
-              >
-                <template scope="scope">
-                  <el-select v-model="scope.row.convertor" placeholder="请选择">
-                    <el-option
-                      label="string"
-                      value="str"
-                    />
-                    <el-option
-                      label="int"
-                      value="int"
-                    />
-                    <el-option
-                      label="float"
-                      value="float"
-                    />
-                    <el-option
-                      label="boolean"
-                      value="boolean"
-                    />
-                  </el-select>
-                </template>
-              </el-table-column>
-              <el-table-column
-                label="EXPECTED"
-                width="180"
-                align="center"
-              >
-                <template scope="scope">
-                  <el-input
-                    v-model="scope.row.expected"
-                    size="small"
-                    placeholder="请输入内容"
-                  />
-                  <span>
-                    {{ scope.row.expected }}
-                  </span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                label="操作"
-                align="center"
-                width="180"
-                fixed="right"
-              >
-                <template scope="scope">
-                  <el-button
-                    @click="addAssertTableRow(scope.$index, scope.row)"
-                    size="small"
-                    type="primary"
-                  >
-                    添加
-                  </el-button>
-                  <el-button
-                    @click="deleteAssertTableRow(scope.$index, scope.row)"
-                    size="small"
-                    type="danger"
-                  >
-                    删除
-                  </el-button>
-                </template>
-              </el-table-column>
-            </el-table>
-          </el-tab-pane>
-          <el-tab-pane label="提取响应" name="six">
-            <el-table
-              ref="extractTable"
-              :data="extract"
-              class="tb-edit"
-              style="width: 100%"
-              highlight-current-row
-              border
-            >
-              <el-table-column
-                label="SELECTOR"
-                width="180"
-                align="center"
-              >
-                <template scope="scope">
-                  <el-select v-model="scope.row.selector" placeholder="请选择">
-                    <el-option
-                      v-for="item in selectors"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"
-                    />
-                  </el-select>
-                </template>
-              </el-table-column>
-              <el-table-column
-                label="EXPRESSION"
-                width="180"
-                align="center"
-              >
-                <template scope="scope">
-                  <el-input
-                    v-model="scope.row.expression"
-                    size="small"
-                    placeholder="请输入内容"
-                  />
-                  <span>
-                    {{ scope.row.key }}
-                  </span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                label="EXPECTED"
-                width="180"
-                align="center"
-              >
-                <template scope="scope">
-                  <el-input
-                    v-model="scope.row.expected"
-                    size="small"
-                    placeholder="请输入内容"
-                  />
-                  <span>
-                    {{ scope.row.value }}
-                  </span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                label="操作"
-                align="center"
-              >
-                <template scope="scope">
-                  <el-button
-                    @click="addExtractTableRow(scope.$index, scope.row)"
-                    size="small"
-                    type="primary"
-                  >
-                    添加
-                  </el-button>
-                  <el-button
-                    @click="deleteExtractTableRow(scope.$index, scope.row)"
-                    size="small"
-                    type="danger"
-                  >
-                    删除
-                  </el-button>
-                </template>
-              </el-table-column>
-            </el-table>
-          </el-tab-pane>
-        </el-tabs>
-        <el-row
-          :gutter="20"
-        >
-          <el-col
-            :span="4"
-            :offset="16"
-          >
-            <el-button
-              @click="debugCase"
-              type="primary"
-            >
-              Debug
-            </el-button>
-          </el-col>
-          <el-col
-            :span="4"
-          >
-            <el-button
-              @click="saveCase"
-              type="primary"
-            >
-              Save
-            </el-button>
-          </el-col>
-        </el-row>
+              <el-option
+                v-for="m in methods"
+                :key="m"
+                :label="m"
+                :value="m"
+              />
+            </el-select>
+          </template>
+        </el-input>
       </el-col>
-      <el-col :span="12">
-        <pre>
-          <code>
-            {{ response }}
-          </code>
-        </pre>
+      <el-col :span="10">
+        <el-input
+          v-model="path"
+          placeholder="/taoyanli0808/clover"
+          clearable
+        />
+      </el-col>
+      <el-col
+        :span="2"
+        style="text-align: right;"
+      >
+        <el-button
+          @click="debugCase"
+          type="primary"
+        >
+          Debug
+        </el-button>
+      </el-col>
+      <el-col
+        :span="2"
+        style="text-align: right;"
+      >
+        <el-button
+          @click="saveCase"
+          type="primary"
+        >
+          Save
+        </el-button>
       </el-col>
     </el-row>
+    <el-row>
+      <h1>Request</h1>
+    </el-row>
+    <el-row :gutter="20">
+      <el-tabs
+        v-model="activeName"
+      >
+        <el-tab-pane label="请求头信息" name="first">
+          <el-input
+            v-model="header"
+            :autosize="minsize"
+            type="textarea"
+            placeholder="请输入请求头信息,key:value形式，使用英文;或换行分隔参数。"
+            show-word-limit
+          />
+        </el-tab-pane>
+        <el-tab-pane label="请求参数" name="second">
+          <el-input
+            v-model="params"
+            :autosize="minsize"
+            type="textarea"
+            placeholder="请输入请求参数,key:value形式，使用英文;或换行分隔参数。一般情况下请求参数会拼接成url，例如http://52clover.cn/s?a=1&b=2"
+            show-word-limit
+          />
+        </el-tab-pane>
+        <el-tab-pane label="请求体" name="third">
+          <el-input
+            v-model="body"
+            :autosize="minsize"
+            type="textarea"
+            placeholder="请输入请求体,key:value形式，使用英文;或换行分隔参数。一般情况下请求体是表单数据。"
+            show-word-limit
+          />
+        </el-tab-pane>
+        <el-tab-pane label="添加断言" name="fourth">
+          <el-table
+            ref="assertTable"
+            :data="assert"
+            @row-click="currentAssertTableChange"
+            class="tb-edit"
+            style="width: 100%"
+            highlight-current-row
+            border
+          >
+            <el-table-column
+              label="EXTRACTOR"
+              width="180"
+              align="center"
+            >
+              <template scope="scope">
+                <el-select v-model="scope.row.extractor" placeholder="请选择">
+                  <el-option
+                    label="delimiter"
+                    value="delimiter"
+                  />
+                  <el-option
+                    label="regular"
+                    value="regular"
+                  />
+                  <el-option
+                    label="keyword"
+                    value="keyword"
+                  />
+                </el-select>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="EXPRESSION"
+              width="180"
+              align="center"
+            >
+              <template scope="scope">
+                <el-input
+                  v-model="scope.row.expression"
+                  size="small"
+                  placeholder="请输入内容"
+                />
+                <span>
+                  {{ scope.row.expression }}
+                </span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="COMPARATOR"
+              width="180"
+              align="center"
+            >
+              <template scope="scope">
+                <el-select v-model="scope.row.comparator" placeholder="请选择">
+                  <el-option
+                    label="等于"
+                    value="equal"
+                  />
+                  <el-option
+                    label="不等于"
+                    value="not_equal"
+                  />
+                  <el-option
+                    label="包含"
+                    value="contain"
+                  />
+                  <el-option
+                    label="不包含"
+                    value="not_contain"
+                  />
+                  <el-option
+                    label="大于"
+                    value="greater"
+                  />
+                  <el-option
+                    label="大于等于"
+                    value="not_less"
+                  />
+                  <el-option
+                    label="小于"
+                    value="less"
+                  />
+                  <el-option
+                    label="小于等于"
+                    value="not_greater"
+                  />
+                </el-select>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="CONVERTOR"
+              width="180"
+              align="center"
+            >
+              <template scope="scope">
+                <el-select v-model="scope.row.convertor" placeholder="请选择">
+                  <el-option
+                    label="string"
+                    value="str"
+                  />
+                  <el-option
+                    label="int"
+                    value="int"
+                  />
+                  <el-option
+                    label="float"
+                    value="float"
+                  />
+                  <el-option
+                    label="boolean"
+                    value="boolean"
+                  />
+                </el-select>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="EXPECTED"
+              width="180"
+              align="center"
+            >
+              <template scope="scope">
+                <el-input
+                  v-model="scope.row.expected"
+                  size="small"
+                  placeholder="请输入内容"
+                />
+                <span>
+                  {{ scope.row.expected }}
+                </span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="操作"
+              align="center"
+              width="180"
+              fixed="right"
+            >
+              <template scope="scope">
+                <el-button
+                  @click="addAssertTableRow(scope.$index, scope.row)"
+                  size="small"
+                  type="primary"
+                >
+                  添加
+                </el-button>
+                <el-button
+                  @click="deleteAssertTableRow(scope.$index, scope.row)"
+                  size="small"
+                  type="danger"
+                >
+                  删除
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
+        <el-tab-pane label="提取响应" name="five">
+          <el-table
+            ref="extractTable"
+            :data="extract"
+            class="tb-edit"
+            style="width: 100%"
+            highlight-current-row
+            border
+          >
+            <el-table-column
+              label="SELECTOR"
+              width="180"
+              align="center"
+            >
+              <template scope="scope">
+                <el-select v-model="scope.row.selector" placeholder="请选择">
+                  <el-option
+                    v-for="item in selectors"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </el-select>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="EXPRESSION"
+              width="180"
+              align="center"
+            >
+              <template scope="scope">
+                <el-input
+                  v-model="scope.row.expression"
+                  size="small"
+                  placeholder="请输入内容"
+                />
+                <span>
+                  {{ scope.row.key }}
+                </span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="EXPECTED"
+              width="180"
+              align="center"
+            >
+              <template scope="scope">
+                <el-input
+                  v-model="scope.row.expected"
+                  size="small"
+                  placeholder="请输入内容"
+                />
+                <span>
+                  {{ scope.row.value }}
+                </span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="操作"
+              align="center"
+            >
+              <template scope="scope">
+                <el-button
+                  @click="addExtractTableRow(scope.$index, scope.row)"
+                  size="small"
+                  type="primary"
+                >
+                  添加
+                </el-button>
+                <el-button
+                  @click="deleteExtractTableRow(scope.$index, scope.row)"
+                  size="small"
+                  type="danger"
+                >
+                  删除
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
+      </el-tabs>
+    </el-row>
+    <el-row>
+      <h1>Response</h1>
+    </el-row>
+    <el-row>
+      <el-tabs v-model="activeResponseTab">
+        <el-tab-pane label="响应体" name="responseBody">
+          <pre>
+            <code>
+              {{ response.json || response.content }}
+            </code>
+          </pre>
+        </el-tab-pane>
+        <el-tab-pane label="响应头" name="responseHeader">
+          <pre>
+            <code>
+              {{ response.header }}
+            </code>
+          </pre>
+        </el-tab-pane>
+        <el-tab-pane label="响应Cookie" name="responseCookie">Cookie</el-tab-pane>
+      </el-tabs>
+    </el-row>
+    <el-dialog :visible.sync="dialogDebugFormVisible" title="调试接口">
+      <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
+      <el-form>
+        <el-form-item label="用例名称">
+          <el-input v-model="name" autocomplete="off"/>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogDebugFormVisible = false">取消</el-button>
+        <el-button @click="runCase" type="primary" >确定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -529,6 +380,7 @@ export default {
       projects: [],
       methods: ['get', 'post', 'put', 'delete'],
       activeName: 'first',
+      activeResponseTab: 'responseBody',
       selectors: [{
         label: '分隔符',
         value: 'delimiter'
@@ -544,18 +396,9 @@ export default {
       host: '',
       path: '',
       method: '',
-      header: [{
-        key: '',
-        value: ''
-      }],
-      param: [{
-        key: '',
-        value: ''
-      }],
-      body: [{
-        key: '',
-        value: ''
-      }],
+      header: '',
+      params: '',
+      body: '',
       assert: [{
         extractor: '',
         expression: '',
@@ -567,7 +410,9 @@ export default {
         selector: '',
         expression: '',
         expected: ''
-      }]
+      }],
+      minsize: { minRows: 6 },
+      dialogDebugFormVisible: false
     }
   },
   methods: {
@@ -669,7 +514,23 @@ export default {
         })
       }
     },
+    translateData (data) {
+      const result = []
+      const tmpstr = data.replace(/\n/g, ';')
+      const variables = tmpstr.split(';')
+      for (const index in variables) {
+        const sep = variables[index].indexOf(':')
+        result.push({
+          key: variables[index].slice(0, sep),
+          value: variables[index].slice(sep + 1, variables[index].length)
+        })
+      }
+      return result
+    },
     debugCase () {
+      this.dialogDebugFormVisible = true
+    },
+    runCase () {
       this.$axios({
         url: '/api/v1/interface/debug',
         method: 'post',
@@ -680,11 +541,12 @@ export default {
           host: this.host,
           path: this.path,
           method: this.method,
-          header: this.header,
-          params: this.param,
-          body: this.body,
+          header: this.translateData(this.header),
+          params: this.translateData(this.params),
+          body: this.translateData(this.body),
           verify: this.assert,
-          extract: this.extract
+          extract: this.extract,
+          variables: []
         }),
         headers: {
           'Content-Type': 'application/json;'
@@ -696,7 +558,8 @@ export default {
             message: '测试成功',
             center: true
           })
-          this.response = JSON.stringify(res.data.data[0].response.json, null, 4)
+          this.response = res.data.data[0].response
+          this.dialogDebugFormVisible = false
         } else {
           let level = 'info'
           if (res.data.status >= 500) {
@@ -775,6 +638,20 @@ export default {
 </script>
 
 <style scoped>
+.container {
+  padding-left: 100px;
+  padding-right: 100px;
+}
+
+.el-row {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+h1 {
+  margin-bottom: -20px;
+}
+
 .el-select {
   width: 100%;
 }
