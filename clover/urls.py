@@ -129,25 +129,25 @@ def map_urls(app):
         strict_slashes=False,
     )
     app.add_url_rule(
-        "/api/v1/interface/debug",
-        view_func=interface,
-        methods=['POST'],
-        strict_slashes=False,
-    )
-    app.add_url_rule(
-        "/api/v1/interface/trigger",
-        view_func=interface,
-        methods=['GET', 'POST'],
-        strict_slashes=False,
-    )
-    app.add_url_rule(
         "/api/v1/interface/delete",
         view_func=interface,
         methods=['POST'],
         strict_slashes=False,
     )
     app.add_url_rule(
+        "/api/v1/interface/update",
+        view_func=interface,
+        methods=['POST'],
+        strict_slashes=False,
+    )
+    app.add_url_rule(
         "/api/v1/interface/search",
+        view_func=interface,
+        methods=['GET', 'POST'],
+        strict_slashes=False,
+    )
+    app.add_url_rule(
+        "/api/v1/interface/trigger",
         view_func=interface,
         methods=['GET', 'POST'],
         strict_slashes=False,

@@ -30,7 +30,7 @@
           </template>
         </el-input>
       </el-col>
-      <el-col :span="10">
+      <el-col :span="12">
         <el-input
           v-model="path"
           placeholder="/taoyanli0808/clover"
@@ -42,21 +42,10 @@
         style="text-align: right;"
       >
         <el-button
-          @click="debugCase"
+          @click="dialogSubmitFormVisible=true"
           type="primary"
         >
-          Debug
-        </el-button>
-      </el-col>
-      <el-col
-        :span="2"
-        style="text-align: right;"
-      >
-        <el-button
-          @click="saveCase"
-          type="primary"
-        >
-          Save
+          提 交
         </el-button>
       </el-col>
     </el-row>
@@ -355,7 +344,7 @@
         <el-tab-pane label="响应Cookie" name="responseCookie">Cookie</el-tab-pane>
       </el-tabs>
     </el-row>
-    <el-dialog :visible.sync="dialogDebugFormVisible" title="调试接口">
+    <el-dialog :visible.sync="dialogSubmitFormVisible" title="提交接口">
       <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
       <el-form>
         <el-form-item label="用例名称">
@@ -363,8 +352,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogDebugFormVisible = false">取消</el-button>
-        <el-button @click="runCase" type="primary" >确定</el-button>
+        <el-button @click="dialogSubmitFormVisible = false">取消</el-button>
+        <el-button @click="submit" type="primary" >确定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -393,6 +382,7 @@ export default {
         value: 're'
       }],
       response: '',
+      id: '',
       team: '',
       project: '',
       name: '',
@@ -415,7 +405,7 @@ export default {
         expected: ''
       }],
       minsize: { minRows: 6 },
-      dialogDebugFormVisible: false
+      dialogSubmitFormVisible: false
     }
   },
   methods: {
@@ -530,12 +520,9 @@ export default {
       }
       return result
     },
-    debugCase () {
-      this.dialogDebugFormVisible = true
-    },
-    runCase () {
+    create () {
       this.$axios({
-        url: '/api/v1/interface/debug',
+        url: '/api/v1/interface/create',
         method: 'post',
         data: JSON.stringify({
           team: this.team,
@@ -548,8 +535,7 @@ export default {
           params: this.translateData(this.params),
           body: this.translateData(this.body),
           verify: this.assert,
-          extract: this.extract,
-          variables: []
+          extract: this.extract
         }),
         headers: {
           'Content-Type': 'application/json;'
@@ -558,11 +544,12 @@ export default {
         if (res.data.status === 0) {
           this.$message({
             type: 'success',
-            message: '测试成功',
+            message: '提交成功',
             center: true
           })
-          this.response = res.data.data[0].response
-          this.dialogDebugFormVisible = false
+          this.id = res.data.data.id
+          this.response = res.data.data.response
+          this.dialogSubmitFormVisible = false
         } else {
           let level = 'info'
           if (res.data.status >= 500) {
@@ -583,20 +570,21 @@ export default {
         })
       })
     },
-    saveCase () {
+    update () {
       this.$axios({
-        url: '/api/v1/interface/create',
+        url: '/api/v1/interface/update',
         method: 'post',
         data: JSON.stringify({
+          id: this.id,
           team: this.team,
           project: this.project,
           name: this.name,
           host: this.host,
           path: this.path,
           method: this.method,
-          header: this.header,
-          params: this.param,
-          body: this.body,
+          header: this.translateData(this.header),
+          params: this.translateData(this.params),
+          body: this.translateData(this.body),
           verify: this.assert,
           extract: this.extract
         }),
@@ -607,16 +595,12 @@ export default {
         if (res.data.status === 0) {
           this.$message({
             type: 'success',
-            message: '保存用例成功！用例ID是[' + res.data.data + ']',
+            message: '提交成功',
             center: true
           })
-          /*
-          setTimeout(function () {
-            this.$router.push({
-              path: '/interface/'
-            })
-          }, 3000)
-          */
+          this.id = res.data.data.id
+          this.response = res.data.data.response
+          this.dialogSubmitFormVisible = false
         } else {
           let level = 'info'
           if (res.data.status >= 500) {
@@ -627,6 +611,7 @@ export default {
             message: res.data.message,
             center: true
           })
+          this.response = res.data.data
         }
       }).catch(() => {
         this.$message({
@@ -635,6 +620,13 @@ export default {
           center: true
         })
       })
+    },
+    submit () {
+      if (this.id === '') {
+        this.create()
+      } else {
+        this.update()
+      }
     }
   }
 }

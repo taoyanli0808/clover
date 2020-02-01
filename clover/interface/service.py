@@ -1,5 +1,7 @@
 #coding=utf-8
 
+import datetime
+
 from clover.exts import db
 from clover.models import query_to_dict, soft_delete
 from clover.interface.models import InterfaceModel
@@ -17,7 +19,11 @@ class Service(object):
         model = InterfaceModel(**data)
         db.session.add(model)
         db.session.commit()
-        return model.id
+
+        executor = Executor('debug')
+        result = executor.execute([data], data)
+
+        return model.id, executor.status, executor.message, result[0]
 
     def delete(self, data):
         """
@@ -28,6 +34,39 @@ class Service(object):
         for id in id_list:
             result = InterfaceModel.query.get(id)
             soft_delete(result)
+
+    def update(self, data):
+        """
+        # 使用id作为条件，更新数据库重的数据记录。
+        # 通过id查不到数据时增作为一条新的记录存入。
+        :param data:
+        :return:
+        """
+        old_model = InterfaceModel.query.get(data['id'])
+        if old_model is None:
+            model = InterfaceModel(**data)
+            db.session.add(model)
+            db.session.commit()
+            old_model = model
+        else:
+            old_model.team = data['team']
+            old_model.project = data['project']
+            old_model.name = data['name']
+            old_model.method = data['method']
+            old_model.host = data['host']
+            old_model.path = data['path']
+            old_model.header = data['header']
+            old_model.params = data['params']
+            old_model.body = data['body']
+            old_model.verify = data['verify']
+            old_model.extract = data['extract']
+            old_model.updated = datetime.datetime.now()
+            db.session.commit()
+
+        executor = Executor('debug')
+        result = executor.execute([data], data)
+
+        return old_model.id, executor.status, executor.message, result[0]
 
     def search(self, data):
         """
@@ -56,15 +95,6 @@ class Service(object):
         results = query_to_dict(results)
         count = InterfaceModel.query.filter_by(**filter).count()
         return count, results
-
-    def debug(self, data):
-        """
-        :param data:
-        :return:
-        """
-        executor = Executor('debug')
-        result = executor.execute([data], data)
-        return executor.status, executor.message, result
 
     def trigger(self, data):
         """
