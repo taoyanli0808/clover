@@ -148,6 +148,10 @@ export default {
                 this.countStatus(this.data.detail[name].result[index].status)
               }
             }
+            this.percent = (100 * (this.success / this.total))
+            if (isNaN(this.percent)) {
+              this.percent = 0.0
+            }
             // 这里是报告的表头数据。
             this.headers.push({
               hc1: '部门',
@@ -187,7 +191,7 @@ export default {
               hc3: this.failed,
               hc4: this.error,
               hc5: this.skip,
-              hc6: (100 * (this.success / this.total)).toFixed(2) + '%'
+              hc6: this.percent.toFixed(2) + '%'
             })
             if (this.fail_or_error) {
               this.$message({
