@@ -207,15 +207,6 @@ class Executor():
 
         return data
 
-    def record_result(self, data):
-        """
-        :param data:
-        :return:
-        """
-        # data['_id'] = get_friendly_id()
-        # self.db.insert("interface", "history", data)
-        return data
-
     def execute(self, cases, data=None):
         """
         :param cases:
@@ -230,7 +221,6 @@ class Executor():
             self.send_request(case)
             self.validate_request(case)
             self.extract_variables(case)
-            self.record_result(case)
             self.result[case['name']]['end'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         end = datetime.datetime.now()
 
@@ -251,6 +241,9 @@ class Executor():
             'start': start,
             'end': end,
             'duration': (end - start).total_seconds(),
+            # 'interface': len(cases),
+            # 'assertion': sum([len(case['verify']) for case in cases]),
+            # 'percent': 0.0,
             'platform': get_system_info(),
             'detail': self.result,
         }

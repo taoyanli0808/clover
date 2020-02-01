@@ -4,6 +4,7 @@ import os
 import time
 import json
 import platform
+import itertools
 
 from config import VERSION
 
@@ -130,3 +131,22 @@ def get_nodejs_dependency():
         data = json.load(file)
         dependency = {**data['dependencies'], **data['devDependencies']}
     return dependency
+
+
+def rate_of_success(data):
+    """
+    :param data:
+    :return:
+    """
+    details = data['detail'].values()
+    results = [detail['result'] for detail in details if detail['result']]
+    results = list(itertools.chain(*results))
+    passed = len(list(filter(lambda x: x['status'] == 'passed', results)))
+    percent = 100 * (passed / len(results)) if len(results) else 0
+    percent = '{}%'.format(round(percent, 2))
+
+    data.setdefault('interface', len(details))
+    data.setdefault('assertion', len(results))
+    data.setdefault('percent', percent)
+
+    return data

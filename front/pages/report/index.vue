@@ -36,6 +36,26 @@
         width="120"
       />
       <el-table-column
+        prop="duration"
+        label="运行时间"
+        width="120"
+      />
+      <el-table-column
+        prop="interface"
+        label="接口数量"
+        width="120"
+      />
+      <el-table-column
+        prop="assertion"
+        label="断言数量"
+        width="120"
+      />
+      <el-table-column
+        prop="percent"
+        label="成功率"
+        width="120"
+      />
+      <el-table-column
         prop="start"
         label="开始时间"
         width="180"
@@ -44,11 +64,6 @@
         prop="end"
         label="结束时间"
         width="180"
-      />
-      <el-table-column
-        prop="duration"
-        label="运行时间"
-        width="120"
       />
       <el-table-column
         fixed="right"

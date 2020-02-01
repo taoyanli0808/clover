@@ -1,9 +1,7 @@
 
-from sqlalchemy.exc import ProgrammingError
-
-from clover.exts import db
 from clover.models import query_to_dict, soft_delete
 from clover.report.models import ReportModel
+from clover.common import rate_of_success
 
 
 class Service():
@@ -66,5 +64,6 @@ class Service():
             ReportModel.created.desc()
         ).offset(offset).limit(limit)
         results = query_to_dict(results)
+        results = [rate_of_success(result) for result in results]
         count = ReportModel.query.filter_by(**filter).count()
         return count, results
