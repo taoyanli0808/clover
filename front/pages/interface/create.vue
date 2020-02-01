@@ -1,6 +1,9 @@
 <template>
   <div class="container">
     <el-row>
+      <h1>Interface</h1>
+    </el-row>
+    <el-row>
       <el-col :span="10">
         <el-input
           v-model="host"
@@ -290,7 +293,7 @@
               </template>
             </el-table-column>
             <el-table-column
-              label="EXPECTED"
+              label="VARIABLE"
               width="180"
               align="center"
             >
