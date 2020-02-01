@@ -222,10 +222,10 @@ export default {
         const tmpstr = this.variables.replace(/\n/g, ';')
         const variables = tmpstr.split(';')
         for (const index in variables) {
-          const variable = variables[index].split(':')
+          const separator = variables[index].indexOf(':')
           params.variables.push({
-            name: variable[0],
-            value: variable[1]
+            name: variables[index].slice(0, separator),
+            value: variables[index].slice(separator + 1, variables[index].length)
           })
         }
       }
