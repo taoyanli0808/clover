@@ -2,9 +2,11 @@
 from sqlalchemy.exc import ProgrammingError
 
 from clover.exts import db
-from clover.models import query_to_dict
+from clover.models import query_to_dict, soft_delete
 from clover.suite.models import SuiteModel
-from clover.common.utils import get_mysql_error
+from clover.interface.models import InterfaceModel
+from clover.common import get_mysql_error
+from clover.common.executor import Executor
 
 
 class Service():
@@ -35,21 +37,20 @@ class Service():
         id_list = data.pop('id_list')
         for id in id_list:
             result = SuiteModel.query.get(id)
-            db.session.delete(result)
-            db.session.commit()
+            soft_delete(result)
 
     def search(self, data):
         """
         :param data:
         :return:
         """
-        filter = {}
+        filter = {'enable': 0}
 
         if 'team' in data and data['team']:
             filter.setdefault('team', data.get('team'))
 
-        if 'owner' in data and data['owner']:
-            filter.setdefault('owner', data.get('owner'))
+        if 'project' in data and data['project']:
+            filter.setdefault('project', data.get('project'))
 
         try:
             offset = int(data.get('offset', 0))
@@ -71,6 +72,16 @@ class Service():
         :param data:
         :return:
         """
-        for case in data['cases']:
-            _, result = self.db.search("interface", "case", {'_id': case['_id']})
-            print(result)
+        # ！attention 这里用例的执行顺序有保障么？
+        # 查询出所有需要运行的用例
+        case_list = tuple(data['cases'].split(','))
+        cases = db.session.query(
+            InterfaceModel
+        ).filter(
+            InterfaceModel.id.in_(case_list)
+        ).all()
+        cases = query_to_dict(cases)
+        # 执行用例并获得运行结果
+        executor = Executor()
+        result = executor.execute(cases, data)
+        return result

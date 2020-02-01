@@ -119,33 +119,18 @@
       width="30%"
       title="添加变量"
     >
-      <el-form ref="form" :model="add" label-width="80px">
-        <el-form-item label="团队名称">
-          <TeamSelector v-on:selectedTeam="addTeam" />
-        </el-form-item>
-        <el-form-item label="项目名称">
-          <el-select
-            @change="addProject"
-            v-model="selectProject"
-            placeholder="请选择项目"
-            clearable
-          >
-            <el-option
-              v-for="item in project"
-              :key="item.project"
-              :label="item.project"
-              :value="item.project"
-            />
-          </el-select>
+      <el-form ref="form" label-width="80px">
+        <el-form-item label="团队与项目">
+          <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
         </el-form-item>
         <el-form-item label="负责人">
-          <el-input v-model="add.owner" />
+          <el-input v-model="owner" />
         </el-form-item>
         <el-form-item label="变量名">
-          <el-input v-model="add.name" />
+          <el-input v-model="name" />
         </el-form-item>
         <el-form-item label="变量值">
-          <el-input v-model="add.value" />
+          <el-input v-model="value" />
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -158,33 +143,18 @@
       width="30%"
       title="编辑项目"
     >
-      <el-form ref="form" :model="edit" label-width="80px">
+      <el-form ref="form" label-width="80px">
         <el-form-item label="团队名称">
-          <TeamSelector v-on:selectedTeam="editTeam" />
-        </el-form-item>
-        <el-form-item label="项目名称">
-          <el-select
-            @change="editProject"
-            v-model="selectProject"
-            placeholder="请选择项目"
-            clearable
-          >
-            <el-option
-              v-for="item in project"
-              :key="item.project"
-              :label="item.project"
-              :value="item.project"
-            />
-          </el-select>
+          <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject"/>
         </el-form-item>
         <el-form-item label="负责人">
-          <el-input v-model="edit.owner" />
+          <el-input v-model="owner" />
         </el-form-item>
         <el-form-item label="变量名">
-          <el-input v-model="edit.name" />
+          <el-input v-model="name" />
         </el-form-item>
         <el-form-item label="变量值">
-          <el-input v-model="edit.value" />
+          <el-input v-model="value" />
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -198,11 +168,13 @@
 <script>
 import TeamSelector from '~/components/TeamSelector.vue'
 import OwnerSelector from '~/components/OwnerSelector.vue'
+import TeamProjectCascader from '~/components/TeamProjectCascader.vue'
 
 export default {
   components: {
-    TeamSelector,
-    OwnerSelector
+    TeamProjectCascader,
+    OwnerSelector,
+    TeamSelector
   },
   data () {
     return {
@@ -211,28 +183,15 @@ export default {
       limit: 10,
       page: 0,
       addDialogVisible: false,
-      add: {
-        type: 'variable',
-        team: '',
-        project: '',
-        owner: '',
-        name: '',
-        value: ''
-      },
       editDialogVisible: false,
-      edit: {
-        type: 'variable',
-        team: '',
-        project: '',
-        owner: '',
-        name: '',
-        value: ''
-      },
+      id: '',
       team: '',
-      addSelectTeam: '',
       owner: '',
+      project: '',
+      name: '',
+      value: '',
+      addSelectTeam: '',
       selectProject: '',
-      project: [],
       editSelectTeam: ''
     }
   },
@@ -252,12 +211,12 @@ export default {
     },
     handleEdit (index, row) {
       this.editDialogVisible = true
-      this.edit.team = row.team
-      this.edit.project = row.project
-      this.edit.owner = row.owner
-      this.edit.name = row.name
-      this.edit.value = row.value
-      this.edit.id = row.id
+      this.team = row.team
+      this.project = row.project
+      this.owner = row.owner
+      this.name = row.name
+      this.value = row.value
+      this.id = row.id
     },
     handleDelete (index, row) {
       this.$confirm('此操作将永久删除该项目, 是否继续?', '删除项目', {
@@ -266,67 +225,119 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$axios({
-          url: '/api/v1/environment/delete',
+          url: '/api/v1/variable/delete',
           method: 'post',
           data: JSON.stringify({
-            type: 'variable',
             id: row.id
           }),
           headers: {
             'Content-Type': 'application/json;'
           }
         }).then((res) => {
-          this.refresh()
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
-          })
+          if (res.data.status === 0) {
+            this.refresh()
+            this.$message({
+              type: 'success',
+              message: '删除成功!',
+              center: true
+            })
+          } else {
+            this.$message({
+              type: 'warning',
+              message: res.data.message,
+              center: true
+            })
+          }
         })
       }).catch(() => {
         this.$message({
           type: 'info',
-          message: '已取消删除'
+          message: '已取消删除',
+          center: true
         })
       })
     },
     addVariable () {
       this.addDialogVisible = false
       this.$axios({
-        url: '/api/v1/environment/create',
+        url: '/api/v1/variable/create',
         method: 'post',
-        data: JSON.stringify(this.add),
+        data: JSON.stringify({
+          team: this.team,
+          project: this.project,
+          owner: this.owner,
+          name: this.name,
+          value: this.value
+        }),
         headers: {
           'Content-Type': 'application/json;'
         }
       }).then((res) => {
-        this.add.team = ''
-        this.add.project = ''
-        this.add.owner = ''
-        this.add.name = ''
-        this.add.value = ''
+        this.team = ''
+        this.project = ''
+        this.owner = ''
+        this.name = ''
+        this.value = ''
         this.addSelectTeam = ''
         this.selectProject = ''
+        if (res.data.status === 0) {
+          this.refresh()
+          this.$message({
+            type: 'success',
+            message: res.data.message,
+            center: true
+          })
+        } else {
+          this.$message({
+            type: 'warning',
+            message: res.data.message,
+            center: true
+          })
+        }
         this.refresh()
+      }).catch(() => {
+        this.$message({
+          type: 'error',
+          message: '服务端错误，请联系管理员！',
+          center: true
+        })
       })
     },
     editVariable () {
       this.editDialogVisible = false
       this.$axios({
-        url: '/api/v1/environment/update',
+        url: '/api/v1/variable/update',
         method: 'post',
-        data: JSON.stringify(this.edit),
+        data: JSON.stringify({
+          id: this.id,
+          team: this.team,
+          project: this.project,
+          owner: this.owner,
+          name: this.name,
+          value: this.value
+        }),
         headers: {
           'Content-Type': 'application/json;'
         }
       }).then((res) => {
-        this.refresh()
+        if (res.data.status === 0) {
+          this.team = ''
+          this.project = ''
+          this.owner = ''
+          this.refresh()
+        } else {
+          this.$message({
+            type: 'warning',
+            message: res.data.message,
+            center: true
+          })
+        }
       })
     },
     refresh () {
       const params = {
         limit: this.limit,
-        skip: this.page * this.limit,
-        type: 'variable'
+        offset: this.page * this.limit
       }
       if (this.team !== '') {
         params.team = this.team
@@ -335,7 +346,7 @@ export default {
         params.owner = this.owner
       }
       this.$axios
-        .get('/api/v1/environment/search', {
+        .get('/api/v1/variable/search', {
           params
         })
         .then((res) => {
@@ -355,9 +366,8 @@ export default {
       this.add.team = value
       this.project = []
       this.$axios
-        .get('/api/v1/environment/search', {
+        .get('/api/v1/variable/search', {
           params: {
-            type: 'team',
             team: value
           }
         })
@@ -382,9 +392,8 @@ export default {
       this.edit.team = value
       this.project = []
       this.$axios
-        .get('/api/v1/environment/search', {
+        .get('/api/v1/variable/search', {
           params: {
-            type: 'team',
             team: value
           }
         })
@@ -404,12 +413,16 @@ export default {
           this.edit.owner = this.project[index].owner
         }
       }
+    },
+    selectedTeamProject (value) {
+      this.team = value.team
+      this.project = value.project
     }
   }
 }
 </script>
 
-<style>
+<style scoped>
 .el-row {
   margin-bottom: 20px;
   &:last-child {

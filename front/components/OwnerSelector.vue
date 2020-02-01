@@ -2,7 +2,7 @@
   <el-select
     v-model="owner"
     @change="selectOwner"
-    placeholder="请选择"
+    placeholder="请选择负责人"
     clearable
   >
     <el-option
@@ -27,8 +27,9 @@ export default {
   },
   methods: {
     getOwner () {
+      this.owners = []
       this.$axios({
-        url: '/api/v1/environment/aggregate',
+        url: '/api/v1/team/aggregate',
         method: 'post',
         data: JSON.stringify({
           type: 'team',

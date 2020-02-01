@@ -2,54 +2,28 @@
   <div class="block">
     <el-row :gutter="20">
       <el-col :span="3">
-        <TeamSelector v-on:selectedTeam="selectedTeam" />
+        <TeamSelector
+          ref="teamSelector"
+          v-on:selectedTeam="selectedTeam"
+        />
       </el-col>
       <el-col :span="3">
-        <OwnerSelector v-on:selectedOwner="selectedOwner" />
+        <OwnerSelector
+          ref="ownerSelector"
+          v-on:selectedOwner="selectedOwner"
+        />
       </el-col>
-      <el-col
-        :span="3"
-        :offset="15"
-      >
-        <el-button
-          @click="handleAdd"
-          icon="el-icon-plus"
-          type="primary"
-        >
+      <el-col :span="3" :offset="15">
+        <el-button @click="handleAdd" icon="el-icon-plus" type="primary">
           创建项目
         </el-button>
       </el-col>
     </el-row>
-    <el-table
-      :data="data"
-      style="width: 100%"
-      stripe
-      border
-    >
-      <el-table-column
-        prop="id"
-        label="ID"
-        width="90"
-        align="center"
-      />
-      <el-table-column
-        prop="team"
-        label="团队"
-        width="200"
-        align="center"
-      />
-      <el-table-column
-        prop="project"
-        label="项目"
-        width="200"
-        align="center"
-      />
-      <el-table-column
-        prop="owner"
-        label="负责人"
-        width="200"
-        align="center"
-      />
+    <el-table :data="data" style="width: 100%" stripe border>
+      <el-table-column prop="id" label="ID" width="90" align="center" />
+      <el-table-column prop="team" label="团队" width="200" align="center" />
+      <el-table-column prop="project" label="项目" width="200" align="center" />
+      <el-table-column prop="owner" label="负责人" width="200" align="center" />
       <el-table-column
         prop="created"
         label="创建日期"
@@ -62,12 +36,7 @@
         width="200"
         align="center"
       />
-      <el-table-column
-        fixed="right"
-        label="操作"
-        width="300"
-        align="center"
-      >
+      <el-table-column fixed="right" label="操作" width="300" align="center">
         <template slot-scope="scope">
           <el-button
             @click="handleAdd(scope.$index, scope.row)"
@@ -102,11 +71,7 @@
       background
       layout="total, prev, pager, next, jumper"
     />
-    <el-dialog
-      :visible.sync="addDialogVisible"
-      width="30%"
-      title="添加项目"
-    >
+    <el-dialog :visible.sync="addDialogVisible" width="30%" title="添加项目">
       <el-form ref="form" :model="add" label-width="80px">
         <el-form-item label="团队名称">
           <el-input v-model="add.team" />
@@ -123,11 +88,7 @@
         <el-button @click="addProject" type="primary">确 定</el-button>
       </span>
     </el-dialog>
-    <el-dialog
-      :visible.sync="editDialogVisible"
-      width="30%"
-      title="编辑项目"
-    >
+    <el-dialog :visible.sync="editDialogVisible" width="30%" title="编辑项目">
       <el-form ref="form" :model="edit" label-width="80px">
         <el-form-item label="团队名称">
           <el-input v-model="edit.team" />
@@ -164,14 +125,12 @@ export default {
       page: 0,
       addDialogVisible: false,
       add: {
-        type: 'team',
         team: '',
         project: '',
         owner: ''
       },
       editDialogVisible: false,
       edit: {
-        type: 'team',
         team: '',
         project: '',
         owner: ''
@@ -205,60 +164,110 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$axios({
-          url: '/api/v1/environment/delete',
+          url: '/api/v1/team/delete',
           method: 'post',
           data: JSON.stringify({
-            type: 'team',
             id: row.id
           }),
           headers: {
             'Content-Type': 'application/json;'
           }
         }).then((res) => {
-          this.refresh()
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
-          })
+          if (res.data.status === 0) {
+            this.refresh()
+            this.$message({
+              type: 'success',
+              message: '删除成功!',
+              center: true
+            })
+            this.$message({
+              type: 'warning',
+              message: '团队与项目关联的变量不会被删除，请手动删除！',
+              center: true,
+              offset: 60
+            })
+            // 创建团队后下拉框不更新 #8 https://github.com/taoyanli0808/clover/issues/8
+            this.$refs.teamSelector.getTeam()
+            this.$refs.ownerSelector.getOwner()
+          } else {
+            this.$message({
+              type: 'warning',
+              message: res.data.message,
+              center: true
+            })
+          }
         })
       }).catch(() => {
         this.$message({
           type: 'info',
-          message: '已取消删除'
+          message: '已取消删除',
+          center: true
         })
       })
     },
     addProject () {
       this.addDialogVisible = false
       this.$axios({
-        url: '/api/v1/environment/create',
+        url: '/api/v1/team/create',
         method: 'post',
         data: JSON.stringify(this.add),
         headers: {
           'Content-Type': 'application/json;'
         }
       }).then((res) => {
-        this.refresh()
+        if (res.data.status === 0) {
+          this.refresh()
+          this.$message({
+            type: 'success',
+            message: res.data.message,
+            center: true
+          })
+          // 创建团队后下拉框不更新 #8 https://github.com/taoyanli0808/clover/issues/8
+          this.$refs.teamSelector.getTeam()
+          this.$refs.ownerSelector.getOwner()
+        } else {
+          this.$message({
+            type: 'warning',
+            message: res.data.message,
+            center: true
+          })
+        }
+      }).catch(() => {
+        this.$message({
+          type: 'error',
+          message: '服务端错误，请联系管理员！',
+          center: true
+        })
       })
     },
     editProject () {
       this.editDialogVisible = false
       this.$axios({
-        url: '/api/v1/environment/update',
+        url: '/api/v1/team/update',
         method: 'post',
         data: JSON.stringify(this.edit),
         headers: {
           'Content-Type': 'application/json;'
         }
       }).then((res) => {
-        this.refresh()
+        if (res.data.status === 0) {
+          // 创建团队后下拉框不更新 #8 https://github.com/taoyanli0808/clover/issues/8
+          this.$refs.teamSelector.getTeam()
+          this.$refs.ownerSelector.getOwner()
+          this.refresh()
+        } else {
+          this.$message({
+            type: 'warning',
+            message: res.data.message,
+            center: true
+          })
+        }
       })
     },
     refresh () {
       const params = {
         limit: this.limit,
-        offset: this.page * this.limit,
-        type: 'team'
+        offset: this.page * this.limit
       }
       if (this.team !== '') {
         params.team = this.team
@@ -267,7 +276,7 @@ export default {
         params.owner = this.owner
       }
       this.$axios
-        .get('/api/v1/environment/search', {
+        .get('/api/v1/team/search', {
           params
         })
         .then((res) => {
@@ -287,7 +296,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .el-row {
   margin-bottom: 20px;
   &:last-child {

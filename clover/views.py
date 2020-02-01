@@ -24,34 +24,6 @@ class CloverView(View):
         func = request.path.split('/')[-1]
         return getattr(self, func)()
 
-    def create(self):
-        """
-        # 视图的创建操作。
-        :return:
-        """
-        raise NotImplementedError
-
-    def delete(self):
-        """
-        # 视图的删除操作。
-        :return:
-        """
-        raise NotImplementedError
-
-    def update(self):
-        """
-        # 视图的修改操作。
-        :return:
-        """
-        raise NotImplementedError
-
-    def search(self):
-        """
-        # 视图的查找操作。
-        :return:
-        """
-        raise NotImplementedError
-
     def response(self, **kwargs):
         """
         :param kwargs:

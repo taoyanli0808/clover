@@ -1,22 +1,29 @@
 <template>
   <div class="container">
-    <div>
-      <IndexCarousel />
-    </div>
+    <IndexCarousel />
+    <IndexBanner />
+    <IndexInformation />
+    <IndexModule />
   </div>
 </template>
 
 <script>
 import IndexCarousel from '~/components/IndexCarousel.vue'
+import IndexBanner from '~/components/IndexBanner.vue'
+import IndexInformation from '~/components/IndexInformation.vue'
+import IndexModule from '~/components/IndexModule.vue'
 
 export default {
   components: {
-    IndexCarousel
+    IndexCarousel,
+    IndexBanner,
+    IndexInformation,
+    IndexModule
   }
 }
 </script>
 
-<style>
+<style scoped>
 .container {
   margin: 0 auto;
   min-height: 100vh;

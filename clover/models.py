@@ -1,3 +1,4 @@
+import datetime
 
 from clover.exts import db
 
@@ -11,10 +12,29 @@ def query_to_dict(results):
     :return:
     """
     results = list(map(lambda x: x.to_dict(), results))
+    # results = list(x for x in results if x['enable'] == 0)
     for result in results:
-        result['created'] = result['created'].strftime('%Y-%m-%d %H:%M:%S')
-        result['updated'] = result['updated'].strftime('%Y-%m-%d %H:%M:%S')
+        if 'created' in result and not isinstance(result['created'], str):
+            result['created'] = result['created'].strftime('%Y-%m-%d %H:%M:%S')
+        if 'updated' in result and not isinstance(result['updated'], str):
+            result['updated'] = result['updated'].strftime('%Y-%m-%d %H:%M:%S')
+        if 'start' in result and not isinstance(result['start'], str):
+            result['start'] = result['start'].strftime('%Y-%m-%d %H:%M:%S')
+        if 'end' in result and not isinstance(result['end'], str):
+            result['end'] = result['end'].strftime('%Y-%m-%d %H:%M:%S')
     return results
+
+
+def soft_delete(model):
+    """
+    :param model:
+    :return:
+    """
+    # db.session.delete(model)
+    # db.session.commit()
+    model.enable = 1
+    model.updated = datetime.datetime.now()
+    db.session.commit()
 
 
 class CloverModel(db.Model):

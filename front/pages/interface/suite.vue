@@ -7,8 +7,14 @@
     </el-row>
     <el-table
       :data="data"
-      style="width: 100%"
+      style="width: 100%;"
     >
+      <el-table-column
+        prop="id"
+        label="ID"
+        width="50"
+        align="ceDnter"
+      />
       <el-table-column
         prop="project"
         label="项目"
@@ -22,8 +28,20 @@
         align="center"
       />
       <el-table-column
+        prop="project"
+        label="项目"
+        width="180"
+        align="center"
+      />
+      <el-table-column
         prop="type"
         label="类型"
+        width="180"
+        align="center"
+      />
+      <el-table-column
+        prop="cases"
+        label="用例"
         width="180"
         align="center"
       />
@@ -59,25 +77,17 @@
       <el-table-column
         fixed="right"
         label="操作"
-        width="300"
+        width="200"
         align="center"
       >
         <template slot-scope="scope">
           <el-button
-            @click="handleAdd(scope.$index, scope.row)"
+            @click="handleRun(scope.$index, scope.row)"
             size="mini"
             icon="el-icon-caret-right"
             type="primary"
           >
             运行
-          </el-button>
-          <el-button
-            @click="handleEdit(scope.$index, scope.row)"
-            size="mini"
-            icon="el-icon-edit"
-            type="warning"
-          >
-            编辑
           </el-button>
           <el-button
             @click="handleDelete(scope.$index, scope.row)"
@@ -90,6 +100,30 @@
         </template>
       </el-table-column>
     </el-table>
+    <el-pagination
+      @current-change="handleCurrentChange"
+      :total="total"
+      background
+      layout="total, prev, pager, next, jumper"
+    />
+    <el-dialog :visible.sync="dialogFormVisible" title="运行套件">
+      <el-form>
+        <el-form-item label="测试报告名称">
+          <el-input v-model="report" autocomplete="off"/>
+        </el-form-item>
+        <el-form-item label="动态替换变量">
+          <el-input
+            v-model="variables"
+            type="textarea"
+            placeholder="key:val形式，使用英文;或者换行分隔。"
+          />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取消</el-button>
+        <el-button @click="runCase" type="primary" >确定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -108,7 +142,11 @@ export default {
       page: 0,
       team: '',
       project: '',
-      cases: []
+      cases: [],
+      column: {},
+      report: '',
+      variables: '',
+      dialogFormVisible: false
     }
   },
   mounted () {
@@ -118,7 +156,7 @@ export default {
     refresh () {
       const params = {
         limit: this.limit,
-        skip: this.page * this.limit
+        offset: this.page * this.limit
       }
       if (this.team !== '') {
         params.team = this.team
@@ -132,27 +170,54 @@ export default {
           if (res.data.status === 0) {
             this.total = res.data.total
             this.data = res.data.data
+            for (const i in this.data) {
+              this.data[i].cases = this.data[i].cases.join(',')
+            }
           } else {
             this.$message({
               type: 'error',
-              message: res.data.message
+              message: res.data.message,
+              center: true
             })
           }
         })
     },
+    handleCurrentChange (value) {
+      this.page = value - 1
+      this.refresh()
+    },
     handleHistory (index, row) {
       this.$message({
-        showClose: true,
-        message: '付费功能，暂不开放！',
-        type: 'error'
+        message: '开发者正在加班加点开发，很快就可以用喽！',
+        type: 'error',
+        center: true
       })
     },
-    handleAdd (index, row) {
-      console.log(row)
+    handleRun (index, row) {
+      this.dialogFormVisible = true
+      this.column = row
+    },
+    runCase () {
+      const params = {
+        report: this.report,
+        ...this.column
+      }
+      if (this.variables) {
+        params.variables = []
+        const tmpstr = this.variables.replace(/\n/g, ';')
+        const variables = tmpstr.split(';')
+        for (const index in variables) {
+          const variable = variables[index].split(':')
+          params.variables.push({
+            name: variable[0],
+            value: variable[1]
+          })
+        }
+      }
       this.$axios({
         url: '/api/v1/suite/trigger',
         method: 'post',
-        data: JSON.stringify(row),
+        data: JSON.stringify(params),
         headers: {
           'Content-Type': 'application/json;'
         }
@@ -160,32 +225,24 @@ export default {
         if (res.data.status === 0) {
           this.$message({
             type: 'success',
-            message: '触发成功!'
+            message: '运行用例成功!',
+            center: true
           })
         } else {
           this.$message({
             type: 'warning',
-            message: res.data.message
+            message: res.data.message,
+            center: true
           })
         }
-      }).catch((res) => {
+        this.dialogFormVisible = false
+      }).catch(() => {
         this.$message({
           type: 'error',
-          message: res.data.message
+          message: '运行接口用例时发生错误!',
+          center: true
         })
       })
-    },
-    handleEdit (index, row) {
-      this.$message({
-        showClose: true,
-        message: '付费功能，暂不开放！',
-        type: 'error'
-      })
-      /*
-      this.$router.push({
-        path: '/interface/edit'
-      })
-      */
     },
     handleDelete (index, row) {
       this.$confirm('此操作将永久删除该接口, 是否继续?', '删除接口', {
@@ -207,19 +264,22 @@ export default {
             this.refresh()
             this.$message({
               type: 'success',
-              message: '删除成功!'
+              message: '删除成功!',
+              center: true
             })
           } else {
             this.$message({
               type: 'error',
-              message: res.data.message
+              message: res.data.message,
+              center: true
             })
           }
         })
       }).catch(() => {
         this.$message({
           type: 'info',
-          message: '已取消删除'
+          message: '已取消删除',
+          center: true
         })
       })
     },

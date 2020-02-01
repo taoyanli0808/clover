@@ -92,7 +92,10 @@ class SuiteView(CloverView):
         pass
 
     def search(self):
-        data = request.values.to_dict()
+        if request.method == 'GET':
+            data = request.values.to_dict()
+        else:
+            data = request.get_json()
 
         try:
             service = Service()
@@ -124,17 +127,25 @@ class SuiteView(CloverView):
                 'data': data
             })
 
-        try:
-            service = Service()
-            report_id = service.trigger(data)
-            return jsonify({
-                'status': 0,
-                'message': '运行测试套件[{0}]成功，测试报告ID[{1}]'.format(id, report_id),
-                'data': id
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': '检索异常，请联系管理员！',
-                'data': str(error)
-            })
+        service = Service()
+        result = service.trigger(data)
+        return jsonify({
+            'status': 0,
+            'message': '运行测试套件[{0}]成功，测试报告ID[{1}]'.format(id, 111),
+            'data': result
+        })
+
+        # try:
+        #     service = Service()
+        #     result = service.trigger(data)
+        #     return jsonify({
+        #         'status': 0,
+        #         'message': '运行测试套件[{0}]成功，测试报告ID[{1}]'.format(id, report_id),
+        #         'data': result
+        #     })
+        # except Exception as error:
+        #     return jsonify({
+        #         'status': 500,
+        #         'message': '运行套件出错，请联系管理员！',
+        #         'data': str(error)
+        #     })

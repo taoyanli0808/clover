@@ -3,6 +3,7 @@
     v-model="cascader"
     :options="options"
     @change="handleChange"
+    placeholder="请选择团队和项目"
     clearable
   />
 </template>
@@ -21,7 +22,7 @@ export default {
   methods: {
     getCascader () {
       this.$axios
-        .post('/api/v1/environment/aggregate', { cascader: null })
+        .post('/api/v1/team/aggregate', { cascader: null })
         .then((res) => {
           this.options = res.data.data
         })
@@ -37,3 +38,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.el-cascader {
+  padding-bottom: 20px;
+}
+</style>
