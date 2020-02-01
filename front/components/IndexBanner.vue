@@ -72,11 +72,19 @@ export default {
               this.data[i].number = res.data.data[i]
             }
           } else {
-            this.$message({
-              type: 'error',
-              message: res.data.message,
-              center: true
-            })
+            const result = this.mysqlParser(res.data.data)
+            if (result.code === 0) {
+              this.$message({
+                type: 'error',
+                message: res.data.message,
+                center: true
+              })
+            } else {
+              this.$alert(result.message, {
+                title: '数据库错误',
+                type: 'error'
+              })
+            }
           }
         }).catch((res) => {
           this.$message({
