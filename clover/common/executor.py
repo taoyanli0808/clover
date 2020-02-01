@@ -30,6 +30,7 @@ class Executor():
         self.message = 'ok'
         self.type = type
         self.result = {}
+        self.log = {}
 
     def replace_variable(self, case, data):
         """
@@ -41,6 +42,10 @@ class Executor():
         :param data:
         :return:
         """
+        self.log.setdefault('replace_variable', {
+            'interface': case['name']
+        })
+
         filter = {
             'team': case.get('team'),
             'project': case.get('project')
@@ -68,6 +73,13 @@ class Executor():
             for param in case['body']:
                 param['value'] = derivation(param['value'], keyword)
 
+        self.log['replace_variable'].setdefault('keyword', keyword)
+        self.log['replace_variable'].setdefault('host', case['host'])
+        self.log['replace_variable'].setdefault('path', case['path'])
+        self.log['replace_variable'].setdefault('header', case['header'])
+        self.log['replace_variable'].setdefault('params', case['params'])
+        self.log['replace_variable'].setdefault('body', case['body'])
+
         return case
 
     def send_request(self, data):
@@ -75,6 +87,10 @@ class Executor():
         :param data:
         :return:
         """
+        self.log.setdefault('send_request', {
+            'interface': data['name']
+        })
+
         # 发送http请求
         method = data.get("method")
         host = data.get("host")
@@ -95,6 +111,12 @@ class Executor():
         # 将[{'a': 1}, {'b': 2}]转化为{'a': 1, 'b': 2}
         if body:
             body = {item['key']: item['value'] for item in body}
+
+        self.log['send_request'].setdefault('method', method)
+        self.log['send_request'].setdefault('url', url)
+        self.log['send_request'].setdefault('header', header)
+        self.log['send_request'].setdefault('params', params)
+        self.log['send_request'].setdefault('body', body)
 
         try:
             response = request(
@@ -127,6 +149,8 @@ class Executor():
             'header': dict(response.headers),
             'content': response.text
         }
+
+        self.log['send_request'].setdefault('response', data.get('response', {}))
 
         # 框架目前只支持json数据，在这里尝试进行json数据转换
         try:
@@ -182,6 +206,13 @@ class Executor():
         :param data:
         :return:
         """
+        self.log.setdefault('validate_request', {
+            'interface': data['name']
+        })
+
+        self.log['validate_request'].setdefault('response', data.get('response', {}))
+        self.log['validate_request'].setdefault('extract', data.get('extract', {}))
+
         # 这里是临时加的，这里要详细看下如何处理。
         if 'response' not in data:
             return
@@ -217,10 +248,12 @@ class Executor():
         for case in cases:
             self.result.setdefault(case['name'], {})
             self.result[case['name']]['start'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
             self.replace_variable(case, data)
             self.send_request(case)
             self.validate_request(case)
             self.extract_variables(case)
+
             self.result[case['name']]['end'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         end = datetime.datetime.now()
 
@@ -241,11 +274,9 @@ class Executor():
             'start': start,
             'end': end,
             'duration': (end - start).total_seconds(),
-            # 'interface': len(cases),
-            # 'assertion': sum([len(case['verify']) for case in cases]),
-            # 'percent': 0.0,
             'platform': get_system_info(),
             'detail': self.result,
+            'log': self.log,
         }
 
         model = ReportModel(**report)

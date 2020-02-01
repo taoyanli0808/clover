@@ -15,6 +15,21 @@ const clover = {
         return { code: 0, message: 'ok' }
       }
     }
+    /*
+    * 动态下载文件的方法，参数为自定义文件名和文件内容。
+    */
+    Vue.prototype.download = function (filename, text) {
+      const pom = document.createElement('a')
+      pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text))
+      pom.setAttribute('download', filename)
+      if (document.createEvent) {
+        const event = document.createEvent('MouseEvents')
+        event.initEvent('click', true, true)
+        pom.dispatchEvent(event)
+      } else {
+        pom.click()
+      }
+    }
   }
 }
 
