@@ -54,17 +54,17 @@ def derivation(data, keywords):
             extract = keywords['extract']
             for result in extract:
                 if variable == result['name']:
-                    data = data.replace('${' + variable + '}', result['value'])
+                    data = data.replace('${' + variable + '}', str(result['value']))
 
             trigger = keywords['trigger']
             for result in trigger:
                 if variable == result['name']:
-                    data = data.replace('${' + variable + '}', result['value'])
+                    data = data.replace('${' + variable + '}', str(result['value']))
 
             default = keywords['default']
             for result in default:
                 if variable == result['name']:
-                    data = data.replace('${' + variable + '}', result['value'])
+                    data = data.replace('${' + variable + '}', str(result['value']))
 
     return data
 
