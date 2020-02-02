@@ -42,7 +42,7 @@ class Executor():
         :param data:
         :return:
         """
-        self.log.setdefault('replace_variable', {
+        self.log[case['name']].setdefault('replace_variable', {
             'interface': case['name']
         })
 
@@ -52,33 +52,33 @@ class Executor():
         }
         results = VariableModel.query.filter_by(**filter).all()
 
-        keyword = {
+        variable = {
             'extract': g.data,
             'trigger': data.get('variables', []),
             'default': query_to_dict(results),
         }
 
-        case['host'] = derivation(case.get('host'), keyword)
-        case['path'] = derivation(case.get('path'), keyword)
+        case['host'] = derivation(case.get('host'), variable)
+        case['path'] = derivation(case.get('path'), variable)
 
         if 'header' in case:
             for header in case['header']:
-                header['value'] = derivation(header['value'], keyword)
+                header['value'] = derivation(header['value'], variable)
 
         if 'params' in case:
             for param in case['params']:
-                param['value'] = derivation(param['value'], keyword)
+                param['value'] = derivation(param['value'], variable)
 
         if 'body' in case:
             for param in case['body']:
-                param['value'] = derivation(param['value'], keyword)
+                param['value'] = derivation(param['value'], variable)
 
-        self.log['replace_variable'].setdefault('keyword', keyword)
-        self.log['replace_variable'].setdefault('host', case['host'])
-        self.log['replace_variable'].setdefault('path', case['path'])
-        self.log['replace_variable'].setdefault('header', case['header'])
-        self.log['replace_variable'].setdefault('params', case['params'])
-        self.log['replace_variable'].setdefault('body', case['body'])
+        self.log[case['name']]['replace_variable'].setdefault('variable', variable)
+        self.log[case['name']]['replace_variable'].setdefault('host', case['host'])
+        self.log[case['name']]['replace_variable'].setdefault('path', case['path'])
+        self.log[case['name']]['replace_variable'].setdefault('header', case['header'])
+        self.log[case['name']]['replace_variable'].setdefault('params', case['params'])
+        self.log[case['name']]['replace_variable'].setdefault('body', case['body'])
 
         return case
 
@@ -87,7 +87,7 @@ class Executor():
         :param data:
         :return:
         """
-        self.log.setdefault('send_request', {
+        self.log[data['name']].setdefault('send_request', {
             'interface': data['name']
         })
 
@@ -112,11 +112,11 @@ class Executor():
         if body:
             body = {item['key']: item['value'] for item in body}
 
-        self.log['send_request'].setdefault('method', method)
-        self.log['send_request'].setdefault('url', url)
-        self.log['send_request'].setdefault('header', header)
-        self.log['send_request'].setdefault('params', params)
-        self.log['send_request'].setdefault('body', body)
+        self.log[data['name']]['send_request'].setdefault('method', method)
+        self.log[data['name']]['send_request'].setdefault('url', url)
+        self.log[data['name']]['send_request'].setdefault('header', header)
+        self.log[data['name']]['send_request'].setdefault('params', params)
+        self.log[data['name']]['send_request'].setdefault('body', body)
 
         try:
             response = request(
@@ -150,7 +150,7 @@ class Executor():
             'content': response.text
         }
 
-        self.log['send_request'].setdefault('response', data.get('response', {}))
+        self.log[data['name']]['send_request'].setdefault('response', data.get('response', {}))
 
         # 框架目前只支持json数据，在这里尝试进行json数据转换
         try:
@@ -206,12 +206,12 @@ class Executor():
         :param data:
         :return:
         """
-        self.log.setdefault('validate_request', {
+        self.log[data['name']].setdefault('validate_request', {
             'interface': data['name']
         })
 
-        self.log['validate_request'].setdefault('response', data.get('response', {}))
-        self.log['validate_request'].setdefault('extract', data.get('extract', {}))
+        self.log[data['name']]['validate_request'].setdefault('response', data.get('response', {}))
+        self.log[data['name']]['validate_request'].setdefault('extract', data.get('extract', {}))
 
         # 这里是临时加的，这里要详细看下如何处理。
         if 'response' not in data:
@@ -246,6 +246,7 @@ class Executor():
         """
         start = datetime.datetime.now()
         for case in cases:
+            self.log.setdefault(case['name'], {})
             self.result.setdefault(case['name'], {})
             self.result[case['name']]['start'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
