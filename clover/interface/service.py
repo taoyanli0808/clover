@@ -91,7 +91,11 @@ class Service(object):
         except TypeError:
             limit = 10
 
-        results = InterfaceModel.query.filter_by(**filter).offset(offset).limit(limit)
+        results = InterfaceModel.query.filter_by(
+            **filter
+        ).order_by(
+            InterfaceModel.created.desc()
+        ).offset(offset).limit(limit)
         results = query_to_dict(results)
         count = InterfaceModel.query.filter_by(**filter).count()
         return count, results

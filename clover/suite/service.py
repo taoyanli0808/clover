@@ -62,7 +62,11 @@ class Service():
         except TypeError:
             limit = 10
 
-        results = SuiteModel.query.filter_by(**filter).offset(offset).limit(limit)
+        results = SuiteModel.query.filter_by(
+            **filter
+        ).order_by(
+            SuiteModel.created.desc()
+        ).offset(offset).limit(limit)
         results = query_to_dict(results)
         count = SuiteModel.query.filter_by(**filter).count()
         return count, results
