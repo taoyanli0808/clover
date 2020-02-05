@@ -8,6 +8,14 @@
 
 changelog = [
     {
+        'version': '0.3.3',
+        'date': '2020-02-05',
+        'fixed': [
+            '修复requirements.txt缺少的redis依赖.',
+            '修复MySQL数据库report表插入初始值时间为0的问题.',
+        ]
+    },
+    {
         'version': '0.3.2',
         'date': '2020-02-05',
         'changed': [

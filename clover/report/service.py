@@ -1,4 +1,6 @@
 
+import datetime
+
 from clover.exts import db
 from clover.common import rate_of_success
 from clover.models import query_to_dict, soft_delete
@@ -110,8 +112,8 @@ class ReportService():
             'project': data['project'],
             'name': name,
             'type': 'interface',
-            'start': 0,
-            'end': 0,
+            'start': datetime.datetime.now(),
+            'end': datetime.datetime.now(),
             'duration': 0,
             'platform': {},
             'detail': 0,
