@@ -8,10 +8,9 @@ from flask_migrate import Migrate
 from flask_migrate import MigrateCommand
 
 from clover import app
-from clover.exts import db
+from clover.exts import db, task
 
 pymysql.install_as_MySQLdb()
-
 
 CORS(app, supports_credentials=True)
 

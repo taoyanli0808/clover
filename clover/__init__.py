@@ -3,8 +3,8 @@ from flask import Flask
 from werkzeug.utils import import_string
 
 import config
-from clover.urls import map_urls
 from clover.exts import db
+from clover.urls import map_urls
 
 
 blueprints = [

@@ -3,14 +3,14 @@ from flask import jsonify
 from flask import request
 
 from clover.views import CloverView
-from clover.common.executor import Executor
-from clover.interface.service import Service
+from clover.interface.service import InterfaceService
 
 
 class InterfaceView(CloverView):
 
     def __init__(self):
         super(InterfaceView, self).__init__()
+        self.service = InterfaceService()
 
     def create(self):
         data = request.get_json()
@@ -64,9 +64,7 @@ class InterfaceView(CloverView):
             })
 
         try:
-            service = Service()
-            id, status, message, result = service.create(data)
-
+            id, status, message, result = self.service.create(data)
             return jsonify({
                 'status': status,
                 'message': message,
@@ -93,8 +91,7 @@ class InterfaceView(CloverView):
             })
 
         try:
-            service = Service()
-            count = service.delete(data)
+            count = self.service.delete(data)
             return jsonify({
                 'status': 0,
                 'message': 'ok',
@@ -116,19 +113,9 @@ class InterfaceView(CloverView):
                 'message': '请选择您要更新的接口！',
                 'data': data
             })
-        # service = Service()
-        # id, status, message, result = service.update(data)
-        # return jsonify({
-        #     'status': status,
-        #     'message': message,
-        #     'data': {
-        #         'id': id,
-        #         **result,
-        #     },
-        # })
+
         try:
-            service = Service()
-            id, status, message, result = service.update(data)
+            id, status, message, result = self.service.update(data)
             return jsonify({
                 'status': status,
                 'message': message,
@@ -152,8 +139,7 @@ class InterfaceView(CloverView):
             data = request.get_json()
 
         try:
-            service = Service()
-            count, result = service.search(data)
+            count, result = self.service.search(data)
             return jsonify({
                 'status': 0,
                 'message': 'ok',
@@ -183,8 +169,7 @@ class InterfaceView(CloverView):
             })
 
         try:
-            service = Service()
-            result = service.trigger(data)
+            result = self.service.trigger(data)
             return jsonify({
                 'status': 0,
                 'message': 'ok',

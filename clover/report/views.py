@@ -3,13 +3,14 @@ from flask import jsonify
 from flask import request
 
 from clover.views import CloverView
-from clover.report.service import Service
+from clover.report.service import ReportService
 
 
 class ReportView(CloverView):
 
     def __init__(self):
         super(ReportView, self).__init__()
+        self.service = ReportService()
 
     def create(self):
         """
@@ -34,8 +35,7 @@ class ReportView(CloverView):
             })
 
         try:
-            service = Service()
-            service.delete(data)
+            self.service.delete(data)
             return jsonify({
                 'status': 0,
                 'message': '成功测试报告{0}'.format(data['id']),
@@ -62,8 +62,7 @@ class ReportView(CloverView):
             data = request.get_json()
 
         try:
-            service = Service()
-            count, results = service.search(data)
+            count, results = self.service.search(data)
             return jsonify({
                 'status': 0,
                 'message': '成功检索到{}条数据'.format(count),

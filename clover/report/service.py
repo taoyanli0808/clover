@@ -1,10 +1,12 @@
 
+from clover.exts import db
+from clover.common import rate_of_success
 from clover.models import query_to_dict, soft_delete
 from clover.report.models import ReportModel
-from clover.common import rate_of_success
+from sqlalchemy.exc import ProgrammingError
 
 
-class Service():
+class ReportService():
 
     def __init__(self):
         pass
@@ -15,6 +17,34 @@ class Service():
         :return:
         """
         pass
+
+    def update(self, data):
+        """
+        # 使用id作为条件，更新数据库重的数据记录。
+        # 通过id查不到数据时增作为一条新的记录存入。
+        :param data:
+        :return:
+        """
+        old_model = ReportModel.query.get(data['id'])
+        if old_model is None:
+            model = ReportModel(**data)
+            db.session.add(model)
+            db.session.commit()
+            old_model = model
+        else:
+            old_model.team = data['team']
+            old_model.project = data['project']
+            old_model.name = data['name']
+            old_model.type = data['type']
+            old_model.start = data['start']
+            old_model.end = data['end']
+            old_model.duration = data['duration']
+            old_model.platform = data['platform']
+            old_model.detail = data['detail']
+            old_model.log = data['log']
+            db.session.commit()
+
+        return old_model
 
     def delete(self, data):
         """
@@ -64,6 +94,34 @@ class Service():
             ReportModel.created.desc()
         ).offset(offset).limit(limit)
         results = query_to_dict(results)
+
         results = [rate_of_success(result) for result in results]
         count = ReportModel.query.filter_by(**filter).count()
         return count, results
+
+    def empty_report(self, data):
+        """
+        :param data:
+        :return:
+        """
+        name = data['report'] if 'report' in data and data['report'] else data['name']
+        report = {
+            'team': data['team'],
+            'project': data['project'],
+            'name': name,
+            'type': 'interface',
+            'start': 0,
+            'end': 0,
+            'duration': 0,
+            'platform': {},
+            'detail': 0,
+            'log': {},
+        }
+
+        model = ReportModel(**report)
+        db.session.add(model)
+        try:
+            db.session.commit()
+            return model
+        except ProgrammingError:
+            return None

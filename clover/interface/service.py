@@ -3,12 +3,17 @@
 import datetime
 
 from clover.exts import db
-from clover.models import query_to_dict, soft_delete
-from clover.interface.models import InterfaceModel
 from clover.common.executor import Executor
+from clover.common.tasks import interface_task
+
+from clover.models import soft_delete
+from clover.models import query_to_dict
+from clover.interface.models import InterfaceModel
+
+from clover.report.service import ReportService
 
 
-class Service(object):
+class InterfaceService(object):
 
     def create(self, data):
         """
@@ -21,9 +26,9 @@ class Service(object):
         db.session.commit()
 
         executor = Executor('debug')
-        result = executor.execute([data], data)
+        executor.execute([data], data)
 
-        return model.id, executor.status, executor.message, result[0]
+        return model.id, executor.status, executor.message, data
 
     def delete(self, data):
         """
@@ -102,15 +107,22 @@ class Service(object):
 
     def trigger(self, data):
         """
+        # 这里创建一个空report，然后使用celery异步运行任务，
+        # 当celery执行完毕后使用空report的id更新报告。
         :param data:
         :return:
         """
-        # 需要通过case_id先查询到数据库里的测试用例。
-        # run_id是一次运行的记录，查测试报告时使用。
+        # 创建空的report并提交
+        report_service = ReportService()
+        report = report_service.empty_report(data)
+        report = report.to_dict()
+
+        # 通过接口传递过来的suite id来查询需要运行的接口。
         id = data.get('id')
-        model = InterfaceModel.query.get(id)
-        case = model.to_dict()
-        # 运行测试用例，注意execute的参数是list。
-        executor = Executor()
-        result = executor.execute([case], data)
-        return executor.status, executor.message, result
+        interface = InterfaceModel.query.get(id)
+        cases = [interface.to_dict()]
+
+        # 使用celery异步运行的接口任务。
+        interface_task.delay(cases, data, report)
+
+        return report

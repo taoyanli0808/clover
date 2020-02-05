@@ -2,14 +2,18 @@
 from sqlalchemy.exc import ProgrammingError
 
 from clover.exts import db
-from clover.models import query_to_dict, soft_delete
+from clover.common import get_mysql_error
+from clover.common.tasks import interface_task
+
+from clover.models import soft_delete
+from clover.models import query_to_dict
 from clover.suite.models import SuiteModel
 from clover.interface.models import InterfaceModel
-from clover.common import get_mysql_error
-from clover.common.executor import Executor
+
+from clover.report.service import ReportService
 
 
-class Service():
+class SuiteService():
 
     def __init__(self):
         pass
@@ -73,19 +77,27 @@ class Service():
 
     def trigger(self, data):
         """
+        # 这里创建一个空report，然后使用celery异步运行任务，
+        # 当celery执行完毕后使用空report的id更新报告。
         :param data:
         :return:
         """
-        # ！attention 这里用例的执行顺序有保障么？
-        # 查询出所有需要运行的用例
-        case_list = tuple(data['cases'].split(','))
+        # 创建空的report并提交
+        report_service = ReportService()
+        report = report_service.empty_report(data)
+        report = report.to_dict()
+
+        # 通过接口传递过来的suite id来查询需要运行的接口。
+        id = data.get('id')
+        suite = SuiteModel.query.get(id)
         cases = db.session.query(
             InterfaceModel
         ).filter(
-            InterfaceModel.id.in_(case_list)
+            InterfaceModel.id.in_(suite.cases)
         ).all()
         cases = query_to_dict(cases)
-        # 执行用例并获得运行结果
-        executor = Executor()
-        result = executor.execute(cases, data)
-        return result
+
+        # 使用celery异步运行的接口任务。
+        interface_task.delay(cases, data, report)
+
+        return report

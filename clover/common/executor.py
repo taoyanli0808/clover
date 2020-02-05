@@ -8,17 +8,13 @@ from requests.exceptions import InvalidURL
 from requests.exceptions import MissingSchema
 from requests.exceptions import InvalidSchema
 from requests.exceptions import ConnectionError
-from sqlalchemy.exc import ProgrammingError
 
-from clover.exts import db
-from clover.models import query_to_dict
 from clover.common import derivation
 from clover.common import convert_type
-from clover.common import get_mysql_error
-from clover.common import get_system_info
 from clover.common.extractor import Extractor
 from clover.common.validator import Validator
-from clover.report.models import ReportModel
+
+from clover.models import query_to_dict
 from clover.environment.models import VariableModel
 
 
@@ -29,6 +25,8 @@ class Executor():
         self.status = 0
         self.message = 'ok'
         self.type = type
+        self.start = 0
+        self.end = 0
         self.result = {}
         self.log = {}
 
@@ -244,7 +242,7 @@ class Executor():
         :param data:
         :return: 返回值为元组，分别是flag，message和接口请求后的json数据。
         """
-        start = datetime.datetime.now()
+        self.start = datetime.datetime.now()
         for case in cases:
             self.log.setdefault(case['name'], {})
             self.result.setdefault(case['name'], {})
@@ -256,36 +254,4 @@ class Executor():
             self.extract_variables(case)
 
             self.result[case['name']]['end'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        end = datetime.datetime.now()
-
-        # 调试模式不生成测试报告！
-        if self.type == 'debug':
-            return cases
-
-        # 这里是一个适配操作，如果report字段存在则用于报告的name属性，
-        # 否则这里取套件或者是接口的name属性给report的name属性，相当
-        # 与可以让用户传递最终测试报告的报告名，仅此而已。
-        # https://github.com/taoyanli0808/clover/issues/39
-        name = data['report'] if 'report' in data and data['report'] else data['name']
-        report = {
-            'team': data['team'],
-            'project': data['project'],
-            'name': name,
-            'type': 'interface',
-            'start': start,
-            'end': end,
-            'duration': (end - start).total_seconds(),
-            'platform': get_system_info(),
-            'detail': self.result,
-            'log': self.log,
-        }
-
-        model = ReportModel(**report)
-        db.session.add(model)
-        # 这是一个处理数据库异常的例子，后面最好有统一的处理方案。
-        try:
-            db.session.commit()
-        except ProgrammingError as error:
-            code, msg = get_mysql_error(error)
-            return (code, msg)
-        return model.id
+        self.end = datetime.datetime.now()
