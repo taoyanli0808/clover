@@ -7,6 +7,8 @@
     </el-row>
     <el-table
       :data="data"
+      v-loading="loading"
+      element-loading-text="拼命加载中"
       style="width: 100%;"
     >
       <el-table-column
@@ -152,6 +154,7 @@ export default {
       column: {},
       report: '',
       variables: '',
+      loading: true,
       dialogFormVisible: false
     }
   },
@@ -160,6 +163,7 @@ export default {
   },
   methods: {
     refresh () {
+      this.loading = true
       const params = {
         limit: this.limit,
         offset: this.page * this.limit
@@ -186,6 +190,15 @@ export default {
               center: true
             })
           }
+          this.loading = false
+        })
+        .catch(() => {
+          this.$message({
+            type: 'error',
+            message: '服务出错，请联系管理员',
+            center: true
+          })
+          this.loading = false
         })
     },
     handleCurrentChange (value) {

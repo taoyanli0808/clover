@@ -7,6 +7,8 @@
     </el-row>
     <el-table
       :data="data"
+      v-loading="loading"
+      element-loading-text="拼命加载中"
       style="width: 100%"
       border
     >
@@ -135,6 +137,7 @@ export default {
       total: 0,
       team: '',
       project: '',
+      loading: true,
       logName: 'log.json',
       logData: '',
       logDialogVisible: false
@@ -145,6 +148,7 @@ export default {
   },
   methods: {
     refresh () {
+      this.loading = true
       const params = {
         limit: this.limit,
         offset: this.page * this.limit
@@ -168,6 +172,7 @@ export default {
               center: true
             })
           }
+          this.loading = false
         })
         .catch(() => {
           this.$message({
@@ -175,6 +180,7 @@ export default {
             message: '服务出错，请联系管理员',
             center: true
           })
+          this.loading = false
         })
     },
     selectedTeamProject (value) {
