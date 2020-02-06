@@ -125,9 +125,7 @@ export default {
       total: 0,
       team: '',
       project: '',
-      loading: true,
-      logName: 'log.json',
-      logData: ''
+      loading: true
     }
   },
   mounted () {
@@ -237,10 +235,6 @@ export default {
           id: row.id
         }
       })
-    },
-    handleDownload () {
-      this.logDialogVisible = false
-      this.download(this.logName, this.logData)
     }
   }
 }

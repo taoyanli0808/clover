@@ -45,7 +45,7 @@
               >
                 <el-table-column
                   prop="id"
-                  width="100"
+                  width="60"
                 />
                 <el-table-column
                   prop="project"
@@ -61,18 +61,18 @@
                 />
                 <el-table-column
                   prop="name"
-                  width="200"
+                  width="100"
                 />
                 <el-table-column
                   prop="value"
                 />
                 <el-table-column
                   prop="created"
-                  width="200"
+                  width="180"
                 />
                 <el-table-column
                   prop="updated"
-                  width="200"
+                  width="180"
                 />
               </el-table>
             </el-tab-pane>
