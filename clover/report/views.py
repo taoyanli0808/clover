@@ -1,4 +1,3 @@
-
 from flask import jsonify
 from flask import request
 
@@ -68,6 +67,36 @@ class ReportView(CloverView):
                 'message': '成功检索到{}条数据'.format(count),
                 'data': results,
                 'total': count
+            })
+        except Exception as error:
+            return jsonify({
+                'status': 500,
+                'message': '检索异常，请联系管理员！',
+                'data': str(error)
+            })
+
+    def log(self):
+        """
+        :return:
+        """
+        if request.method == 'GET':
+            data = request.values.to_dict()
+        else:
+            data = request.get_json()
+
+        if 'id' not in data or not data['id']:
+            return jsonify({
+                'status': 400,
+                'message': '查询日志需要ID参数！',
+                'data': data
+            })
+
+        try:
+            result = self.service.log(data)
+            return jsonify({
+                'status': 0,
+                'message': '成功检索到日志',
+                'data': result
             })
         except Exception as error:
             return jsonify({

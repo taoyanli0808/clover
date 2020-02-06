@@ -99,7 +99,24 @@ class ReportService():
 
         results = [rate_of_success(result) for result in results]
         count = ReportModel.query.filter_by(**filter).count()
+
+        # 暂时用笨方法删除列表页不需要展示的大量数据。
+        for result in results:
+            if 'detail' in result:
+                result.pop('detail')
+            if 'log' in result:
+                result.pop('log')
+
         return count, results
+
+    def log(self, data):
+        """
+        :param data:
+        :return:
+        """
+        result = ReportModel.query.get(data['id'])
+        result = result.to_dict() if result else None
+        return result.get('log')
 
     def empty_report(self, data):
         """

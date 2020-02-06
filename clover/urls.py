@@ -200,3 +200,9 @@ def map_urls(app):
         methods=['POST'],
         strict_slashes=False,
     )
+    app.add_url_rule(
+        "/api/v1/report/log",
+        view_func=report,
+        methods=['POST'],
+        strict_slashes=False,
+    )

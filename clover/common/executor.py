@@ -27,8 +27,8 @@ class Executor():
         self.type = type
         self.start = 0
         self.end = 0
-        self.result = {}
-        self.log = {}
+        self.result = {}    # 记录运行状态与相关数据。
+        self.log = []       # log采用列表记录，保持运行时顺序。
 
     def replace_variable(self, case, data):
         """
@@ -40,10 +40,6 @@ class Executor():
         :param data:
         :return:
         """
-        self.log[case['name']].setdefault('replace_variable', {
-            'interface': case['name']
-        })
-
         filter = {
             'team': case.get('team'),
             'project': case.get('project')
@@ -71,12 +67,7 @@ class Executor():
             for param in case['body']:
                 param['value'] = derivation(param['value'], variable)
 
-        self.log[case['name']]['replace_variable'].setdefault('variable', variable)
-        self.log[case['name']]['replace_variable'].setdefault('host', case['host'])
-        self.log[case['name']]['replace_variable'].setdefault('path', case['path'])
-        self.log[case['name']]['replace_variable'].setdefault('header', case['header'])
-        self.log[case['name']]['replace_variable'].setdefault('params', case['params'])
-        self.log[case['name']]['replace_variable'].setdefault('body', case['body'])
+        self.log[-1].setdefault('variable', variable)
 
         return case
 
@@ -85,10 +76,6 @@ class Executor():
         :param data:
         :return:
         """
-        self.log[data['name']].setdefault('send_request', {
-            'interface': data['name']
-        })
-
         # 发送http请求
         method = data.get("method")
         host = data.get("host")
@@ -109,12 +96,6 @@ class Executor():
         # 将[{'a': 1}, {'b': 2}]转化为{'a': 1, 'b': 2}
         if body:
             body = {item['key']: item['value'] for item in body}
-
-        self.log[data['name']]['send_request'].setdefault('method', method)
-        self.log[data['name']]['send_request'].setdefault('url', url)
-        self.log[data['name']]['send_request'].setdefault('header', header)
-        self.log[data['name']]['send_request'].setdefault('params', params)
-        self.log[data['name']]['send_request'].setdefault('body', body)
 
         try:
             response = request(
@@ -148,13 +129,20 @@ class Executor():
             'content': response.text
         }
 
-        self.log[data['name']]['send_request'].setdefault('response', data.get('response', {}))
-
         # 框架目前只支持json数据，在这里尝试进行json数据转换
         try:
             data['response']['json'] = json.loads(data['response']['content'])
         except Exception:
             data['response']['json'] = {"message": "亲爱的小伙伴，目前接口仅支持json格式！"}
+
+        self.log[-1].update({
+            'url': url,
+            'method': method,
+            'header': header,
+            'params': params,
+            'body': body,
+            'response': data.get('response', {}),
+        })
 
         return data
 
@@ -199,18 +187,11 @@ class Executor():
                     'status': 'error'
                 })
 
-    def extract_variables(self, data):
+    def extract_variable(self, data):
         """
         :param data:
         :return:
         """
-        self.log[data['name']].setdefault('validate_request', {
-            'interface': data['name']
-        })
-
-        self.log[data['name']]['validate_request'].setdefault('response', data.get('response', {}))
-        self.log[data['name']]['validate_request'].setdefault('extract', data.get('extract', {}))
-
         # 这里是临时加的，这里要详细看下如何处理。
         if 'response' not in data:
             return
@@ -234,6 +215,8 @@ class Executor():
                         break
             g.data.append({'name': name, 'value': tmp})
 
+        self.log[-1].setdefault('extract', data.get('extract'))
+
         return data
 
     def execute(self, cases, data=None):
@@ -244,14 +227,14 @@ class Executor():
         """
         self.start = datetime.datetime.now()
         for case in cases:
-            self.log.setdefault(case['name'], {})
+            self.log.append({'name': case['name']})
             self.result.setdefault(case['name'], {})
             self.result[case['name']]['start'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
             self.replace_variable(case, data)
             self.send_request(case)
             self.validate_request(case)
-            self.extract_variables(case)
+            self.extract_variable(case)
 
             self.result[case['name']]['end'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.end = datetime.datetime.now()

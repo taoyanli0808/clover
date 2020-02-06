@@ -107,18 +107,6 @@
       background
       layout="total, prev, pager, next, jumper"
     />
-    <el-dialog
-      :visible.sync="logDialogVisible"
-      :before-close="handleClose"
-      title="运行日志"
-      width="60%"
-    >
-      <pre><code>{{ logData }}</code></pre>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="logDialogVisible = false">关 闭</el-button>
-        <el-button @click="handleDownload" type="primary">下 载</el-button>
-      </span>
-    </el-dialog>
   </div>
 </template>
 
@@ -139,8 +127,7 @@ export default {
       project: '',
       loading: true,
       logName: 'log.json',
-      logData: '',
-      logDialogVisible: false
+      logData: ''
     }
   },
   mounted () {
@@ -244,21 +231,12 @@ export default {
       })
     },
     handleLog (index, row) {
-      this.$axios
-        .post('/api/v1/report/search', { id: row.id })
-        .then((res) => {
-          if (res.data.status === 0) {
-            this.logName = res.data.data.name + '.json'
-            this.logData = JSON.stringify(res.data.data.log, null, 2)
-            this.logDialogVisible = true
-          }
-        }).catch(() => {
-          this.$message({
-            type: 'error',
-            message: '服务出错，请联系管理员',
-            center: true
-          })
-        })
+      this.$router.push({
+        path: 'report/log',
+        query: {
+          id: row.id
+        }
+      })
     },
     handleDownload () {
       this.logDialogVisible = false
