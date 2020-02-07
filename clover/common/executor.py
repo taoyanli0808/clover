@@ -202,7 +202,7 @@ class Executor():
         for extract in data['extract']:
             sel = extract['selector']
             expr = extract['expression']
-            name = extract['expected']
+            name = extract['variable']
             # 从这里开始使用分隔符取数据
             tmp = data['response']['json']
             for item in expr.split('.'):
