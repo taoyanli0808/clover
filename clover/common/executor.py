@@ -200,20 +200,12 @@ class Executor():
             return data
 
         for extract in data['extract']:
-            sel = extract['selector']
-            expr = extract['expression']
-            name = extract['variable']
-            # 从这里开始使用分隔符取数据
-            tmp = data['response']['json']
-            for item in expr.split('.'):
-                try:
-                    item = int(item)
-                    tmp = tmp[item]
-                except ValueError:
-                    tmp = tmp.get(item, None)
-                    if tmp is None:
-                        break
-            g.data.append({'name': name, 'value': tmp})
+            # 提取需要进行断言的数据
+            extractor = Extractor(extract.get('selector', 'delimiter'))
+            expression = extract.get('expression', None)
+            variable = extract.get('variable', None)
+            result = extractor.extract(data['response']['content'], expression, '.')
+            g.data.append({'name': variable, 'value': result})
 
         self.log[-1].setdefault('extract', data.get('extract'))
 

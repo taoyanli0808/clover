@@ -8,8 +8,6 @@ import itertools
 
 from config import VERSION
 
-from clover.common.HTMLTestRunner import HTMLTestRunner
-
 
 def get_timestamp(data=None, format="%Y-%m-%d %H:%M:%S"):
     """
