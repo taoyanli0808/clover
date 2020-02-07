@@ -112,7 +112,6 @@ export default {
       })
     },
     handleAdd (value) {
-      console.log(value)
     },
     selectedTeamProject (value) {
       this.team = value.team

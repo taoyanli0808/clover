@@ -328,32 +328,30 @@
     <el-row>
       <el-tabs v-model="activeResponseTab">
         <el-tab-pane label="响应体" name="responseBody">
-          <pre>
-            <code>
-              {{ response.json || response.content }}
-            </code>
-          </pre>
+          <pre><code>{{ response.json || response.content }}</code></pre>
         </el-tab-pane>
         <el-tab-pane label="响应头" name="responseHeader">
-          <pre>
-            <code>
-              {{ response.header }}
-            </code>
-          </pre>
+          <pre><code>{{ response.header }}</code></pre>
         </el-tab-pane>
-        <el-tab-pane label="响应Cookie" name="responseCookie">Cookie</el-tab-pane>
+        <el-tab-pane label="响应Cookie" name="responseCookie">
+          Cookie
+        </el-tab-pane>
       </el-tabs>
     </el-row>
     <el-dialog :visible.sync="dialogSubmitFormVisible" title="提交接口">
       <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
       <el-form>
         <el-form-item label="用例名称">
-          <el-input v-model="name" autocomplete="off"/>
+          <el-input v-model="name" autocomplete="off" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogSubmitFormVisible = false">取消</el-button>
-        <el-button @click="submit" type="primary" >确定</el-button>
+        <el-button @click="dialogSubmitFormVisible = false">
+          取消
+        </el-button>
+        <el-button @click="submit" type="primary">
+          确定
+        </el-button>
       </div>
     </el-dialog>
   </div>

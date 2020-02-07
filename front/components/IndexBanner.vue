@@ -3,7 +3,9 @@
     <el-row>
       <el-col :span="4" v-for="item in data" :key="item.description">
         <el-row class="card">
-          <el-col :span="8" :style="{background: item.color}" class="icon"><i :class="item.icon" /></el-col>
+          <el-col :span="8" :style="{background: item.color}" class="icon">
+            <i :class="item.icon" />
+          </el-col>
           <el-col :span="16" class="content">
             <div><span class="number">{{ item.number }}</span></div>
             <div><span class="description">{{ item.description }}</span></div>

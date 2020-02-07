@@ -112,7 +112,9 @@
         </el-card>
       </el-timeline-item>
     </el-timeline>
-    <el-button @click="handleDownload" type="primary" class="download">下 载</el-button>
+    <el-button @click="handleDownload" type="primary" class="download">
+      下 载
+    </el-button>
   </div>
 </template>
 

@@ -117,7 +117,7 @@
     <el-dialog :visible.sync="dialogFormVisible" title="运行套件">
       <el-form>
         <el-form-item label="测试报告名称">
-          <el-input v-model="report" autocomplete="off"/>
+          <el-input v-model="report" autocomplete="off" />
         </el-form-item>
         <el-form-item label="动态替换变量">
           <el-input
@@ -128,8 +128,12 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取消</el-button>
-        <el-button @click="runCase" type="primary" >确定</el-button>
+        <el-button @click="dialogFormVisible = false">
+          取消
+        </el-button>
+        <el-button @click="runCase" type="primary">
+          确定
+        </el-button>
       </div>
     </el-dialog>
   </div>
