@@ -69,9 +69,9 @@ class InterfaceService(object):
             db.session.commit()
 
         executor = Executor('debug')
-        result = executor.execute([data], data)
+        executor.execute([data], data)
 
-        return old_model.id, executor.status, executor.message, result[0]
+        return old_model.id, executor.status, executor.message, data
 
     def search(self, data):
         """
@@ -79,6 +79,14 @@ class InterfaceService(object):
         :return:
         """
         filter = {'enable': 0}
+
+        # 如果按照id查询则返回唯一的数据或None
+        if 'id' in data and data['id']:
+            filter.setdefault('id', data.get('id'))
+            result = InterfaceModel.query.get(data['id'])
+            count = 1 if result else 0
+            result = result.to_dict() if result else None
+            return count, result
 
         if 'team' in data and data['team']:
             filter.setdefault('team', data.get('team'))

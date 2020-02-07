@@ -270,16 +270,12 @@ export default {
       })
     },
     handleEdit (index, row) {
-      this.$message({
-        message: '开发者正在加班加点开发，很快就可以用喽！',
-        center: true,
-        type: 'error'
-      })
-      /*
       this.$router.push({
-        path: '/interface/edit'
+        path: '/interface/edit',
+        query: {
+          id: row.id
+        }
       })
-      */
     },
     handleDelete (index, row) {
       this.$confirm('此操作将永久删除该接口, 是否继续?', '删除接口', {

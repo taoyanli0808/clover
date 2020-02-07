@@ -409,11 +409,14 @@ export default {
       extract: [{
         selector: '',
         expression: '',
-        variable: ''
+        varibale: ''
       }],
       minsize: { minRows: 6 },
       dialogSubmitFormVisible: false
     }
+  },
+  mounted () {
+    this.fetch()
   },
   methods: {
     selectedTeamProject (value) {
@@ -634,6 +637,52 @@ export default {
       } else {
         this.update()
       }
+    },
+    untranslateData (data) {
+      let result = ''
+      for (const i in data) {
+        if (data[i].key !== '') {
+          result += data[i].key + ':' + data[i].value + '\n'
+        }
+      }
+      return result
+    },
+    fetch () {
+      this.$axios
+        .post('/api/v1/interface/search', {
+          id: this.$route.query.id
+        })
+        .then((res) => {
+          if (res.data.status === 0) {
+            this.id = res.data.data.id
+            this.team = res.data.data.team
+            this.project = res.data.data.project
+            this.name = res.data.data.name
+            this.host = res.data.data.host
+            this.path = res.data.data.path
+            this.method = res.data.data.method
+            this.header = this.untranslateData(res.data.data.header)
+            this.params = this.untranslateData(res.data.data.params)
+            this.body = this.untranslateData(res.data.data.body)
+            this.assert = res.data.data.verify
+            this.extract = res.data.data.extract
+          } else {
+            this.$message({
+              type: 'error',
+              message: res.data.message,
+              center: true
+            })
+          }
+          this.loading = false
+        })
+        .catch(() => {
+          this.$message({
+            type: 'error',
+            message: '服务出错，请联系管理员',
+            center: true
+          })
+          this.loading = false
+        })
     }
   }
 }
