@@ -53,7 +53,7 @@
         width="180"
         align="center"
       />
-      <el-table-column
+      <!-- <el-table-column
         label="统计"
         width="180"
         align="center"
@@ -69,7 +69,7 @@
             查看
           </el-button>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column
         prop="created"
         label="创建时间"
