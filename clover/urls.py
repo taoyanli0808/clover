@@ -27,6 +27,12 @@ def map_urls(app):
         methods=['GET'],
         strict_slashes=False,
     )
+    app.add_url_rule(
+        "/api/v1/index/config",
+        view_func=index,
+        methods=['GET'],
+        strict_slashes=False,
+    )
 
     # 配置管理相关路由与视图
     team = Team.as_view("team")

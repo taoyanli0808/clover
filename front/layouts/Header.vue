@@ -39,7 +39,7 @@
     <el-menu-item index="/report">
       查看报告
     </el-menu-item>
-    <el-menu-item index="keep">
+    <el-menu-item v-if="join" index="keep">
       <a href="https://github.com/taoyanli0808/clover" target="_blank">
         加入我们
       </a>
@@ -49,6 +49,14 @@
 
 <script>
 export default {
+  data () {
+    return {
+      join: true
+    }
+  },
+  mounted () {
+    this.updateConfig()
+  },
   methods: {
     handleSelect (key, keyPath) {
       if (key === 'keep') {
@@ -59,6 +67,20 @@ export default {
           path: key
         })
       }
+    },
+    updateConfig () {
+      this.$axios.get('/api/v1/index/config', {})
+        .then((res) => {
+          this.join = res.data.data.join
+        })
+        .catch(() => {
+          this.$message({
+            type: 'error',
+            message: '服务出错，请联系管理员',
+            center: true
+          })
+          this.loading = false
+        })
     }
   }
 }
