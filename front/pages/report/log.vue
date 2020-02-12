@@ -25,13 +25,13 @@
           <h4>响应数据</h4>
           <el-tabs v-model="activeResponse" type="border-card">
             <el-tab-pane label="响应码" name="first">
-              <pre><code>{{ log.response.status }}</code></pre>
+              <pre><code>{{ log.response.status || '' }}</code></pre>
             </el-tab-pane>
             <el-tab-pane label="响应头" name="second">
-              <pre><code>{{ log.response.header }}</code></pre>
+              <pre><code>{{ log.response.header || '' }}</code></pre>
             </el-tab-pane>
             <el-tab-pane label="响应数据" name="third">
-              <pre><code>{{ log.response.json || log.response.content }}</code></pre>
+              <pre><code>{{ log.response.json || log.response.content || '' }}</code></pre>
             </el-tab-pane>
           </el-tabs>
           <h4>变量设置</h4>
