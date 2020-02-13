@@ -35,6 +35,9 @@
       <el-menu-item index="/config/keyword">
         关键字配置
       </el-menu-item>
+      <el-menu-item v-if="task" index="/config/task">
+        定时任务
+      </el-menu-item>
     </el-submenu>
     <el-menu-item index="/report">
       查看报告
@@ -51,7 +54,8 @@
 export default {
   data () {
     return {
-      join: true
+      join: true,
+      task: true
     }
   },
   mounted () {
@@ -72,6 +76,7 @@ export default {
       this.$axios.get('/api/v1/index/config', {})
         .then((res) => {
           this.join = res.data.data.join
+          this.task = res.data.data.task
         })
         .catch(() => {
           this.$message({

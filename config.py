@@ -1,6 +1,6 @@
 
 DEBUG = True
-VERSION = '0.3.7'
+VERSION = '0.4.0'
 
 MYSQL = {
     'user': 'clover',
@@ -16,4 +16,5 @@ CELERY_BROKER_URL='redis://127.0.0.1:6379/0'
 
 MODULE = {
     'join': True,   #展示加入我们
+    'task': False,  #开发中的定时任务
 }

@@ -9,6 +9,7 @@ from clover.interface.views import InterfaceView as Interface
 from clover.suite.views import SuiteView as Suite
 from clover.report.views import ReportView as Report
 from clover.index.views import IndexView as Index
+from clover.task.views import TaskView as Task
 
 
 def map_urls(app):
@@ -188,6 +189,39 @@ def map_urls(app):
     app.add_url_rule(
         "/api/v1/suite/trigger",
         view_func=suite,
+        methods=['POST'],
+        strict_slashes=False,
+    )
+
+    # 定时任务相关路由与视图
+    task = Task.as_view("task")
+    app.add_url_rule(
+        "/api/v1/task/create",
+        view_func=task,
+        methods=['POST'],
+        strict_slashes=False,
+    )
+    app.add_url_rule(
+        "/api/v1/task/delete",
+        view_func=task,
+        methods=['POST'],
+        strict_slashes=False,
+    )
+    app.add_url_rule(
+        "/api/v1/task/update",
+        view_func=task,
+        methods=['POST'],
+        strict_slashes=False,
+    )
+    app.add_url_rule(
+        "/api/v1/task/search",
+        view_func=task,
+        methods=['get', 'POST'],
+        strict_slashes=False,
+    )
+    app.add_url_rule(
+        "/api/v1/report/trigger",
+        view_func=task,
         methods=['POST'],
         strict_slashes=False,
     )
