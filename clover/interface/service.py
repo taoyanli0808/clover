@@ -131,6 +131,6 @@ class InterfaceService(object):
         cases = [interface.to_dict()]
 
         # 使用celery异步运行的接口任务。
-        interface_task.delay(cases, data, report)
+        interface_task.apply_async(args=(cases, data, report))
 
         return report

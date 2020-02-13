@@ -1,3 +1,7 @@
+"""
+# https://github.com/cameronmaske/celery-once
+"""
+from celery_once import QueueOnce
 
 from clover.exts import task
 from clover.common import get_system_info
@@ -5,7 +9,7 @@ from clover.common.executor import Executor
 from clover.report.service import ReportService
 
 
-@task.task
+@task.task(base=QueueOnce, once={'graceful': True})
 def interface_task(cases, data, report):
     from clover import app
 
