@@ -8,6 +8,13 @@
 
 changelog = [
     {
+        'version': '0.4.1',
+        'date': '2020-02-13',
+        'added': [
+            '引入celery_once确保任务只被执行一次.'
+        ]
+    },
+    {
         'version': '0.4.0',
         'date': '2020-02-13',
         'added': [
