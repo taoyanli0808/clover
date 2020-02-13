@@ -60,7 +60,7 @@ class TaskView(CloverView):
     def delete(self):
         data = request.get_json()
 
-        if 'id_list' not in data or not data['id_list']:
+        if 'id' not in data or not data['id']:
             return jsonify({
                 'status': 400,
                 'message': '请选择您要删除的接口！',

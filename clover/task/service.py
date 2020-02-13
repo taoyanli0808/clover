@@ -36,8 +36,11 @@ class TaskService():
         :param data:
         :return:
         """
-        id_list = data.pop('id_list')
-        for id in id_list:
+        id = data.pop('id')
+
+        ids = [id] if isinstance(id, (int, str,)) else list(id)
+
+        for id in ids:
             result = TaskModel.query.get(id)
             soft_delete(result)
 
