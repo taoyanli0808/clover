@@ -10,6 +10,7 @@ from clover.suite.views import SuiteView as Suite
 from clover.report.views import ReportView as Report
 from clover.index.views import IndexView as Index
 from clover.task.views import TaskView as Task
+from clover.plugin.views import PluginView as Plugin
 
 
 def map_urls(app):
@@ -243,6 +244,15 @@ def map_urls(app):
     app.add_url_rule(
         "/api/v1/report/log",
         view_func=report,
+        methods=['POST'],
+        strict_slashes=False,
+    )
+
+    # 插件相关路由与视图
+    plugin = Plugin.as_view("plugin")
+    app.add_url_rule(
+        "/api/v1/plugin/create",
+        view_func=plugin,
         methods=['POST'],
         strict_slashes=False,
     )
