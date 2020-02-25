@@ -35,6 +35,9 @@
       <el-menu-item index="/config/keyword">
         关键字配置
       </el-menu-item>
+      <el-menu-item index="/config/plugin">
+        插件配置
+      </el-menu-item>
       <el-menu-item v-if="task" index="/config/task">
         定时任务
       </el-menu-item>

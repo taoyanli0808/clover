@@ -59,6 +59,13 @@ class Pipeline(Plugin):
     def set_project(self, project):
         super(Pipeline).project = project
 
+    def parse(self, content):
+        """
+        :param content:
+        :return:
+        """
+        raise NotImplementedError
+
     def create(self, variables, interfaces):
         """
         :param variable:

@@ -160,3 +160,8 @@ def rate_of_success(data):
     data['percent'] = percent
 
     return data
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in {'json'}
