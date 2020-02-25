@@ -52,43 +52,41 @@ class Pipeline(Plugin):
 
     def __init__(self):
         super(Pipeline, self).__init__()
+        self.team = None
+        self.project = None
+        self.suite = None
+        self.variables = []
+        self.interfaces = []
 
-    def set_team(self, team):
-        super(Pipeline).team = team
-
-    def set_project(self, project):
-        super(Pipeline).project = project
-
-    def parse(self, content):
+    def parse(self, content, type=None):
         """
         :param content:
+        :param type:
         :return:
         """
         raise NotImplementedError
 
-    def create(self, variables, interfaces):
+    def create(self):
         """
-        :param variable:
-        :param interfaces:
-        :param suite:
         :return:
         """
         # 首先创建项目信息。
         team_plugin = TeamPlugin()
         team_plugin.create(team=self.team, project=self.project, owner='plugin')
         # 然后创建变量
-        for variable in variables:
+        for variable in self.variables:
             variable_plugin = VariablePlugin()
             variable_plugin.create(team=self.team, project=self.project, owner='plugin', **variable)
         # 接着创建接口
         cases = []
-        for interface in interfaces:
+        for interface in self.interfaces:
             interface_plugin = InterfacePlugin()
             id, _, _, _ = interface_plugin.create(team=self.team, project=self.project, **interface)
             cases.append(id)
         # 最后创建套件
-        suite_plugin = SuitePlugin()
-        suite_plugin.create(team=self.team, project=self.project, type='interface', cases=cases)
+        if cases:
+            suite_plugin = SuitePlugin()
+            suite_plugin.create(team=self.team, project=self.project, type='interface', cases=cases)
 
 
 if __name__ == '__main__':

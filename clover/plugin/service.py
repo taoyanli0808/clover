@@ -7,10 +7,10 @@ from werkzeug.utils import import_string
 
 class PluginService(object):
 
-    def create(self, data, file):
+    def create(self, data, upload):
         """
         :param data:
-        :param file:
+        :param upload:
         :return:
         """
         team = data.get('team')
@@ -38,7 +38,7 @@ class PluginService(object):
         # 然后调用插件的parse方法组装需要的数据
         """
         if plugin == 'postman':
-            content = json.load(file)
+            content = json.load(upload)
             object.parse(content)
         elif plugin == 'jmeter':
             content = ''
