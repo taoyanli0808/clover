@@ -1,6 +1,5 @@
 <template>
   <div>
-    <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
     <el-upload
       ref="upload"
       :limit="1"
@@ -22,12 +21,7 @@
 </template>
 
 <script>
-import TeamProjectCascader from '~/components/TeamProjectCascader.vue'
-
 export default {
-  components: {
-    TeamProjectCascader
-  },
   data () {
     return {
       file: '',
@@ -83,10 +77,6 @@ export default {
           center: true
         })
       })
-    },
-    selectedTeamProject (value) {
-      this.team = value.team
-      this.project = value.project
     }
   }
 }

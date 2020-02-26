@@ -47,9 +47,8 @@ class Postman(Pipeline):
             body = self.change_postman_variable_to_clover(body)
         return body
 
-    def parse(self, content, type=None):
+    def handle_collection(self, content, type):
         """
-        # 处理时需要注意postman的数据长度可能超过MySQL数据库的字段长度。
         :param content:
         :param type:
         :return:
@@ -80,9 +79,7 @@ class Postman(Pipeline):
             host = self.change_postman_variable_to_clover(host)
             path = self.change_postman_variable_to_clover(path)
             header = self.change_postman_variable_to_clover(header)
-            print(params)
             params = self.change_postman_variable_to_clover(params)
-            print(params)
             body = self.handle_body(body)
 
             interface = {
@@ -98,8 +95,29 @@ class Postman(Pipeline):
             }
             self.interfaces.append(interface)
 
-            # 这里是将postman的脚本转为python，很难，先不动了！
-            if 'event' in item:
-                for event in item['event']:
-                    listen = event['listen']
-                    code = event['script']['exec']
+    def handle_variable(self, content):
+        """
+        :param content:
+        :return:
+        """
+        for item in content['values']:
+            self.variables.append({
+                'key': item['key'],
+                'value': item['value'],
+                'enable': 0 if item['enabled'] else 1
+            })
+
+    def parse(self, content, type=None):
+        """
+        # 处理时需要注意postman的数据长度可能超过MySQL数据库的字段长度。
+        :param content:
+        :param type:
+        :return:
+        """
+        # 先判断是collection文件，还是变量文件（variable、environment）
+        # 变量存在跟节点values
+        if 'values' in content:
+            self.handle_variable(content)
+        # 集合存在根节点info
+        if 'info' in content:
+            self.handle_collection(content, type)
