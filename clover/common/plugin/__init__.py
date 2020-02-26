@@ -72,52 +72,37 @@ class Pipeline(Plugin):
         """
         # 首先创建项目信息。
         team_plugin = TeamPlugin()
-        team_plugin.create(team=self.team, project=self.project, owner='plugin')
+        team_plugin.create(
+            team=self.team,
+            project=self.project,
+            owner='plugin'
+        )
         # 然后创建变量
         for variable in self.variables:
             variable_plugin = VariablePlugin()
-            variable_plugin.create(team=self.team, project=self.project, owner='plugin', **variable)
+            variable_plugin.create(
+                team=self.team,
+                project=self.project,
+                owner='plugin',
+                **variable
+            )
         # 接着创建接口
         cases = []
         for interface in self.interfaces:
             interface_plugin = InterfacePlugin()
-            id, _, _, _ = interface_plugin.create(team=self.team, project=self.project, **interface)
+            id, _, _, _ = interface_plugin.create(
+                team=self.team,
+                project=self.project,
+                **interface
+            )
             cases.append(id)
         # 最后创建套件
         if cases:
             suite_plugin = SuitePlugin()
-            suite_plugin.create(team=self.team, project=self.project, type='interface', cases=cases)
-
-
-if __name__ == '__main__':
-    pipeline = Pipeline()
-    pipeline.team='大坏猫'
-    pipeline.project='插件测试'
-    variables = [
-        {'name': 'pluginA', 'value': 123},
-        {'name': 'pluginB', 'value': 'abc'},
-    ]
-    interfaces = [
-        {
-            'name': 'pluginA Interface',
-            'method': 'get',
-            'host': 'http://ditu.amap.com',
-            'path': '/service/regeo',
-            'header': [{"key": "", "value": ""}],
-            'params': [
-                {"key": "longitude", "value": "100.04925573429551"},
-                {"key": "latitude", "value": "30.315590522490712"},
-                {"key": "", "value": ""}
-            ],
-            'verify': [
-                {"expected": "", "convertor": "", "extractor": "", "comparator": "", "expression": ""}
-            ],
-            'extract': [
-                {"selector": "", "variable": "", "expression": ""}
-            ],
-        },
-    ]
-    pipeline.create(
-        variables=variables,
-        interfaces=interfaces,
-    )
+            suite_plugin.create(
+                name=self.suite,
+                team=self.team,
+                project=self.project,
+                type='interface',
+                cases=cases
+            )

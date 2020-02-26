@@ -8,6 +8,13 @@
 
 changelog = [
     {
+        'version': '0.5.2',
+        'date': '2020-02-26',
+        'added': [
+            '引入postman插件，支持倒入collection创建接口.'
+        ]
+    },
+    {
         'version': '0.5.1',
         'date': '2020-02-23',
         'added': [
