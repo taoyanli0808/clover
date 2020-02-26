@@ -1,5 +1,14 @@
 <template>
   <div>
+    <TeamProjectCascader :size="small" v-on:selectedTeamProject="selectedTeamProject" />
+    <el-select v-model="type" size="small" placeholder="请选择">
+      <el-option
+        v-for="item in options"
+        :key="item.value"
+        :label="item.label"
+        :value="item.value"
+      />
+    </el-select>
     <el-upload
       ref="upload"
       :limit="1"
@@ -22,19 +31,24 @@
 </template>
 
 <script>
+import TeamProjectCascader from '~/components/TeamProjectCascader.vue'
+
 export default {
-  props: {
-    team: {
-      type: String,
-      default: ''
-    },
-    project: {
-      type: String,
-      default: ''
-    }
+  components: {
+    TeamProjectCascader
   },
   data () {
     return {
+      team: '',
+      project: '',
+      type: 'interface',
+      options: [{
+        label: '接口',
+        value: 'interface'
+      }, {
+        label: '变量',
+        value: 'variable'
+      }],
       file: '',
       fileList: []
     }
@@ -88,6 +102,10 @@ export default {
           center: true
         })
       })
+    },
+    selectedTeamProject (value) {
+      this.team = value.team
+      this.project = value.project
     }
   }
 }

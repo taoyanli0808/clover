@@ -8,8 +8,7 @@
             <!-- <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button> -->
           </div>
           <div class="text item">
-            <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
-            <PostmanPlugin :team="team" :project="project" />
+            <PostmanPlugin />
           </div>
         </el-card>
       </el-col>
@@ -21,7 +20,7 @@
           </div>
           <div class="text item">
             <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
-            <JmeterPlugin :team="team" :project="project" />
+            <JmeterPlugin />
           </div>
         </el-card>
       </el-col>
@@ -33,7 +32,7 @@
           </div>
           <div class="text item">
             <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
-            <HTTPRunnerPlugin :team="team" :project="project" />
+            <HTTPRunnerPlugin />
           </div>
         </el-card>
       </el-col>
@@ -42,31 +41,21 @@
 </template>
 
 <script>
-import TeamProjectCascader from '~/components/TeamProjectCascader.vue'
 import JmeterPlugin from '~/components/plugin/JmeterPlugin.vue'
 import PostmanPlugin from '~/components/plugin/PostmanPlugin.vue'
 import HTTPRunnerPlugin from '~/components/plugin/HTTPRunnerPlugin.vue'
 
 export default {
   components: {
-    TeamProjectCascader,
     JmeterPlugin,
     PostmanPlugin,
     HTTPRunnerPlugin
   },
   data () {
     return {
-      team: '',
-      project: '',
       plugin: '',
       file: '',
       fileList: []
-    }
-  },
-  methods: {
-    selectedTeamProject (value) {
-      this.team = value.team
-      this.project = value.project
     }
   }
 }
