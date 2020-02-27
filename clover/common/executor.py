@@ -25,6 +25,14 @@ class Executor():
         self.status = 0
         self.message = 'ok'
         self.type = type
+        self.interface = 0
+        self.verify = {
+            'passed': 0,
+            'failed': 0,
+            'sikped': 0,
+            'total': 0,
+        }
+        self.percent = 0.0
         self.start = 0
         self.end = 0
         self.result = {}    # 记录运行状态与相关数据。
@@ -182,6 +190,9 @@ class Executor():
                     'expect': expected,
                     'operate': comparator,
                 })
+                # 这里是计算断言通过，失败，跳过与整体数量。
+                self.verify[result] += 1
+                self.verify['total'] += 1
             except Exception:
                 self.result[data['name']]['result'].append({
                     'status': 'error'
@@ -230,3 +241,6 @@ class Executor():
 
             self.result[case['name']]['end'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.end = datetime.datetime.now()
+
+        self.interface = len(cases)
+        self.percent = round(100 * self.verify['passed'] / self.verify['total'], 2)

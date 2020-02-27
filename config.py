@@ -1,7 +1,7 @@
 
 # Clover全局配置
 DEBUG = True
-VERSION = '0.5.4'
+VERSION = '0.5.5'
 
 # MySQL数据库配置
 MYSQL = {
@@ -51,4 +51,11 @@ EMAIL = {
     'sender': '12345678@qq.com',
     'receiver': ['12345678@qq.com'],
     'password': '',
+}
+
+NOTIFY = {
+    # 通知的触发事件，成功时通知还是失败时通知
+    'event': ['success', 'failed'],
+    # 通知的方式，企业微信还是email，或则配置的其它方式
+    'channel': ['email'],
 }
