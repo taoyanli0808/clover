@@ -1,7 +1,7 @@
 
 # Clover全局配置
 DEBUG = True
-VERSION = '0.5.3'
+VERSION = '0.5.4'
 
 # MySQL数据库配置
 MYSQL = {
@@ -44,4 +44,11 @@ WECHAT = {
             '[测试报告-{id}](http://www.52clover.cn/report/detail?id={id})'
         }
     }
+}
+
+# 邮箱配置
+EMAIL = {
+    'sender': '12345678@qq.com',
+    'receiver': ['12345678@qq.com'],
+    'password': '',
 }
