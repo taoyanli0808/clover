@@ -15,8 +15,7 @@
       <i class="el-icon-upload" />
       <div class="el-upload__text">请先选择团队与项目</div>
       <div class="el-upload__text">然后将文件拖到此处，或<em>点击上传</em></div>
-      <div class="el-upload__tip" slot="tip">插件支持上传postman的集合文件，测试通过的collection版本为v2.1。</div>
-      <div class="el-upload__tip" slot="tip">请求体body未经过严格测试，有任何问题请反馈给作者。<a href="http://github.com/taoyanli0808/clover/issues">反馈问题</a></div>
+      <div class="el-upload__tip" slot="tip">测试通过的collection版本为v2.1。<a href="http://github.com/taoyanli0808/clover/issues">反馈问题</a></div>
     </el-upload>
   </div>
 </template>
@@ -111,5 +110,9 @@ export default {
 
 .el-card__body {
   text-align: center;
+}
+
+.el-row {
+  margin-bottom: 20px;
 }
 </style>
