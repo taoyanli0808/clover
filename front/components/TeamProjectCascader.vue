@@ -2,7 +2,6 @@
   <el-cascader
     v-model="cascader"
     :options="options"
-    :size="size"
     @change="handleChange"
     placeholder="请选择团队和项目"
     clearable
@@ -11,14 +10,6 @@
 
 <script>
 export default {
-  props: {
-    size: {
-      type: String,
-      default () {
-        return 'normal'
-      }
-    }
-  },
   data () {
     return {
       cascader: [],

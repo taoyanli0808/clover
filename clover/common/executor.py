@@ -243,4 +243,7 @@ class Executor():
         self.end = datetime.datetime.now()
 
         self.interface = len(cases)
-        self.percent = round(100 * self.verify['passed'] / self.verify['total'], 2)
+        if self.verify['total'] == 0:
+            self.percent = 0.0
+        else:
+            self.percent = round(100 * self.verify['passed'] / self.verify['total'], 2)

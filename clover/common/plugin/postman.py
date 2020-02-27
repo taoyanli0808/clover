@@ -70,7 +70,10 @@ class Postman(Pipeline):
                    '.'.join(item['request']['url']['host'])
             path = '/' + '/'.join(item['request']['url']['path'])
             header = item['request']['header']
-            params = item['request']['url']['query']
+            if 'query' in item['request']['url']:
+                params = item['request']['url']['query']
+            else:
+                params = []
             if 'body' in item['request']:
                 body = item['request']['body']
             else:

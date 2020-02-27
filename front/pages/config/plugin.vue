@@ -9,7 +9,7 @@
           </div>
           <div class="text item">
             <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
-            <PostmanPlugin />
+            <PostmanPlugin :team="team" :project="project" />
           </div>
         </el-card>
       </el-col>
@@ -21,7 +21,7 @@
           </div>
           <div class="text item">
             <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
-            <JmeterPlugin />
+            <JmeterPlugin :team="team" :project="project" />
           </div>
         </el-card>
       </el-col>
@@ -33,7 +33,7 @@
           </div>
           <div class="text item">
             <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
-            <HTTPRunnerPlugin />
+            <HTTPRunnerPlugin :team="team" :project="project" />
           </div>
         </el-card>
       </el-col>
@@ -56,6 +56,8 @@ export default {
   },
   data () {
     return {
+      team: '',
+      project: '',
       plugin: '',
       file: '',
       fileList: []

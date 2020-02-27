@@ -23,6 +23,20 @@
 
 <script>
 export default {
+  props: {
+    team: {
+      type: String,
+      default () {
+        return ''
+      }
+    },
+    project: {
+      type: String,
+      default () {
+        return ''
+      }
+    }
+  },
   data () {
     return {
       options: [{
