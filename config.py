@@ -1,7 +1,7 @@
 
 # Clover全局配置
 DEBUG = True
-VERSION = '0.5.2'
+VERSION = '0.5.3'
 
 # MySQL数据库配置
 MYSQL = {
@@ -23,4 +23,25 @@ CELERY_RESULT_BACKEND = CELERY_HOST.format(1)
 MODULE = {
     'join': True,   #展示加入我们
     'task': False,  #开发中的定时任务
+}
+
+# 企业微信配置
+WECHAT = {
+    'key': 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx', # 这里是企业微信机器人的key
+    'template': {
+        'msgtype': 'markdown',
+        'markdown': {
+            'content': 'Clover平台运行报告！\n'+
+            '>类型:<font color=\"comment\">{type}</font>\n' +
+            '>团队:<font color=\"comment\">{team}</font>\n' +
+            '>项目:<font color=\"comment\">{project}</font>\n' +
+            '>名称:<font color=\"comment\">{name}</font>\n' +
+            '>接口:<font color=\"comment\">{interface}个</font>\n' +
+            '>断言:<font color=\"comment\">{verify}个</font>\n' +
+            '>成功率:<font color=\"comment\">{percent}</font>\n' +
+            '>开始时间:<font color=\"comment\">{start}</font>\n' +
+            '>结束时间:<font color=\"comment\">{end}</font>\n' +
+            '[测试报告-{id}](http://www.52clover.cn/report/detail?id={id})'
+        }
+    }
 }
