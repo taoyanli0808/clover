@@ -3,8 +3,8 @@ DEBUG = True
 VERSION = '0.2.1'
 
 MYSQL = {
-    'user': 'clover',
-    'pswd': '52.clover',
+    'user': 'root',
+    'pswd': '456Juezui',
     'host': '127.0.0.1',
     'port': '3306',
 }
