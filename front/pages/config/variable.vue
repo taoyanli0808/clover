@@ -22,6 +22,8 @@
     </el-row>
     <el-table
       :data="data"
+      v-loading="loading"
+      element-loading-text="拼命加载中"
       style="width: 100%"
       stripe
       border
@@ -145,7 +147,7 @@
     >
       <el-form ref="form" label-width="80px">
         <el-form-item label="团队名称">
-          <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject"/>
+          <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
         </el-form-item>
         <el-form-item label="负责人">
           <el-input v-model="owner" />
@@ -182,6 +184,7 @@ export default {
       total: 0,
       limit: 10,
       page: 0,
+      loading: true,
       addDialogVisible: false,
       editDialogVisible: false,
       id: '',
@@ -335,6 +338,7 @@ export default {
       })
     },
     refresh () {
+      this.loading = true
       const params = {
         limit: this.limit,
         offset: this.page * this.limit
@@ -352,6 +356,15 @@ export default {
         .then((res) => {
           this.total = res.data.total
           this.data = res.data.data
+          this.loading = false
+        })
+        .catch(() => {
+          this.$message({
+            type: 'error',
+            message: '服务出错，请联系管理员',
+            center: true
+          })
+          this.loading = false
         })
     },
     selectedTeam (value) {

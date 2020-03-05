@@ -35,11 +35,17 @@
       <el-menu-item index="/config/keyword">
         关键字配置
       </el-menu-item>
+      <el-menu-item index="/config/plugin">
+        插件配置
+      </el-menu-item>
+      <el-menu-item v-if="task" index="/config/task">
+        定时任务
+      </el-menu-item>
     </el-submenu>
     <el-menu-item index="/report">
       查看报告
     </el-menu-item>
-    <el-menu-item index="keep">
+    <el-menu-item v-if="join" index="keep">
       <a href="https://github.com/taoyanli0808/clover" target="_blank">
         加入我们
       </a>
@@ -49,6 +55,15 @@
 
 <script>
 export default {
+  data () {
+    return {
+      join: true,
+      task: true
+    }
+  },
+  mounted () {
+    this.updateConfig()
+  },
   methods: {
     handleSelect (key, keyPath) {
       if (key === 'keep') {
@@ -59,6 +74,21 @@ export default {
           path: key
         })
       }
+    },
+    updateConfig () {
+      this.$axios.get('/api/v1/index/config', {})
+        .then((res) => {
+          this.join = res.data.data.join
+          this.task = res.data.data.task
+        })
+        .catch(() => {
+          this.$message({
+            type: 'error',
+            message: '服务出错，请联系管理员',
+            center: true
+          })
+          this.loading = false
+        })
     }
   }
 }

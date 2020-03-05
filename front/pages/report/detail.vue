@@ -1,10 +1,14 @@
 <template>
   <div class="container">
     <el-row>
-      <div class="report">{{ data.name || 'Clover测试报告' }}</div>
+      <div class="report">
+        {{ data.name || 'Clover测试报告' }}
+      </div>
     </el-row>
     <el-row>
-      <div class="title">Summary</div>
+      <div class="title">
+        Summary
+      </div>
     </el-row>
     <el-row>
       <el-table
@@ -40,7 +44,9 @@
       </el-table>
     </el-row>
     <el-row>
-      <div class="title">Detail</div>
+      <div class="title">
+        Detail
+      </div>
     </el-row>
     <el-row>
       <el-table
@@ -93,7 +99,7 @@
               :type="scope.row.status === 'passed' ? 'success' : 'error'"
               disable-transitions
             >
-              {{scope.row.status}}
+              {{ scope.row.status }}
             </el-tag>
           </template>
         </el-table-column>

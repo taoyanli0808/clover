@@ -3,9 +3,15 @@ flask-cors==3.0.8
 flask-script==2.0.6
 flask-migrate==2.5.2
 flask_sqlalchemy>=2.0
-selenium==3.141.0
 pymysql==0.9.3
 mysqlclient==1.4.6
 requests==2.22.0
 gunicorn==20.0.4
+<<<<<<< HEAD
 gevent==1.4.0
+=======
+gevent==1.4.0
+celery==4.4.0
+celery-once==3.0.1
+redis==3.4.1
+>>>>>>> remote_origin/master

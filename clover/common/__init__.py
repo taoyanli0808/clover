@@ -8,8 +8,6 @@ import itertools
 
 from config import VERSION
 
-from clover.common.HTMLTestRunner import HTMLTestRunner
-
 
 def get_timestamp(data=None, format="%Y-%m-%d %H:%M:%S"):
     """
@@ -54,17 +52,17 @@ def derivation(data, keywords):
             extract = keywords['extract']
             for result in extract:
                 if variable == result['name']:
-                    data = data.replace('${' + variable + '}', result['value'])
+                    data = data.replace('${' + variable + '}', str(result['value']))
 
             trigger = keywords['trigger']
             for result in trigger:
                 if variable == result['name']:
-                    data = data.replace('${' + variable + '}', result['value'])
+                    data = data.replace('${' + variable + '}', str(result['value']))
 
             default = keywords['default']
             for result in default:
                 if variable == result['name']:
-                    data = data.replace('${' + variable + '}', result['value'])
+                    data = data.replace('${' + variable + '}', str(result['value']))
 
     return data
 
@@ -138,6 +136,18 @@ def rate_of_success(data):
     :param data:
     :return:
     """
+    rate = {
+        'interface': 0,
+        'assertion': 0,
+        'percent': 0.0,
+    }
+    data = {** data, **rate}
+
+    # 如果detail还没有数据，可能是用例没有执行完或异常，直接返回。
+    if not data['detail']:
+        return data
+
+    # 统计接口，断言与成功率。
     details = data['detail'].values()
     results = [detail['result'] for detail in details if detail['result']]
     results = list(itertools.chain(*results))
@@ -145,8 +155,13 @@ def rate_of_success(data):
     percent = 100 * (passed / len(results)) if len(results) else 0
     percent = '{}%'.format(round(percent, 2))
 
-    data.setdefault('interface', len(details))
-    data.setdefault('assertion', len(results))
-    data.setdefault('percent', percent)
+    data['interface'] = len(details)
+    data['assertion'] = len(results)
+    data['percent'] = percent
 
     return data
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in {'json'}

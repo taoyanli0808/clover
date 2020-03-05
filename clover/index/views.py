@@ -1,6 +1,8 @@
 
 from flask import jsonify
 
+import config
+
 from clover.views import CloverView
 from clover.common import get_system_info
 from clover.common import get_python_dependency
@@ -48,6 +50,20 @@ class IndexView(CloverView):
                 'status': 0,
                 'message': 'clover平台数据统计。',
                 'data': count
+            })
+        except Exception as error:
+            return jsonify({
+                'status': 500,
+                'message': '运行出错，请联系管理员！',
+                'data': str(error)
+            })
+
+    def config(self):
+        try:
+            return jsonify({
+                'status': 0,
+                'message': 'clover平台功能配置。',
+                'data': config.MODULE
             })
         except Exception as error:
             return jsonify({

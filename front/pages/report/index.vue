@@ -7,6 +7,8 @@
     </el-row>
     <el-table
       :data="data"
+      v-loading="loading"
+      element-loading-text="拼命加载中"
       style="width: 100%"
       border
     >
@@ -105,18 +107,6 @@
       background
       layout="total, prev, pager, next, jumper"
     />
-    <el-dialog
-      :visible.sync="logDialogVisible"
-      :before-close="handleClose"
-      title="运行日志"
-      width="60%"
-    >
-      <pre><code>{{ logData }}</code></pre>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="logDialogVisible = false">关 闭</el-button>
-        <el-button @click="handleDownload" type="primary">下 载</el-button>
-      </span>
-    </el-dialog>
   </div>
 </template>
 
@@ -135,9 +125,7 @@ export default {
       total: 0,
       team: '',
       project: '',
-      logName: 'log.json',
-      logData: '',
-      logDialogVisible: false
+      loading: true
     }
   },
   mounted () {
@@ -145,6 +133,7 @@ export default {
   },
   methods: {
     refresh () {
+      this.loading = true
       const params = {
         limit: this.limit,
         offset: this.page * this.limit
@@ -168,6 +157,7 @@ export default {
               center: true
             })
           }
+          this.loading = false
         })
         .catch(() => {
           this.$message({
@@ -175,6 +165,7 @@ export default {
             message: '服务出错，请联系管理员',
             center: true
           })
+          this.loading = false
         })
     },
     selectedTeamProject (value) {
@@ -238,25 +229,12 @@ export default {
       })
     },
     handleLog (index, row) {
-      this.$axios
-        .post('/api/v1/report/search', { id: row.id })
-        .then((res) => {
-          if (res.data.status === 0) {
-            this.logName = res.data.data.name + '.json'
-            this.logData = JSON.stringify(res.data.data.log, null, 2)
-            this.logDialogVisible = true
-          }
-        }).catch(() => {
-          this.$message({
-            type: 'error',
-            message: '服务出错，请联系管理员',
-            center: true
-          })
-        })
-    },
-    handleDownload () {
-      this.logDialogVisible = false
-      this.download(this.logName, this.logData)
+      this.$router.push({
+        path: 'report/log',
+        query: {
+          id: row.id
+        }
+      })
     }
   }
 }

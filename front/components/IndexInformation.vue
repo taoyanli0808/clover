@@ -3,10 +3,14 @@
     <el-row>
       <el-col :span="8" v-for="item in data" :key="item.title">
         <el-row class="card">
-          <el-col :span="5">
-            <img :src="item.image" :alt="item.title" class="image">
+          <el-col :span="12" class="background">
+            <el-image
+              :src="item.image"
+              :alt="item.title"
+              class="image"
+            />
           </el-col>
-          <el-col :span="19" class="content">
+          <el-col :span="12" class="content">
             <div><span class="description">{{ item.version || item.name }}</span></div>
             <div><span class="number">{{ item.title }}</span></div>
           </el-col>
@@ -100,9 +104,16 @@ export default {
   padding-right: 10px;
 }
 
+.background {
+  max-height: 100px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  background-color: #FFFFFF;
+}
+
 .image {
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   border-radius: 5px 0 0 5px;
 }
 

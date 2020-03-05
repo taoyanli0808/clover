@@ -3,13 +3,14 @@ from flask import jsonify
 from flask import request
 
 from clover.views import CloverView
-from clover.suite.service import Service
+from clover.suite.service import SuiteService
 
 
 class SuiteView(CloverView):
 
     def __init__(self):
         super(SuiteView, self).__init__()
+        self.service = SuiteService()
 
     def create(self):
         data = request.get_json()
@@ -50,8 +51,7 @@ class SuiteView(CloverView):
             })
 
         try:
-            service = Service()
-            id = service.create(data)
+            id = self.service.create(data)
             return jsonify({
                 'status': 0,
                 'message': '创建测试套件成功，套件ID[{}]'.format(id),
@@ -73,9 +73,9 @@ class SuiteView(CloverView):
                 'message': '请选择您要删除的接口！',
                 'data': data
             })
+
         try:
-            service = Service()
-            count = service.delete(data)
+            count = self.service.delete(data)
             return jsonify({
                 'status': 0,
                 'message': 'ok',
@@ -98,8 +98,7 @@ class SuiteView(CloverView):
             data = request.get_json()
 
         try:
-            service = Service()
-            count, results = service.search(data)
+            count, results = self.service.search(data)
             return jsonify({
                 'status': 0,
                 'message': '成功检索到{}条数据'.format(count),
@@ -127,25 +126,16 @@ class SuiteView(CloverView):
                 'data': data
             })
 
-        service = Service()
-        result = service.trigger(data)
-        return jsonify({
-            'status': 0,
-            'message': '运行测试套件[{0}]成功，测试报告ID[{1}]'.format(id, 111),
-            'data': result
-        })
-
-        # try:
-        #     service = Service()
-        #     result = service.trigger(data)
-        #     return jsonify({
-        #         'status': 0,
-        #         'message': '运行测试套件[{0}]成功，测试报告ID[{1}]'.format(id, report_id),
-        #         'data': result
-        #     })
-        # except Exception as error:
-        #     return jsonify({
-        #         'status': 500,
-        #         'message': '运行套件出错，请联系管理员！',
-        #         'data': str(error)
-        #     })
+        try:
+            result = self.service.trigger(data)
+            return jsonify({
+                'status': 0,
+                'message': '运行测试套件[{0}]成功，测试报告ID[{1}]'.format(id, result),
+                'data': result
+            })
+        except Exception as error:
+            return jsonify({
+                'status': 500,
+                'message': '运行套件出错，请联系管理员！',
+                'data': str(error)
+            })

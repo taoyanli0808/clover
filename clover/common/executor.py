@@ -8,17 +8,13 @@ from requests.exceptions import InvalidURL
 from requests.exceptions import MissingSchema
 from requests.exceptions import InvalidSchema
 from requests.exceptions import ConnectionError
-from sqlalchemy.exc import ProgrammingError
 
-from clover.exts import db
-from clover.models import query_to_dict
 from clover.common import derivation
 from clover.common import convert_type
-from clover.common import get_mysql_error
-from clover.common import get_system_info
 from clover.common.extractor import Extractor
 from clover.common.validator import Validator
-from clover.report.models import ReportModel
+
+from clover.models import query_to_dict
 from clover.environment.models import VariableModel
 
 
@@ -29,8 +25,18 @@ class Executor():
         self.status = 0
         self.message = 'ok'
         self.type = type
-        self.result = {}
-        self.log = {}
+        self.interface = 0
+        self.verify = {
+            'passed': 0,
+            'failed': 0,
+            'sikped': 0,
+            'total': 0,
+        }
+        self.percent = 0.0
+        self.start = 0
+        self.end = 0
+        self.result = {}    # 记录运行状态与相关数据。
+        self.log = []       # log采用列表记录，保持运行时顺序。
 
     def replace_variable(self, case, data):
         """
@@ -42,43 +48,34 @@ class Executor():
         :param data:
         :return:
         """
-        self.log.setdefault('replace_variable', {
-            'interface': case['name']
-        })
-
         filter = {
             'team': case.get('team'),
             'project': case.get('project')
         }
         results = VariableModel.query.filter_by(**filter).all()
 
-        keyword = {
+        variable = {
             'extract': g.data,
             'trigger': data.get('variables', []),
             'default': query_to_dict(results),
         }
 
-        case['host'] = derivation(case.get('host'), keyword)
-        case['path'] = derivation(case.get('path'), keyword)
+        case['host'] = derivation(case.get('host'), variable)
+        case['path'] = derivation(case.get('path'), variable)
 
         if 'header' in case:
             for header in case['header']:
-                header['value'] = derivation(header['value'], keyword)
+                header['value'] = derivation(header['value'], variable)
 
         if 'params' in case:
             for param in case['params']:
-                param['value'] = derivation(param['value'], keyword)
+                param['value'] = derivation(param['value'], variable)
 
         if 'body' in case:
             for param in case['body']:
-                param['value'] = derivation(param['value'], keyword)
+                param['value'] = derivation(param['value'], variable)
 
-        self.log['replace_variable'].setdefault('keyword', keyword)
-        self.log['replace_variable'].setdefault('host', case['host'])
-        self.log['replace_variable'].setdefault('path', case['path'])
-        self.log['replace_variable'].setdefault('header', case['header'])
-        self.log['replace_variable'].setdefault('params', case['params'])
-        self.log['replace_variable'].setdefault('body', case['body'])
+        self.log[-1].setdefault('variable', variable)
 
         return case
 
@@ -87,10 +84,6 @@ class Executor():
         :param data:
         :return:
         """
-        self.log.setdefault('send_request', {
-            'interface': data['name']
-        })
-
         # 发送http请求
         method = data.get("method")
         host = data.get("host")
@@ -111,12 +104,6 @@ class Executor():
         # 将[{'a': 1}, {'b': 2}]转化为{'a': 1, 'b': 2}
         if body:
             body = {item['key']: item['value'] for item in body}
-
-        self.log['send_request'].setdefault('method', method)
-        self.log['send_request'].setdefault('url', url)
-        self.log['send_request'].setdefault('header', header)
-        self.log['send_request'].setdefault('params', params)
-        self.log['send_request'].setdefault('body', body)
 
         try:
             response = request(
@@ -150,13 +137,20 @@ class Executor():
             'content': response.text
         }
 
-        self.log['send_request'].setdefault('response', data.get('response', {}))
-
         # 框架目前只支持json数据，在这里尝试进行json数据转换
         try:
             data['response']['json'] = json.loads(data['response']['content'])
         except Exception:
             data['response']['json'] = {"message": "亲爱的小伙伴，目前接口仅支持json格式！"}
+
+        self.log[-1].update({
+            'url': url,
+            'method': method,
+            'header': header,
+            'params': params,
+            'body': body,
+            'response': data.get('response', {}),
+        })
 
         return data
 
@@ -196,23 +190,19 @@ class Executor():
                     'expect': expected,
                     'operate': comparator,
                 })
+                # 这里是计算断言通过，失败，跳过与整体数量。
+                self.verify[result] += 1
+                self.verify['total'] += 1
             except Exception:
                 self.result[data['name']]['result'].append({
                     'status': 'error'
                 })
 
-    def extract_variables(self, data):
+    def extract_variable(self, data):
         """
         :param data:
         :return:
         """
-        self.log.setdefault('validate_request', {
-            'interface': data['name']
-        })
-
-        self.log['validate_request'].setdefault('response', data.get('response', {}))
-        self.log['validate_request'].setdefault('extract', data.get('extract', {}))
-
         # 这里是临时加的，这里要详细看下如何处理。
         if 'response' not in data:
             return
@@ -221,20 +211,14 @@ class Executor():
             return data
 
         for extract in data['extract']:
-            sel = extract['selector']
-            expr = extract['expression']
-            name = extract['expected']
-            # 从这里开始使用分隔符取数据
-            tmp = data['response']['json']
-            for item in expr.split('.'):
-                try:
-                    item = int(item)
-                    tmp = tmp[item]
-                except ValueError:
-                    tmp = tmp.get(item, None)
-                    if tmp is None:
-                        break
-            g.data.append({'name': name, 'value': tmp})
+            # 提取需要进行断言的数据
+            extractor = Extractor(extract.get('selector', 'delimiter'))
+            expression = extract.get('expression', None)
+            variable = extract.get('variable', None)
+            result = extractor.extract(data['response']['content'], expression, '.')
+            g.data.append({'name': variable, 'value': result})
+
+        self.log[-1].setdefault('extract', data.get('extract'))
 
         return data
 
@@ -244,47 +228,22 @@ class Executor():
         :param data:
         :return: 返回值为元组，分别是flag，message和接口请求后的json数据。
         """
-        start = datetime.datetime.now()
+        self.start = datetime.datetime.now()
         for case in cases:
+            self.log.append({'name': case['name']})
             self.result.setdefault(case['name'], {})
             self.result[case['name']]['start'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
             self.replace_variable(case, data)
             self.send_request(case)
             self.validate_request(case)
-            self.extract_variables(case)
+            self.extract_variable(case)
 
             self.result[case['name']]['end'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        end = datetime.datetime.now()
+        self.end = datetime.datetime.now()
 
-        # 调试模式不生成测试报告！
-        if self.type == 'debug':
-            return cases
-
-        # 这里是一个适配操作，如果report字段存在则用于报告的name属性，
-        # 否则这里取套件或者是接口的name属性给report的name属性，相当
-        # 与可以让用户传递最终测试报告的报告名，仅此而已。
-        # https://github.com/taoyanli0808/clover/issues/39
-        name = data['report'] if 'report' in data and data['report'] else data['name']
-        report = {
-            'team': data['team'],
-            'project': data['project'],
-            'name': name,
-            'type': 'interface',
-            'start': start,
-            'end': end,
-            'duration': (end - start).total_seconds(),
-            'platform': get_system_info(),
-            'detail': self.result,
-            'log': self.log,
-        }
-
-        model = ReportModel(**report)
-        db.session.add(model)
-        # 这是一个处理数据库异常的例子，后面最好有统一的处理方案。
-        try:
-            db.session.commit()
-        except ProgrammingError as error:
-            code, msg = get_mysql_error(error)
-            return (code, msg)
-        return model.id
+        self.interface = len(cases)
+        if self.verify['total'] == 0:
+            self.percent = 0.0
+        else:
+            self.percent = round(100 * self.verify['passed'] / self.verify['total'], 2)

@@ -95,8 +95,8 @@
           >
             <el-table-column
               label="EXTRACTOR"
-              width="180"
-              align="center"
+              min-width="16%"
+              align="left"
             >
               <template scope="scope">
                 <el-select v-model="scope.row.extractor" placeholder="请选择">
@@ -108,17 +108,16 @@
                     label="regular"
                     value="regular"
                   />
-                  <el-option
-                    label="keyword"
-                    value="keyword"
-                  />
                 </el-select>
+                <span>
+                  {{ scope.row.extractor }}
+                </span>
               </template>
             </el-table-column>
             <el-table-column
               label="EXPRESSION"
-              width="180"
-              align="center"
+              min-width="17%"
+              align="left"
             >
               <template scope="scope">
                 <el-input
@@ -133,8 +132,8 @@
             </el-table-column>
             <el-table-column
               label="COMPARATOR"
-              width="180"
-              align="center"
+              min-width="16%"
+              align="left"
             >
               <template scope="scope">
                 <el-select v-model="scope.row.comparator" placeholder="请选择">
@@ -171,12 +170,31 @@
                     value="not_greater"
                   />
                 </el-select>
+                <span>
+                  {{ scope.row.comparator }}
+                </span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="EXPECTED"
+              min-width="16%"
+              align="left"
+            >
+              <template scope="scope">
+                <el-input
+                  v-model="scope.row.expected"
+                  size="small"
+                  placeholder="请输入内容"
+                />
+                <span>
+                  {{ scope.row.expected }}
+                </span>
               </template>
             </el-table-column>
             <el-table-column
               label="CONVERTOR"
-              width="180"
-              align="center"
+              min-width="16%"
+              align="left"
             >
               <template scope="scope">
                 <el-select v-model="scope.row.convertor" placeholder="请选择">
@@ -197,28 +215,15 @@
                     value="boolean"
                   />
                 </el-select>
-              </template>
-            </el-table-column>
-            <el-table-column
-              label="EXPECTED"
-              width="180"
-              align="center"
-            >
-              <template scope="scope">
-                <el-input
-                  v-model="scope.row.expected"
-                  size="small"
-                  placeholder="请输入内容"
-                />
                 <span>
-                  {{ scope.row.expected }}
+                  {{ scope.row.convertor }}
                 </span>
               </template>
             </el-table-column>
             <el-table-column
               label="操作"
               align="center"
-              width="180"
+              min-width="16%"
               fixed="right"
             >
               <template scope="scope">
@@ -251,8 +256,8 @@
           >
             <el-table-column
               label="SELECTOR"
-              width="180"
-              align="center"
+              min-width="25%"
+              align="left"
             >
               <template scope="scope">
                 <el-select v-model="scope.row.selector" placeholder="请选择">
@@ -263,12 +268,15 @@
                     :value="item.value"
                   />
                 </el-select>
+                <span>
+                  {{ scope.row.selector }}
+                </span>
               </template>
             </el-table-column>
             <el-table-column
               label="EXPRESSION"
-              width="180"
-              align="center"
+              min-width="25%"
+              align="left"
             >
               <template scope="scope">
                 <el-input
@@ -277,28 +285,29 @@
                   placeholder="请输入内容"
                 />
                 <span>
-                  {{ scope.row.key }}
+                  {{ scope.row.expression }}
                 </span>
               </template>
             </el-table-column>
             <el-table-column
               label="VARIABLE"
-              width="180"
-              align="center"
+              min-width="25%"
+              align="left"
             >
               <template scope="scope">
                 <el-input
-                  v-model="scope.row.expected"
+                  v-model="scope.row.variable"
                   size="small"
                   placeholder="请输入内容"
                 />
                 <span>
-                  {{ scope.row.value }}
+                  {{ scope.row.variable }}
                 </span>
               </template>
             </el-table-column>
             <el-table-column
               label="操作"
+              min-width="25%"
               align="center"
             >
               <template scope="scope">
@@ -328,32 +337,30 @@
     <el-row>
       <el-tabs v-model="activeResponseTab">
         <el-tab-pane label="响应体" name="responseBody">
-          <pre>
-            <code>
-              {{ response.json || response.content }}
-            </code>
-          </pre>
+          <pre><code>{{ response.json || response.content }}</code></pre>
         </el-tab-pane>
         <el-tab-pane label="响应头" name="responseHeader">
-          <pre>
-            <code>
-              {{ response.header }}
-            </code>
-          </pre>
+          <pre><code>{{ response.header }}</code></pre>
         </el-tab-pane>
-        <el-tab-pane label="响应Cookie" name="responseCookie">Cookie</el-tab-pane>
+        <el-tab-pane label="响应Cookie" name="responseCookie">
+          Cookie
+        </el-tab-pane>
       </el-tabs>
     </el-row>
     <el-dialog :visible.sync="dialogSubmitFormVisible" title="提交接口">
       <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
       <el-form>
         <el-form-item label="用例名称">
-          <el-input v-model="name" autocomplete="off"/>
+          <el-input v-model="name" autocomplete="off" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogSubmitFormVisible = false">取消</el-button>
-        <el-button @click="submit" type="primary" >确定</el-button>
+        <el-button @click="dialogSubmitFormVisible = false">
+          取消
+        </el-button>
+        <el-button @click="submit" type="primary">
+          确定
+        </el-button>
       </div>
     </el-dialog>
   </div>
@@ -402,7 +409,7 @@ export default {
       extract: [{
         selector: '',
         expression: '',
-        expected: ''
+        variable: ''
       }],
       minsize: { minRows: 6 },
       dialogSubmitFormVisible: false
@@ -476,7 +483,7 @@ export default {
       })
     },
     deleteAssertTableRow (index, row) {
-      this.assert = this.assert.filter(item => item.expression !== row.expression)
+      this.assert = this.assert.filter((item, idx) => idx !== index)
       if (Array.prototype.isPrototypeOf(this.assert) && this.assert.length === 0) {
         this.assert.push({
           extractor: '',
@@ -491,14 +498,14 @@ export default {
       this.extract.push({
         selector: '',
         expression: '',
-        expected: ''
+        variabel: ''
       })
       const last = this.$refs.extractTable.data.length
       const currentRow = this.$refs.extractTable.data[last]
       this.$refs.extractTable.setCurrentRow(currentRow)
     },
     deleteExtractTableRow (index, row) {
-      this.extract = this.extract.filter(item => item.key !== row.key)
+      this.extract = this.extract.filter((item, idx) => idx !== index)
       if (Array.prototype.isPrototypeOf(this.extract) && this.extract.length === 0) {
         this.extract.push({
           selector: '',
@@ -659,10 +666,24 @@ h1 {
 .tb-edit .el-input {
   display: none
 }
+
 .tb-edit .current-row .el-input {
   display: block
 }
+
 .tb-edit .current-row .el-input+span {
+  display: none
+}
+
+.tb-edit .el-select {
+  display: none
+}
+
+.tb-edit .current-row .el-select {
+  display: block
+}
+
+.tb-edit .current-row .el-select+span {
   display: none
 }
 </style>

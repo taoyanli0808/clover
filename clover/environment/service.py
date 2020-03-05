@@ -1,3 +1,4 @@
+
 import re
 import json
 import datetime
@@ -74,8 +75,11 @@ class TeamService(object):
         except TypeError:
             limit = 10
 
-        results = TeamModel.query.filter_by(**filter)\
-                .offset(offset).limit(limit)
+        results = TeamModel.query.filter_by(
+            **filter
+        ).order_by(
+            TeamModel.created.desc()
+        ).offset(offset).limit(limit)
         results = query_to_dict(results)
         count = TeamModel.query.filter_by(**filter).count()
         return count, results
@@ -195,8 +199,11 @@ class VariableService(object):
         except TypeError:
             limit = 10
 
-        results = VariableModel.query.filter_by(**filter) \
-                .offset(offset).limit(limit)
+        results = VariableModel.query.filter_by(
+            **filter
+        ).order_by(
+            VariableModel.created.desc()
+        ).offset(offset).limit(limit)
         results = query_to_dict(results)
         count = VariableModel.query.filter_by(**filter).count()
         return count, results

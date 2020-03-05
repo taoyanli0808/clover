@@ -7,6 +7,8 @@
     </el-row>
     <el-table
       :data="data"
+      v-loading="loading"
+      element-loading-text="拼命加载中"
       style="width: 100%;"
     >
       <el-table-column
@@ -34,6 +36,12 @@
         align="center"
       />
       <el-table-column
+        prop="name"
+        label="名称"
+        width="180"
+        align="center"
+      />
+      <el-table-column
         prop="type"
         label="类型"
         width="180"
@@ -45,7 +53,7 @@
         width="180"
         align="center"
       />
-      <el-table-column
+      <!-- <el-table-column
         label="统计"
         width="180"
         align="center"
@@ -61,7 +69,7 @@
             查看
           </el-button>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column
         prop="created"
         label="创建时间"
@@ -109,7 +117,7 @@
     <el-dialog :visible.sync="dialogFormVisible" title="运行套件">
       <el-form>
         <el-form-item label="测试报告名称">
-          <el-input v-model="report" autocomplete="off"/>
+          <el-input v-model="report" autocomplete="off" />
         </el-form-item>
         <el-form-item label="动态替换变量">
           <el-input
@@ -120,8 +128,12 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取消</el-button>
-        <el-button @click="runCase" type="primary" >确定</el-button>
+        <el-button @click="dialogFormVisible = false">
+          取消
+        </el-button>
+        <el-button @click="runCase" type="primary">
+          确定
+        </el-button>
       </div>
     </el-dialog>
   </div>
@@ -146,6 +158,7 @@ export default {
       column: {},
       report: '',
       variables: '',
+      loading: true,
       dialogFormVisible: false
     }
   },
@@ -154,6 +167,7 @@ export default {
   },
   methods: {
     refresh () {
+      this.loading = true
       const params = {
         limit: this.limit,
         offset: this.page * this.limit
@@ -180,6 +194,15 @@ export default {
               center: true
             })
           }
+          this.loading = false
+        })
+        .catch(() => {
+          this.$message({
+            type: 'error',
+            message: '服务出错，请联系管理员',
+            center: true
+          })
+          this.loading = false
         })
     },
     handleCurrentChange (value) {
