@@ -76,7 +76,7 @@
         </el-tab-pane>
         <el-tab-pane label="请求体" name="third">
           <el-input
-            v-model="body"
+            v-model="body.data"
             :autosize="minsize"
             type="textarea"
             placeholder="请输入请求体,key:value形式，使用换行分隔参数。一般情况下请求体是表单数据。"
@@ -398,7 +398,10 @@ export default {
       method: '',
       header: '',
       params: '',
-      body: '',
+      body: {
+        'mode': 'formdata',
+        'data': []
+      },
       assert: [{
         extractor: '',
         expression: '',
@@ -460,15 +463,15 @@ export default {
       }
     },
     addBodyTableRow (index, row) {
-      this.body.push({
+      this.body.data.push({
         key: '',
         value: ''
       })
     },
     deleteBodyTableRow (index, row) {
-      this.body = this.body.filter(item => item.key !== row.key)
-      if (Array.prototype.isPrototypeOf(this.body) && this.body.length === 0) {
-        this.body.push({
+      this.body.data = this.body.data.filter(item => item.key !== row.key)
+      if (Array.prototype.isPrototypeOf(this.body.data) && this.body.data.length === 0) {
+        this.body.data.push({
           key: '',
           value: ''
         })
@@ -533,6 +536,23 @@ export default {
       }
       return result
     },
+    translateBody (data) {
+      const result = []
+      const variables = data.data.split('\n')
+      for (const index in variables) {
+        // remove empty string
+        if (variables[index] === '') {
+          continue
+        }
+        const sep = variables[index].indexOf(':')
+        result.push({
+          key: variables[index].slice(0, sep),
+          value: variables[index].slice(sep + 1, variables[index].length)
+        })
+      }
+      data.body = result
+      return data
+    },
     translateVerify (data) {
       return data.filter(item => item.extractor !== '')
     },
@@ -552,7 +572,7 @@ export default {
           method: this.method,
           header: this.translateData(this.header),
           params: this.translateData(this.params),
-          body: this.translateData(this.body),
+          body: this.translateBody(this.body),
           verify: this.translateVerify(this.assert),
           extract: this.translateExtract(this.extract)
         }),
@@ -603,7 +623,7 @@ export default {
           method: this.method,
           header: this.translateData(this.header),
           params: this.translateData(this.params),
-          body: this.translateData(this.body),
+          body: this.translateBody(this.body),
           verify: this.translateVerify(this.assert),
           extract: this.translateExtract(this.extract)
         }),
@@ -651,6 +671,16 @@ export default {
         }
       }
       return result
+    },
+    untranslateBody (data) {
+      let result = ''
+      for (const i in data.data) {
+        if (data.data[i].key !== '') {
+          result += data.data[i].key + ':' + data.data[i].value + '\n'
+        }
+      }
+      data.data = result
+      return data
     },
     untranslateVerify (data) {
       if (Array.prototype.isPrototypeOf(data) && data.length === 0) {
