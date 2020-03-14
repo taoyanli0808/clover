@@ -115,7 +115,7 @@ class Postman(Pipeline):
         """
         for item in content['values']:
             self.variables.append({
-                'key': item['key'],
+                'name': item['key'],
                 'value': item['value'],
                 'enable': 0 if item['enabled'] else 1
             })
