@@ -16,6 +16,9 @@ changelog = [
         'changed': [
             '新增create与updata中根据status来返回前端状态判断是否重复',
             '新增用project与name参数查询数据库步骤',
+            '修复部分前端页面警告',
+            '修改创建接口页面body部分，使其同步更新后端',
+            '修改更新接口页面body部分，使其同步更新后端',
         ]
     },
     {

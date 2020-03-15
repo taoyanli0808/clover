@@ -55,7 +55,6 @@ class Postman(Pipeline):
             elif data['mode'] in ['file']:
                 return data
             else:
-                print(data)
                 variables = re.findall(r'\{\{(.+?)\}\}', data['data'])
                 for variable in variables:
                     if variable:

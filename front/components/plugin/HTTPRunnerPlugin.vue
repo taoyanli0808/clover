@@ -13,9 +13,15 @@
       drag
     >
       <i class="el-icon-upload" />
-      <div class="el-upload__text">请先选择团队与项目</div>
-      <div class="el-upload__text">然后将文件拖到此处，或<em>点击上传</em></div>
-      <div class="el-upload__tip" slot="tip">开发中，敬请期待...</div>
+      <div class="el-upload__text">
+        请先选择团队与项目
+      </div>
+      <div class="el-upload__text">
+        然后将文件拖到此处，或<em>点击上传</em>
+      </div>
+      <div slot="tip" class="el-upload__tip">
+        开发中，敬请期待...
+      </div>
     </el-upload>
   </div>
 </template>

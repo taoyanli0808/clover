@@ -75,6 +75,14 @@
           />
         </el-tab-pane>
         <el-tab-pane label="请求体" name="third">
+          <el-select v-model="body.mode" placeholder="请选择">
+            <el-option
+              v-for="type in bodyType"
+              :key="type.value"
+              :label="type.label"
+              :value="type.value"
+            />
+          </el-select>
           <el-input
             v-model="body.data"
             :autosize="minsize"
@@ -388,6 +396,16 @@ export default {
         label: '正则',
         value: 're'
       }],
+      bodyType: [{
+        label: 'formdata',
+        value: 'formdata'
+      }, {
+        label: 'urlencoded',
+        value: 'urlencoded'
+      }, {
+        label: 'raw',
+        value: 'raw'
+      }],
       response: '',
       id: '',
       team: '',
@@ -399,8 +417,8 @@ export default {
       header: '',
       params: '',
       body: {
-        'mode': 'formdata',
-        'data': []
+        'mode': 'raw',
+        'data': ''
       },
       assert: [{
         extractor: '',
@@ -538,6 +556,7 @@ export default {
     },
     translateBody (data) {
       const result = []
+      const newData = { ...data }
       const variables = data.data.split('\n')
       for (const index in variables) {
         // remove empty string
@@ -550,8 +569,8 @@ export default {
           value: variables[index].slice(sep + 1, variables[index].length)
         })
       }
-      data.body = result
-      return data
+      newData.data = result
+      return newData
     },
     translateVerify (data) {
       return data.filter(item => item.extractor !== '')
@@ -587,8 +606,18 @@ export default {
             center: true
           })
           this.id = res.data.data.id
+          this.team = res.data.data.team
+          this.project = res.data.data.project
+          this.name = res.data.data.name
+          this.host = res.data.data.host
+          this.path = res.data.data.path
+          this.method = res.data.data.method
+          this.header = this.untranslateData(res.data.data.header)
+          this.params = this.untranslateData(res.data.data.params)
+          this.body = this.untranslateBody(res.data.data.body)
+          this.assert = this.untranslateVerify(res.data.data.verify)
+          this.extract = this.untranslateExtract(res.data.data.extract)
           this.response = res.data.data.response
-          this.dialogSubmitFormVisible = false
         } else {
           let level = 'info'
           if (res.data.status >= 500) {
@@ -601,6 +630,7 @@ export default {
           })
           this.response = res.data.data
         }
+        this.dialogSubmitFormVisible = false
       }).catch(() => {
         this.$message({
           type: 'error',
@@ -638,8 +668,18 @@ export default {
             center: true
           })
           this.id = res.data.data.id
+          this.team = res.data.data.team
+          this.project = res.data.data.project
+          this.name = res.data.data.name
+          this.host = res.data.data.host
+          this.path = res.data.data.path
+          this.method = res.data.data.method
+          this.header = this.untranslateData(res.data.data.header)
+          this.params = this.untranslateData(res.data.data.params)
+          this.body = this.untranslateBody(res.data.data.body)
+          this.assert = this.untranslateVerify(res.data.data.verify)
+          this.extract = this.untranslateExtract(res.data.data.extract)
           this.response = res.data.data.response
-          this.dialogSubmitFormVisible = false
         } else {
           this.$message({
             type: 'info',
@@ -648,6 +688,7 @@ export default {
           })
           this.response = res.data.data
         }
+        this.dialogSubmitFormVisible = false
       }).catch(() => {
         this.$message({
           type: 'error',
@@ -673,13 +714,34 @@ export default {
       return result
     },
     untranslateBody (data) {
-      let result = ''
-      for (const i in data.data) {
-        if (data.data[i].key !== '') {
-          result += data.data[i].key + ':' + data.data[i].value + '\n'
-        }
+      /*
+      * 由于页面展示body数据使用的是areatext，因此如果数据格式是
+      * formdata或urlencoded需要转换为\n分割的字符串格式以便显示
+      * 如果格式是file，暂时为定义处理方式，暂不支持
+      * 如果数据格式是raw则直接展示，默认情况下格式为raw
+      */
+      switch (data.mode) {
+        case 'formdata':
+          const formdata = []
+          for (const i in data.data) {
+            const item = data.data[i].key + ':' + data.data[i].value
+            formdata.push(item)
+          }
+          data.data = formdata.join('\n')
+          break
+        case 'urlencoded':
+          const urlencoded = []
+          for (const i in data.data) {
+            const item = data.data[i].key + ':' + data.data[i].value
+            urlencoded.push(item)
+          }
+          data.data = urlencoded.join('\n')
+          break
+        case 'file':
+          break
+        default:
+          break
       }
-      data.data = result
       return data
     },
     untranslateVerify (data) {
@@ -728,7 +790,7 @@ export default {
             this.method = res.data.data.method
             this.header = this.untranslateData(res.data.data.header)
             this.params = this.untranslateData(res.data.data.params)
-            this.body = this.untranslateData(res.data.data.body)
+            this.body = this.untranslateBody(res.data.data.body)
             this.assert = this.untranslateVerify(res.data.data.verify)
             this.extract = this.untranslateExtract(res.data.data.extract)
           } else {
