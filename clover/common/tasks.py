@@ -9,8 +9,8 @@ from clover.exts import task
 from clover.common import get_system_info
 from clover.common.executor import Executor
 from clover.report.service import ReportService
-from clover.common.plugin.wechat import WeChat
-from clover.common.plugin.mail import send_email
+from clover.common.wechat import WeChat
+from clover.common.mail import send_email
 
 
 def notify(data, events):

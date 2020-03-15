@@ -8,7 +8,8 @@ from clover.environment.service import TeamService
 from clover.environment.service import KeywordService
 from clover.environment.service import VariableService
 from clover.views import CloverView
-
+from clover.environment.models import VariableModel
+from clover.models import query_to_dict
 
 class TeamView(CloverView):
 
@@ -205,12 +206,22 @@ class VariableView(CloverView):
                 'data': data
             })
 
-        try:
-            id = self.service.create(data)
+            # 查询数据库name值，存在已有变量就返回变量名存在
+        filter={"name": data["name"]}
+        count = VariableModel.query.filter_by(**filter).count()
+        if count >=1:
             return jsonify({
-                'status': 0,
-                'message': 'ok',
-                'data': id
+                'status': 400,
+                'message': "变量名已存在，请更换一个变量名",
+                'data': data
+            })
+
+        try:
+                id = self.service.create(data)
+                return jsonify({
+                    'status': 0,
+                    'message': 'ok',
+                    'data': id
             })
         except Exception as error:
             return jsonify({

@@ -61,7 +61,7 @@
             v-model="header"
             :autosize="minsize"
             type="textarea"
-            placeholder="请输入请求头信息,key:value形式，使用英文;或换行分隔参数。"
+            placeholder="请输入请求头信息,key:value形式，使用换行分隔参数。"
             show-word-limit
           />
         </el-tab-pane>
@@ -70,16 +70,16 @@
             v-model="params"
             :autosize="minsize"
             type="textarea"
-            placeholder="请输入请求参数,key:value形式，使用英文;或换行分隔参数。一般情况下请求参数会拼接成url，例如http://52clover.cn/s?a=1&b=2"
+            placeholder="请输入请求参数,key:value形式，使用换行分隔参数。一般情况下请求参数会拼接成url，例如http://52clover.cn/s?a=1&b=2"
             show-word-limit
           />
         </el-tab-pane>
         <el-tab-pane label="请求体" name="third">
           <el-input
-            v-model="body"
+            v-model="body.data"
             :autosize="minsize"
             type="textarea"
-            placeholder="请输入请求体,key:value形式，使用英文;或换行分隔参数。一般情况下请求体是表单数据。"
+            placeholder="请输入请求体,key:value形式，使用换行分隔参数。一般情况下请求体是表单数据。"
             show-word-limit
           />
         </el-tab-pane>
@@ -398,7 +398,10 @@ export default {
       method: '',
       header: '',
       params: '',
-      body: '',
+      body: {
+        'mode': 'formdata',
+        'data': []
+      },
       assert: [{
         extractor: '',
         expression: '',
@@ -460,15 +463,15 @@ export default {
       }
     },
     addBodyTableRow (index, row) {
-      this.body.push({
+      this.body.data.push({
         key: '',
         value: ''
       })
     },
     deleteBodyTableRow (index, row) {
-      this.body = this.body.filter(item => item.key !== row.key)
-      if (Array.prototype.isPrototypeOf(this.body) && this.body.length === 0) {
-        this.body.push({
+      this.body.data = this.body.data.filter(item => item.key !== row.key)
+      if (Array.prototype.isPrototypeOf(this.body.data) && this.body.data.length === 0) {
+        this.body.data.push({
           key: '',
           value: ''
         })
@@ -519,9 +522,12 @@ export default {
     },
     translateData (data) {
       const result = []
-      const tmpstr = data.replace(/\n/g, ';')
-      const variables = tmpstr.split(';')
+      const variables = data.split('\n')
       for (const index in variables) {
+        // remove empty string
+        if (variables[index] === '') {
+          continue
+        }
         const sep = variables[index].indexOf(':')
         result.push({
           key: variables[index].slice(0, sep),
@@ -529,6 +535,29 @@ export default {
         })
       }
       return result
+    },
+    translateBody (data) {
+      const result = []
+      const variables = data.data.split('\n')
+      for (const index in variables) {
+        // remove empty string
+        if (variables[index] === '') {
+          continue
+        }
+        const sep = variables[index].indexOf(':')
+        result.push({
+          key: variables[index].slice(0, sep),
+          value: variables[index].slice(sep + 1, variables[index].length)
+        })
+      }
+      data.body = result
+      return data
+    },
+    translateVerify (data) {
+      return data.filter(item => item.extractor !== '')
+    },
+    translateExtract (data) {
+      return data.filter(item => item.selector !== '')
     },
     create () {
       this.$axios({
@@ -543,9 +572,9 @@ export default {
           method: this.method,
           header: this.translateData(this.header),
           params: this.translateData(this.params),
-          body: this.translateData(this.body),
-          verify: this.assert,
-          extract: this.extract
+          body: this.translateBody(this.body),
+          verify: this.translateVerify(this.assert),
+          extract: this.translateExtract(this.extract)
         }),
         headers: {
           'Content-Type': 'application/json;'
@@ -594,9 +623,9 @@ export default {
           method: this.method,
           header: this.translateData(this.header),
           params: this.translateData(this.params),
-          body: this.translateData(this.body),
-          verify: this.assert,
-          extract: this.extract
+          body: this.translateBody(this.body),
+          verify: this.translateVerify(this.assert),
+          extract: this.translateExtract(this.extract)
         }),
         headers: {
           'Content-Type': 'application/json;'
@@ -612,12 +641,8 @@ export default {
           this.response = res.data.data.response
           this.dialogSubmitFormVisible = false
         } else {
-          let level = 'info'
-          if (res.data.status >= 500) {
-            level = 'error'
-          }
           this.$message({
-            type: level,
+            type: 'info',
             message: res.data.message,
             center: true
           })
@@ -647,6 +672,46 @@ export default {
       }
       return result
     },
+    untranslateBody (data) {
+      let result = ''
+      for (const i in data.data) {
+        if (data.data[i].key !== '') {
+          result += data.data[i].key + ':' + data.data[i].value + '\n'
+        }
+      }
+      data.data = result
+      return data
+    },
+    untranslateVerify (data) {
+      if (Array.prototype.isPrototypeOf(data) && data.length === 0) {
+        data = [
+          {
+            'expected': '',
+            'convertor': '',
+            'extractor': '',
+            'comparator': '',
+            'expression': ''
+          }
+        ]
+        return data
+      } else {
+        return data
+      }
+    },
+    untranslateExtract (data) {
+      if (Array.prototype.isPrototypeOf(data) && data.length === 0) {
+        data = [
+          {
+            'selector': '',
+            'variable': '',
+            'expression': ''
+          }
+        ]
+        return data
+      } else {
+        return data
+      }
+    },
     fetch () {
       this.$axios
         .post('/api/v1/interface/search', {
@@ -664,8 +729,8 @@ export default {
             this.header = this.untranslateData(res.data.data.header)
             this.params = this.untranslateData(res.data.data.params)
             this.body = this.untranslateData(res.data.data.body)
-            this.assert = res.data.data.verify
-            this.extract = res.data.data.extract
+            this.assert = this.untranslateVerify(res.data.data.verify)
+            this.extract = this.untranslateExtract(res.data.data.extract)
           } else {
             this.$message({
               type: 'error',

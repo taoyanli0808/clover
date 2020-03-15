@@ -65,15 +65,25 @@ class Postman(Pipeline):
                 name = item['name']
             else:
                 name = item['name'][0:64]
+
+            header = item['request']['header']
             method = item['request']['method'].lower()
+
             host = item['request']['url']['protocol'] + '://' + \
                    '.'.join(item['request']['url']['host'])
-            path = '/' + '/'.join(item['request']['url']['path'])
-            header = item['request']['header']
+            if 'port' in item['request']['url']:
+                host += ':' + item['request']['url']['port']
+
+            # path默认是首页请求，如果不是则进行拼接
+            path = '/'
+            if 'path' in item['request']['url']:
+                path += '/'.join(item['request']['url']['path'])
+
             if 'query' in item['request']['url']:
                 params = item['request']['url']['query']
             else:
                 params = []
+
             if 'body' in item['request']:
                 body = item['request']['body']
             else:
@@ -105,7 +115,7 @@ class Postman(Pipeline):
         """
         for item in content['values']:
             self.variables.append({
-                'key': item['key'],
+                'name': item['key'],
                 'value': item['value'],
                 'enable': 0 if item['enabled'] else 1
             })
