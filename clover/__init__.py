@@ -1,6 +1,6 @@
 
 from flask import Flask
-from werkzeug.utils import import_string
+from werkzeug.utils import import_string #通过字符串映射成模块
 
 import config
 from clover.exts import db

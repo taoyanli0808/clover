@@ -5,8 +5,8 @@ VERSION = '0.6.1'
 
 # MySQL数据库配置
 MYSQL = {
-    'user': 'clover',
-    'pswd': '52.clover',
+    'user': 'root',
+    'pswd': '****',
     'host': '127.0.0.1',
     'port': '3306',
 }

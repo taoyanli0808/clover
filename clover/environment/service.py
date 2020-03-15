@@ -139,9 +139,18 @@ class VariableService(object):
         :param data:
         :return:
         """
-        model = VariableModel(**data)
-        db.session.add(model)
-        db.session.commit()
+        # 查询数据库name值，存在已有变量就返回变量名存在
+        status=0
+        filter = {"name": data["name"],"project":data["project"]}
+        count = VariableModel.query.filter_by(**filter).count()
+        if count >= 1:
+            status=1
+            return status
+        else:
+            model = VariableModel(**data)
+            db.session.add(model)
+            db.session.commit()
+            return status
 
     def detele(self, data):
         """
@@ -159,19 +168,27 @@ class VariableService(object):
         :param data:
         :return:
         """
-        old_model = VariableModel.query.get(data['id'])
-        if old_model is None:
-            model = VariableModel(**data)
-            db.session.add(model)
-            db.session.commit()
+        status=0
+        filter = {"name": data["name"], "project": data["project"]}
+        count = VariableModel.query.filter_by(**filter).count()
+        if count >= 1:
+            status = 1
+            return status
         else:
-            old_model.team = data['team']
-            old_model.project = data['project']
-            old_model.owner = data['owner']
-            old_model.name = data['name']
-            old_model.value = data['value']
-            old_model.updated = datetime.datetime.now()
-            db.session.commit()
+            old_model = VariableModel.query.get(data['id'])
+            if old_model is None:
+                model = VariableModel(**data)
+                db.session.add(model)
+                db.session.commit()
+            else:
+                old_model.team = data['team']
+                old_model.project = data['project']
+                old_model.owner = data['owner']
+                old_model.name = data['name']
+                old_model.value = data['value']
+                old_model.updated = datetime.datetime.now()
+                db.session.commit()
+            return status
 
     def search(self, data):
         """

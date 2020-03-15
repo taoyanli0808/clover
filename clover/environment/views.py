@@ -205,12 +205,20 @@ class VariableView(CloverView):
                 'data': data
             })
 
+
         try:
-            id = self.service.create(data)
-            return jsonify({
-                'status': 0,
-                'message': 'ok',
-                'data': id
+
+                status = self.service.create(data)
+                if status==1:
+                    return jsonify({
+                        'status': 400,
+                        'message': '此项目已有相同的变量名，请更换',
+
+                    })
+                else:
+                    return jsonify({
+                        'status': 0,
+                        'message': 'ok',
             })
         except Exception as error:
             return jsonify({
@@ -262,11 +270,17 @@ class VariableView(CloverView):
             })
 
         try:
-            id = self.service.update(data)
-            return jsonify({
-                'status': 0,
-                'message': 'ok',
-                'data': id
+            status = self.service.update(data)
+            if status == 1:
+                return jsonify({
+                    'status': 400,
+                    'message': '此项目已有相同的变量名，请更换',
+
+                })
+            else:
+                return jsonify({
+                    'status': 0,
+                    'message': 'ok',
             })
         except Exception as error:
             return jsonify({
