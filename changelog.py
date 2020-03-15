@@ -17,6 +17,15 @@ changelog = [
         ]
     },
     {
+        'version': '0.5.7',
+        'date': '2020-03-14',
+        'fixed': [
+            '修复postman插件创建变量失败的问题',
+            '修复postman插件创建接口丢失端口号的问题',
+            '修复postman插件当请求不存在path时创建失败的问题'
+        ]
+    },
+    {
         'version': '0.5.6',
         'date': '2020-03-11',
         'fixed': [
