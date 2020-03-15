@@ -72,8 +72,13 @@ class Executor():
                 param['value'] = derivation(param['value'], variable)
 
         if 'body' in case:
-            for param in case['body']:
-                param['value'] = derivation(param['value'], variable)
+            if case['body']['mode'] in ['formdata', 'urlencoded']:
+                for param in case['body']['data']:
+                    param['value'] = derivation(param['value'], variable)
+            elif case['body']['mode'] in ['file']:
+                pass
+            else:
+                case['body']['data'] = derivation(case['body']['data'], variable)
 
         self.log[-1].setdefault('variable', variable)
 
@@ -103,7 +108,12 @@ class Executor():
 
         # 将[{'a': 1}, {'b': 2}]转化为{'a': 1, 'b': 2}
         if body:
-            body = {item['key']: item['value'] for item in body}
+            if body['mode'] in ['formdata', 'urlencoded']:
+                body = {item['key']: item['value'] for item in body['data']}
+            elif body['mode'] in ['file']:
+                pass
+            else:
+                body = body['data']
 
         try:
             response = request(

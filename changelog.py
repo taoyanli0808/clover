@@ -8,6 +8,17 @@
 
 changelog = [
     {
+        'version': '0.6.0',
+        'date': '2020-03-15',
+        'fixed': [
+            '修复postman插件创建接口时formdata和urlencoded类型数据处理不正确的问题',
+        ],
+        'changed': [
+            '修改postman插件替换变量的方式，改为更严谨的变量替换',
+            '修改接口请求体类型由列表改为字典{mode:"raw", data:"abc"}',
+        ]
+    },
+    {
         'version': '0.5.7',
         'date': '2020-03-14',
         'fixed': [
