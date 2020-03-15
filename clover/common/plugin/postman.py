@@ -20,32 +20,47 @@ class Postman(Pipeline):
         # 数据类型是字符串，目前只有host和path参数
         if isinstance(data, str):
             variables = re.findall(r'\{\{(.+?)\}\}', data)
-            if variables:
-                data = data.replace('{{', '${').replace('}}', '}')
+            for variable in variables:
+                if variable:
+                    data = data.replace('{{' + variable + '}}', '${' + variable + '}')
             return data
 
         """
-        # 数据类型是列表，目前只有header、params和body参数
+        # 数据类型是列表，目前只有header、params参数
         # 且参数值均为字典，{key: xxx, value: xxx}
         """
         if isinstance(data, list):
-            for index, item in enumerate(data):
+            for item in data:
                 variables = re.findall(r'\{\{(.+?)\}\}', item['value'])
-                if variables:
-                    item['value'] = item['value'].replace('{{', '${').replace('}}', '}')
-        return data
+                for variable in variables:
+                    if variable:
+                        item['value'] = item['value'].replace('{{' + variable + '}}', '${' + variable + '}')
+            return data
 
-    def handle_body(self, data):
         """
-        # raw以外的数据类型也需要处理。
-        :param data:
-        :return:
+        # 数据类型是列表，目前只有body参数
+        # 且参数值均为字典，{mode: xxx, data: xxx}
+        # 这里注意body的data参数较为复杂
+        # 若mode为raw则data为文本
+        # 若mode为formdata或urlencoded则data为列表
         """
-        body = []
-        if 'mode' in data and data['mode'] == 'raw':
-            body = [{'key': 'raw', 'value': data['raw']}]
-            body = self.change_postman_variable_to_clover(body)
-        return body
+        if isinstance(data, dict):
+            if data['mode'] in ['formdata', 'urlencoded']:
+                for item in data['data']:
+                    variables = re.findall(r'\{\{(.+?)\}\}', item['value'])
+                    for variable in variables:
+                        if variable:
+                            item['value'] = item['value'].replace('{{' + variable + '}}', '${' + variable + '}')
+                return data
+            elif data['mode'] in ['file']:
+                return data
+            else:
+                print(data)
+                variables = re.findall(r'\{\{(.+?)\}\}', data['data'])
+                for variable in variables:
+                    if variable:
+                        data['data'] = data['data'].replace('{{' + variable + '}}', '${' + variable + '}')
+                return data
 
     def handle_collection(self, content, type):
         """
@@ -85,7 +100,26 @@ class Postman(Pipeline):
                 params = []
 
             if 'body' in item['request']:
-                body = item['request']['body']
+                if item['request']['body']['mode'] == 'formdata':
+                    body = {
+                        'mode': item['request']['body']['mode'],
+                        'data': item['request']['body']['formdata']
+                    }
+                elif item['request']['body']['mode'] == 'urlencoded':
+                    body = {
+                        'mode': item['request']['body']['mode'],
+                        'data': item['request']['body']['urlencoded']
+                    }
+                elif item['request']['body']['mode'] == 'file':
+                    body = {
+                        'mode': item['request']['body']['mode'],
+                        'data': item['request']['body']['file']
+                    }
+                else:
+                    body = {
+                        'mode': item['request']['body']['mode'],
+                        'data': item['request']['body']['raw']
+                    }
             else:
                 body = {}
 
@@ -93,7 +127,7 @@ class Postman(Pipeline):
             path = self.change_postman_variable_to_clover(path)
             header = self.change_postman_variable_to_clover(header)
             params = self.change_postman_variable_to_clover(params)
-            body = self.handle_body(body)
+            body = self.change_postman_variable_to_clover(body)
 
             interface = {
                 'name': name,
