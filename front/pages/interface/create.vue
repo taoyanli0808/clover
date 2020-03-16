@@ -741,6 +741,8 @@ export default {
         case 'file':
           break
         default:
+          data.mode = 'raw'
+          data.data = ''
           break
       }
       return data
