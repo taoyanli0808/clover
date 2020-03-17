@@ -8,6 +8,7 @@ from requests.exceptions import InvalidURL
 from requests.exceptions import MissingSchema
 from requests.exceptions import InvalidSchema
 from requests.exceptions import ConnectionError
+from requests.exceptions import InvalidHeader
 
 from clover.common import derivation
 from clover.common import convert_type
@@ -99,8 +100,9 @@ class Executor():
         url = host + path
 
         # 将[{'a': 1}, {'b': 2}]转化为{'a': 1, 'b': 2}
+        # 注意，这里如果请求头包含前导空格会报InvalidHeader错误。
         if header:
-            header = {item['key']: item['value'].strip() for item in header if item['key']}
+            header = {item['key'].strip(): item['value'].strip() for item in header if item['key']}
 
         # 将[{'a': 1}, {'b': 2}]转化为{'a': 1, 'b': 2}
         if params:
@@ -138,6 +140,10 @@ class Executor():
         except ConnectionError:
             self.status = 604
             self.message = "当链接到服务器时出错，请确认域名[{}]是否正确！".format(data.get('host'))
+            return data
+        except InvalidHeader:
+            self.status = 605
+            self.message = "请求头包含非法字符！"
             return data
 
         # 这里将响应的状态码，头信息和响应体单独存储，后面断言或提取变量会用到
