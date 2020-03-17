@@ -18,7 +18,7 @@
       <el-menu-item index="/interface/">
         接口列表
       </el-menu-item>
-      <el-menu-item index="/interface/suite/">
+      <el-menu-item index="/suite/">
         测试套件
       </el-menu-item>
     </el-submenu>
