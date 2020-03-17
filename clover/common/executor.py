@@ -100,7 +100,7 @@ class Executor():
 
         # 将[{'a': 1}, {'b': 2}]转化为{'a': 1, 'b': 2}
         if header:
-            header = {item['key']: item['value'] for item in header if item['key']}
+            header = {item['key']: item['value'].strip() for item in header if item['key']}
 
         # 将[{'a': 1}, {'b': 2}]转化为{'a': 1, 'b': 2}
         if params:
