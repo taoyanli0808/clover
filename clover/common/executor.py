@@ -115,7 +115,8 @@ class Executor():
             elif body['mode'] in ['file']:
                 pass
             else:
-                body = body['data']
+                # 当请求时有中文出现会报UnicodeEncodeError，暂时强制转UTF-8
+                body = body['data'].encode('utf-8')
 
         try:
             response = request(

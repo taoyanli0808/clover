@@ -120,7 +120,10 @@ class Postman(Pipeline):
                         'data': item['request']['body']['raw']
                     }
             else:
-                body = {}
+                body = {
+                    'mode': 'raw',
+                    'data': ''
+                }
 
             host = self.change_postman_variable_to_clover(host)
             path = self.change_postman_variable_to_clover(path)
