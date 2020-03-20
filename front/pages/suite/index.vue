@@ -4,6 +4,16 @@
       <el-col :span="4">
         <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
       </el-col>
+      <el-col :span="2" :offset="18">
+        <el-button
+          @click="createSuite"
+          type="primary"
+          size="small"
+          plain
+        >
+          创建套件
+        </el-button>
+      </el-col>
     </el-row>
     <el-table
       :data="data"
@@ -166,6 +176,11 @@ export default {
     this.refresh()
   },
   methods: {
+    createSuite () {
+      this.$router.push({
+        path: '/suite/create'
+      })
+    },
     refresh () {
       this.loading = true
       const params = {

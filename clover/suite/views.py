@@ -29,10 +29,10 @@ class SuiteView(CloverView):
                 'data': data
             })
 
-        if 'project' not in data or not data['project']:
+        if 'name' not in data or not data['name']:
             return jsonify({
                 'status': 400,
-                'message': '请选择项目！',
+                'message': '请填写套件名称！',
                 'data': data
             })
 

@@ -5,13 +5,13 @@
         <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
       </el-col>
       <el-col :span="2" :offset="18">
-        <el-button
+        <!-- <el-button
           @click="createSuite"
           type="primary"
           plain
         >
           创建套件
-        </el-button>
+        </el-button> -->
       </el-col>
     </el-row>
     <el-table
@@ -21,10 +21,6 @@
       element-loading-text="拼命加载中"
       style="width: 100%"
     >
-      <el-table-column
-        type="selection"
-        width="55"
-      />
       <el-table-column
         prop="id"
         label="ID"
@@ -327,52 +323,6 @@ export default {
       for (const i in temp) {
         this.cases.push(this.data[temp[i]].id)
       }
-    },
-    // createSuite (value) {
-    //   this.$prompt('请输入套件名称', '创建套件', {
-    //     confirmButtonText: '确定',
-    //     cancelButtonText: '取消'
-    //   }).then(({ value }) => {
-    //     this.$axios({
-    //       url: '/api/v1/suite/create',
-    //       method: 'post',
-    //       data: JSON.stringify({
-    //         'team': this.team,
-    //         'project': this.project,
-    //         'type': 'interface',
-    //         'name': value,
-    //         'cases': this.cases
-    //       }),
-    //       headers: {
-    //         'Content-Type': 'application/json;'
-    //       }
-    //     }).then((res) => {
-    //       if (res.data.status === 0) {
-    //         this.$message({
-    //           type: 'success',
-    //           message: res.data.message,
-    //           center: true
-    //         })
-    //       } else {
-    //         this.$message({
-    //           type: 'error',
-    //           message: res.data.message,
-    //           center: true
-    //         })
-    //       }
-    //     })
-    //   }).catch(() => {
-    //     this.$message({
-    //       type: 'info',
-    //       message: '取消创建套件！',
-    //       center: true
-    //     })
-    //   })
-    // }
-    createSuite () {
-      this.$router.push({
-        path: '/suite/create'
-      })
     }
   }
 }

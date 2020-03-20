@@ -4,6 +4,7 @@
     :options="options"
     @change="handleChange"
     placeholder="请选择团队和项目"
+    size="small"
     clearable
   />
 </template>
