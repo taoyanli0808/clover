@@ -99,25 +99,25 @@ class Postman(Pipeline):
                 params = []
 
             if 'body' in item['request']:
-                if item['request']['body']['mode'] == 'formdata':
+                if item['request']['body'].get('mode') == 'formdata':
                     body = {
                         'mode': item['request']['body']['mode'],
                         'data': item['request']['body']['formdata']
                     }
-                elif item['request']['body']['mode'] == 'urlencoded':
+                elif item['request']['body'].get('mode') == 'urlencoded':
                     body = {
                         'mode': item['request']['body']['mode'],
                         'data': item['request']['body']['urlencoded']
                     }
-                elif item['request']['body']['mode'] == 'file':
+                elif item['request']['body'].get('mode') == 'file':
                     body = {
                         'mode': item['request']['body']['mode'],
                         'data': item['request']['body']['file']
                     }
                 else:
                     body = {
-                        'mode': item['request']['body']['mode'],
-                        'data': item['request']['body']['raw']
+                        'mode': item['request']['body'].get('mode') or 'raw',
+                        'data': item['request']['body'].get('raw') or ''
                     }
             else:
                 body = {
