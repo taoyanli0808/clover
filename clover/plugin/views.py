@@ -58,12 +58,12 @@ class PluginView(CloverView):
             })
 
         try:
-            id = self.service.create(data, file)
-            return jsonify({
-                'status': 0,
-                'message': '成功创建插件！',
-                'data': id
-            })
+           id = self.service.create(data, file)
+           return jsonify({
+                    'status': 0,
+                    'message': '成功创建插件！',
+                    'data': id
+                })
         except Exception as error:
             return jsonify({
                 'status': 500,

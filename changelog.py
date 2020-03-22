@@ -8,6 +8,13 @@
 
 changelog = [
     {
+        'version': '0.7.2',
+        'date': '2020-03-21',
+        'fixed': [
+            '修复请求体为空时postman报错的问题',
+        ]
+    },
+    {
         'version': '0.7.1',
         'date': '2020-03-20',
         'changed': [

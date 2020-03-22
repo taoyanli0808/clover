@@ -37,6 +37,7 @@ class Charles(Pipeline):
                         item['value'] = item['value'].replace('{{' + variable + '}}', '${' + variable + '}')
             return data
 
+
         """
         # 数据类型是列表，目前只有body参数
         # 且参数值均为字典，{mode: xxx, data: xxx}
@@ -45,6 +46,7 @@ class Charles(Pipeline):
         # 若mode为formdata或urlencoded则data为列表
         """
         if isinstance(data, dict):
+
             if data['mode'] in ['formdata', 'urlencoded']:
                 for item in data['data']:
                     variables = re.findall(r'\{\{(.+?)\}\}', item['value'])
@@ -77,48 +79,59 @@ class Charles(Pipeline):
             # 注意这里是直接取charles数据，不改变数据类型，因此body是dict。
             name = item['request']['url']
 
-            header = item['request']['headers']
+            old_headers = item['request']['headers']
+            header=[]
+            for headerone in old_headers:
+                headerone["key"] = headerone.pop("name")
+                header.append(headerone)
+
             method = item['request']['method'].lower()
 
-            host = item['request']['headers'][0]['value']
             # urlparse.path方法会算出url后面跟的path
             url = item['request']['url']
+            host = urlparse(url).scheme +"://"+urlparse(url).netloc
             path=urlparse(url).path
             if 'postData' in item['request']:
-                params=item['request']['postData']['params']
+                param_old=item['request']['postData']['params']
+                params=[]
+                for paramsone in param_old:
+                   paramsone["key"]=paramsone.pop("name")
+                   params.append(paramsone)
+            else:
+                params=[]
 
             # if 'body' in item['request']:
-            #     if item['request']['body']['mode'] == 'formdata':
+            #     if item['request']['body'].get('mode') == 'formdata':
             #         body = {
             #             'mode': item['request']['body']['mode'],
             #             'data': item['request']['body']['formdata']
             #         }
-            #     elif item['request']['body']['mode'] == 'urlencoded':
+            #     elif item['request']['body'].get('mode') == 'urlencoded':
             #         body = {
             #             'mode': item['request']['body']['mode'],
             #             'data': item['request']['body']['urlencoded']
             #         }
-            #     elif item['request']['body']['mode'] == 'file':
+            #     elif item['request']['body'].get('mode') == 'file':
             #         body = {
             #             'mode': item['request']['body']['mode'],
             #             'data': item['request']['body']['file']
             #         }
             #     else:
             #         body = {
-            #             'mode': item['request']['body']['mode'],
-            #             'data': item['request']['body']['raw']
+            #             'mode': item['request']['body'].get('mode') or 'raw',
+            #             'data': item['request']['body'].get('raw') or ''
             #         }
             # else:
-            #     body = {
-            #         'mode': 'raw',
-            #         'data': ''
-            #     }
+            body = {
+                    'mode': 'raw',
+                    'data': ''
+                }
 
             host = self.change_charles_variable_to_clover(host)
             path = self.change_charles_variable_to_clover(path)
             header = self.change_charles_variable_to_clover(header)
             params = self.change_charles_variable_to_clover(params)
-            #body = self.change_charles_variable_to_clover(body)
+            body = self.change_charles_variable_to_clover(body)
 
             interface = {
                 'name': name,
@@ -127,7 +140,7 @@ class Charles(Pipeline):
                 'path': path,
                 'header': header,
                 'params': params,
-                'body': '',
+                'body': body,
                 'verify': [],
                 'extract': [],
             }
