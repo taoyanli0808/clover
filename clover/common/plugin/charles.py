@@ -90,43 +90,50 @@ class Charles(Pipeline):
             # urlparse.path方法会算出url后面跟的path
             url = item['request']['url']
             host = urlparse(url).scheme +"://"+urlparse(url).netloc
+            if '?' in name:
+                name=name.split("?")[0]
             path=urlparse(url).path
-            if 'postData' in item['request']:
-                param_old=item['request']['postData']['params']
-                params=[]
-                for paramsone in param_old:
-                   paramsone["key"]=paramsone.pop("name")
-                   params.append(paramsone)
-            else:
-                params=[]
 
-            # if 'body' in item['request']:
-            #     if item['request']['body'].get('mode') == 'formdata':
-            #         body = {
-            #             'mode': item['request']['body']['mode'],
-            #             'data': item['request']['body']['formdata']
-            #         }
-            #     elif item['request']['body'].get('mode') == 'urlencoded':
-            #         body = {
-            #             'mode': item['request']['body']['mode'],
-            #             'data': item['request']['body']['urlencoded']
-            #         }
-            #     elif item['request']['body'].get('mode') == 'file':
-            #         body = {
-            #             'mode': item['request']['body']['mode'],
-            #             'data': item['request']['body']['file']
-            #         }
-            #     else:
-            #         body = {
-            #             'mode': item['request']['body'].get('mode') or 'raw',
-            #             'data': item['request']['body'].get('raw') or ''
-            #         }
-            # else:
-            body = {
+            if 'postData' in item['request']:
+                #取params
+                if 'params' in item['request']['postData']:
+                    param_old=item['request']['postData']['params']
+                    params=[]
+                    for paramsone in param_old:
+                       paramsone["key"]=paramsone.pop("name")
+                       params.append(paramsone)
+                else:
+                    params=[]
+                #取body
+                if 'text' in item['request']['postData']:
+                    old_body = item['request']['postData']['text']
+                    new_body = str(old_body).replace('\\','')
+                    body={
+                        'mode':"raw",
+                        'data':new_body
+                    }
+                else:
+                    body = {
+                        'mode': 'raw',
+                        'data': ''
+                    }
+            elif "name" in str(item['request']['queryString']):
+               body={
+                   'mode': 'raw',
+                   'data': ''
+               }
+               param_old=item['request']['queryString']
+               params = []
+               for paramsone in param_old:
+                   paramsone["key"] = paramsone.pop("name")
+                   params.append(paramsone)
+
+            else:
+                body = {
                     'mode': 'raw',
                     'data': ''
                 }
-
+                params=[]
             host = self.change_charles_variable_to_clover(host)
             path = self.change_charles_variable_to_clover(path)
             header = self.change_charles_variable_to_clover(header)
