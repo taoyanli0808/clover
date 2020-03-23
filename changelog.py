@@ -8,6 +8,16 @@
 
 changelog = [
     {
+        'version': '0.7.3',
+        'date': '2020-03-23',
+        'fixed': [
+            '修复接口编辑页面提交后body部分变为[Object Object]问题',
+            '修复接口运行时"expected string or bytes-like object报错"',
+            '修复接口运行时"list" object has no attribute "encode"报错',
+            '修复接口运行时requests请求报错导致运行失败的问题',
+        ]
+    },
+    {
         'version': '0.7.2',
         'date': '2020-03-21',
         'fixed': [

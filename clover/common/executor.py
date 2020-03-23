@@ -131,7 +131,7 @@ class Executor():
                 # python对象，如果对象不为字符串（通常不为），encode会报错。
                 """
                 if isinstance(body['data'], (str,)):
-                    body = body['data'].encode('utf-8')
+                    body = body['data'].encode('utf-8') if body['data'] else None
                 else:
                     body = body['data']
 
