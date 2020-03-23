@@ -79,7 +79,16 @@ class Executor():
             elif case['body']['mode'] in ['file']:
                 pass
             else:
-                case['body']['data'] = derivation(case['body']['data'], variable)
+                """
+                # 这是"expected string or bytes-like object"问题的一个临时解决方案。
+                # 原因是当body数据类型为raw，数据为json时，view层接收数据时自动将其转为
+                # python对象，因此这里进行derivation会报错。
+                """
+                if isinstance(case['body']['data'], (list,)):
+                    for param in case['body']['data']:
+                        param['value'] = derivation(param['value'], variable)
+                else:
+                    case['body']['data'] = derivation(case['body']['data'], variable)
 
         self.log[-1].setdefault('variable', variable)
 
@@ -116,7 +125,15 @@ class Executor():
                 pass
             else:
                 # 当请求时有中文出现会报UnicodeEncodeError，暂时强制转UTF-8
-                body = body['data'].encode('utf-8')
+                """
+                # 这里是"'list' object has no attribute 'encode'"问题的一个临时解决方案
+                # 原因是当body数据类型为raw，数据为json时，view层接收数据时自动将其转为
+                # python对象，如果对象不为字符串（通常不为），encode会报错。
+                """
+                if isinstance(body['data'], (str,)):
+                    body = body['data'].encode('utf-8')
+                else:
+                    body = body['data']
 
         try:
             response = request(
