@@ -27,6 +27,12 @@ class ReportService():
         :param data:
         :return:
         """
+        # 对于log使用json存储，当数据存在bytes时编码失败
+        # 目前请求的body里存在bytes数据，次为临时方案
+        for log in data['log']:
+            if isinstance(log['body'], (bytes,)):
+                log['body'] = log['body'].decode('utf-8')
+        # 临时方案结束
         old_model = ReportModel.query.get(data['id'])
         if old_model is None:
             model = ReportModel(**data)
@@ -43,7 +49,7 @@ class ReportService():
             old_model.duration = data['duration']
             old_model.platform = data['platform']
             old_model.detail = data['detail']
-            old_model.log = {} #data['log']
+            old_model.log = data['log']
             db.session.commit()
 
         return old_model
