@@ -43,7 +43,7 @@ class ReportService():
             old_model.duration = data['duration']
             old_model.platform = data['platform']
             old_model.detail = data['detail']
-            old_model.log = data['log']
+            old_model.log = {} #data['log']
             db.session.commit()
 
         return old_model

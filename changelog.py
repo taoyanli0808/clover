@@ -15,6 +15,7 @@ changelog = [
             '修复接口运行时"expected string or bytes-like object报错"',
             '修复接口运行时"list" object has no attribute "encode"报错',
             '修复接口运行时requests请求报错导致运行失败的问题',
+            '暂时关闭日志功能以解决运行出错的严重问题',
         ]
     },
     {
