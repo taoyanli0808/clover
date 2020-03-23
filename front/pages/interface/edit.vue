@@ -740,8 +740,8 @@ export default {
         case 'file':
           break
         default:
-          data.mode = 'raw'
-          data.data = ''
+          data.mode = data.mode || 'raw'
+          data.data = data.data || ''
           break
       }
       return data
