@@ -141,15 +141,27 @@ export default {
             // 这里是报告的详细数据。
             for (const name in this.data.detail) {
               for (const index in this.data.detail[name].result) {
+                let elapsed = 0
+                if (!isNaN(this.data.detail[name].elapsed)) {
+                  elapsed = this.data.detail[name].elapsed
+                }
+                let actual = '-'
+                if (!isNaN(this.data.detail[name].result[index].actual)) {
+                  actual = this.data.detail[name].result[index].actual
+                }
+                let expect = '-'
+                if (!isNaN(this.data.detail[name].result[index].expect)) {
+                  expect = this.data.detail[name].result[index].expect
+                }
                 this.results.push({
                   name,
                   start: this.data.detail[name].start,
                   end: this.data.detail[name].end,
-                  elapsed: this.data.detail[name].elapsed || 0,
+                  elapsed,
                   status: this.data.detail[name].result[index].status,
-                  actual: this.data.detail[name].result[index].actual || '-',
-                  expect: this.data.detail[name].result[index].expect || '-',
-                  operate: this.data.detail[name].result[index].operate || '-'
+                  actual,
+                  expect,
+                  operate: this.data.detail[name].result[index].operate
                 })
                 this.countStatus(this.data.detail[name].result[index].status)
               }
