@@ -289,6 +289,10 @@ export default {
     },
     handleDelete (index, row) {
       this.suite.splice(index, 1)
+      // 刷新索引
+      for (const i in this.suite) {
+        this.suite[i].index = parseInt(i, 10) + 1
+      }
     }
   }
 }
