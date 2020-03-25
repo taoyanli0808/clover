@@ -41,7 +41,7 @@ def interface_task(cases, data, report):
 
     with app.test_request_context():
 
-        executor = Executor()
+        executor = Executor(log=report['id'])
         executor.execute(cases, data)
 
         name = data['report'] if 'report' in data and data['report'] else data['name']

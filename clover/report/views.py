@@ -93,11 +93,7 @@ class ReportView(CloverView):
 
         try:
             result = self.service.log(data)
-            return jsonify({
-                'status': 0,
-                'message': '成功检索到日志',
-                'data': result
-            })
+            return jsonify(result)
         except Exception as error:
             return jsonify({
                 'status': 500,
