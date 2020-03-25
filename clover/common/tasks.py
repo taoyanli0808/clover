@@ -51,20 +51,19 @@ def interface_task(cases, data, report):
             'project': data['project'],
             'name': name,
             'type': 'interface',
-            'interface': executor.interface,
-            'verify': executor.verify['total'],
+            'interface': executor.interface['total'],
+            'verify': executor.verify,
             'percent': executor.percent,
             'start': executor.start,
             'end': executor.end,
             'duration': (executor.end - executor.start).total_seconds(),
             'platform': get_system_info(),
             'detail': executor.result,
-            'log': executor.log,
         }
         report_service = ReportService()
         report_service.update(update_report)
 
-        events = 'success' if executor.verify['passed'] == executor.verify['total'] else 'failed'
+        events = 'success' if executor.interface['passed'] == executor.interface['total'] else 'failed'
         notify(update_report, events)
 
     return report

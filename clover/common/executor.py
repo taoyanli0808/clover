@@ -28,18 +28,17 @@ class Executor():
         self.status = 0
         self.message = 'ok'
         self.type = type
-        self.interface = 0
-        self.verify = {
+        self.interface = {
             'passed': 0,
             'failed': 0,
             'sikped': 0,
             'total': 0,
         }
+        self.verify = 0
         self.percent = 0.0
         self.start = 0
         self.end = 0
         self.result = {}    # 记录运行状态与相关数据。
-        self.log = []       # log采用列表记录，保持运行时顺序。
 
         file = os.path.join(os.getcwd(), 'logs', '{}.log'.format(log))
         self.logger = logging.getLogger(__name__)
@@ -119,8 +118,6 @@ class Executor():
                     case['body']['data'] = derivation(case['body']['data'], variable)
             self.logger.info("请求体换后[{}]".format(case.get('body')))
 
-        self.log[-1].setdefault('variable', variable)
-
         return case
 
     def send_request(self, data):
@@ -180,31 +177,31 @@ class Executor():
                 headers=header
             )
             self.result[data['name']]['elapsed'] = response.elapsed.microseconds
-            self.logger.info("接口请成功，耗时[{}]毫秒".format(response.elapsed.microseconds))
+            self.logger.error("接口请成功，耗时[{}]毫秒".format(response.elapsed.microseconds))
         except InvalidURL:
             self.status = 601
             self.message = "您输入接口信息有误，URL格式非法，请确认！"
-            self.logger.info("接口请失败，[{}]".format(self.message))
+            self.logger.error("接口请失败，[{}]".format(self.message))
             return data
         except MissingSchema:
             self.status = 602
             self.message = "您输入接口缺少协议格式，请增加[http(s)://]协议头！"
-            self.logger.info("接口请失败，[{}]".format(self.message))
+            self.logger.error("接口请失败，[{}]".format(self.message))
             return data
         except InvalidSchema:
             self.status = 603
             self.message = "不支持的接口协议，请使用[http(s)://]协议头！"
-            self.logger.info("接口请失败，[{}]".format(self.message))
+            self.logger.error("接口请失败，[{}]".format(self.message))
             return data
         except ConnectionError:
             self.status = 604
             self.message = "当链接到服务器时出错，请确认域名[{}]是否正确！".format(data.get('host'))
-            self.logger.info("接口请失败，[{}]".format(self.message))
+            self.logger.error("接口请失败，[{}]".format(self.message))
             return data
         except InvalidHeader:
             self.status = 605
             self.message = "请求头包含非法字符！"
-            self.logger.info("接口请失败，[{}]".format(self.message))
+            self.logger.error("接口请失败，[{}]".format(self.message))
             return data
 
         # 这里将响应的状态码，头信息和响应体单独存储，后面断言或提取变量会用到
@@ -223,15 +220,6 @@ class Executor():
             data['response']['json'] = json.loads(data['response']['content'])
         except Exception:
             data['response']['json'] = {"message": "亲爱的小伙伴，目前接口仅支持json格式！"}
-
-        self.log[-1].update({
-            'url': url,
-            'method': method,
-            'header': header,
-            'params': params,
-            'body': body,
-            'response': data.get('response', {}),
-        })
 
         return data
 
@@ -272,9 +260,6 @@ class Executor():
                     'expect': expected,
                     'operate': comparator,
                 })
-                # 这里是计算断言通过，失败，跳过与整体数量。
-                self.verify[result] += 1
-                self.verify['total'] += 1
                 self.logger.info("断言，提取器[{}]".format(_extractor))
                 self.logger.info("断言，表达式[{}]".format(expression))
                 self.logger.info("断言，提取值[{}]".format(variable))
@@ -312,8 +297,6 @@ class Executor():
             self.logger.info("断言，变量名[{}]".format(variable))
             self.logger.info("断言，变量值[{}]".format(result))
 
-        self.log[-1].setdefault('extract', data.get('extract'))
-
         return data
 
     def execute(self, cases, data=None):
@@ -325,7 +308,6 @@ class Executor():
         self.start = datetime.datetime.now()
         for case in cases:
             self.logger.info("[{}]接口测试开始...".format(case['name']))
-            self.log.append({'name': case['name']})
             self.result.setdefault(case['name'], {})
             self.result[case['name']]['start'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -338,8 +320,17 @@ class Executor():
             self.logger.info("[{}]接口测试结束...".format(case['name']))
         self.end = datetime.datetime.now()
 
-        self.interface = len(cases)
-        if self.verify['total'] == 0:
+        self.interface['total'] = len(cases)
+        for _, results in self.result.items():
+            self.verify += len(results['result'])
+            for result in results['result']:
+                if result['status'] == 'failed':
+                    self.interface['failed'] += 1
+                    break
+            else:
+                self.interface['passed'] += 1
+        if self.interface['total'] == 0:
             self.percent = 0.0
         else:
-            self.percent = round(100 * self.verify['passed'] / self.verify['total'], 2)
+            self.percent = round(100 * self.interface['passed'] / self.interface['total'], 2)
+        self.logger.info("接口[{}],断言个数[{}],成功率[{}]".format(self.interface['total'], self.verify, self.percent))
