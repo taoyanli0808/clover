@@ -1,4 +1,5 @@
 
+import os
 import datetime
 
 from clover.exts import db
@@ -120,9 +121,24 @@ class ReportService():
         :param data:
         :return:
         """
-        result = ReportModel.query.get(data['id'])
-        result = result.to_dict() if result else None
-        return result.get('log')
+        log = '{}.log'.format(data.get('id', 0))
+        path = os.path.join(os.getcwd(), 'logs')
+        logs = os.listdir(path)
+        if log not in logs:
+            return {
+                'status': 501,
+                'message': '运行日志不存在！',
+                'data': ''
+            }
+        name = os.path.join(os.getcwd(), 'logs', log)
+        with open(name) as file:
+            content = file.read()
+        return {
+            'status': 0,
+            'message': '成功检索到日志！',
+            'data': content
+        }
+
 
     def empty_report(self, data):
         """

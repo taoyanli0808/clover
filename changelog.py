@@ -8,6 +8,13 @@
 
 changelog = [
     {
+        'version': '0.7.4',
+        'date': '2020-03-25',
+        'changed': [
+            '日志采用logging记录到文件，采用pre标签直接展示。',
+        ]
+    },
+    {
         'version': '0.7.3',
         'date': '2020-03-23',
         'fixed': [

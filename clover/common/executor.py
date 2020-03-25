@@ -1,5 +1,7 @@
 
+import os
 import json
+import logging
 import datetime
 
 from flask import g
@@ -21,7 +23,7 @@ from clover.environment.models import VariableModel
 
 class Executor():
 
-    def __init__(self, type='trigger'):
+    def __init__(self, type='trigger', log='default'):
         g.data = []
         self.status = 0
         self.message = 'ok'
@@ -39,6 +41,15 @@ class Executor():
         self.result = {}    # 记录运行状态与相关数据。
         self.log = []       # log采用列表记录，保持运行时顺序。
 
+        file = os.path.join(os.getcwd(), 'logs', '{}.log'.format(log))
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+        handler = logging.FileHandler(file)
+        handler.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(asctime)s - %(filename)s - %(funcName)s - %(lineno)d - %(message)s')
+        handler.setFormatter(formatter)
+        self.logger.addHandler(handler)
+
     def replace_variable(self, case, data):
         """
         # 这里对请求数据进行变量替换，将变量替换为具体值。
@@ -49,11 +60,14 @@ class Executor():
         :param data:
         :return:
         """
+        self.logger.info("[{}]接口测试第1步，变量替换".format(case['name']))
         filter = {
             'team': case.get('team'),
             'project': case.get('project')
         }
         results = VariableModel.query.filter_by(**filter).all()
+
+        self.logger.info("查找预定义变量，查找条件[{}]".format(filter))
 
         variable = {
             'extract': g.data,
@@ -61,18 +75,32 @@ class Executor():
             'default': query_to_dict(results),
         }
 
+        self.logger.info("变量查找成功，预定义变量[{}]".format(variable['default']))
+        self.logger.info("变量查找成功，触发时变量[{}]".format(variable['trigger']))
+        self.logger.info("变量查找成功，运行时变量[{}]".format(variable['extract']))
+
+        self.logger.info("域名替换前[{}]".format(case.get('host')))
         case['host'] = derivation(case.get('host'), variable)
+        self.logger.info("域名替换后[{}]".format(case.get('host')))
+
+        self.logger.info("路径替换前[{}]".format(case.get('path')))
         case['path'] = derivation(case.get('path'), variable)
+        self.logger.info("路径替换后[{}]".format(case.get('path')))
 
         if 'header' in case:
+            self.logger.info("请求头替换前[{}]".format(case.get('header')))
             for header in case['header']:
                 header['value'] = derivation(header['value'], variable)
+            self.logger.info("请求头换后[{}]".format(case.get('header')))
 
         if 'params' in case:
+            self.logger.info("请求参数替换前[{}]".format(case.get('params')))
             for param in case['params']:
                 param['value'] = derivation(param['value'], variable)
+            self.logger.info("请求参数换后[{}]".format(case.get('params')))
 
         if 'body' in case:
+            self.logger.info("请求体替换前[{}]".format(case.get('body')))
             if case['body']['mode'] in ['formdata', 'urlencoded']:
                 for param in case['body']['data']:
                     param['value'] = derivation(param['value'], variable)
@@ -89,6 +117,7 @@ class Executor():
                         param['value'] = derivation(param['value'], variable)
                 else:
                     case['body']['data'] = derivation(case['body']['data'], variable)
+            self.logger.info("请求体换后[{}]".format(case.get('body')))
 
         self.log[-1].setdefault('variable', variable)
 
@@ -99,6 +128,7 @@ class Executor():
         :param data:
         :return:
         """
+        self.logger.info("[{}]接口测试第2步，发送接口请求".format(data['name']))
         # 发送http请求
         method = data.get("method")
         host = data.get("host")
@@ -135,6 +165,13 @@ class Executor():
                 else:
                     body = body['data']
 
+        self.logger.info("接口请求方法[{}]".format(method))
+        self.logger.info("接口请求域名[{}]".format(host))
+        self.logger.info("接口请求路径[{}]".format(path))
+        self.logger.info("接口请求头[{}]".format(header))
+        self.logger.info("接口请求参数[{}]".format(params))
+        self.logger.info("接口请求体[{}]".format(body))
+
         try:
             response = request(
                 method, url,
@@ -143,25 +180,31 @@ class Executor():
                 headers=header
             )
             self.result[data['name']]['elapsed'] = response.elapsed.microseconds
+            self.logger.info("接口请成功，耗时[{}]毫秒".format(response.elapsed.microseconds))
         except InvalidURL:
             self.status = 601
             self.message = "您输入接口信息有误，URL格式非法，请确认！"
+            self.logger.info("接口请失败，[{}]".format(self.message))
             return data
         except MissingSchema:
             self.status = 602
             self.message = "您输入接口缺少协议格式，请增加[http(s)://]协议头！"
+            self.logger.info("接口请失败，[{}]".format(self.message))
             return data
         except InvalidSchema:
             self.status = 603
             self.message = "不支持的接口协议，请使用[http(s)://]协议头！"
+            self.logger.info("接口请失败，[{}]".format(self.message))
             return data
         except ConnectionError:
             self.status = 604
             self.message = "当链接到服务器时出错，请确认域名[{}]是否正确！".format(data.get('host'))
+            self.logger.info("接口请失败，[{}]".format(self.message))
             return data
         except InvalidHeader:
             self.status = 605
             self.message = "请求头包含非法字符！"
+            self.logger.info("接口请失败，[{}]".format(self.message))
             return data
 
         # 这里将响应的状态码，头信息和响应体单独存储，后面断言或提取变量会用到
@@ -170,6 +213,10 @@ class Executor():
             'header': dict(response.headers),
             'content': response.text
         }
+
+        self.logger.info("接口请成功，响应状态码[{}]".format(response.status_code))
+        self.logger.info("接口请成功，响应头信息[{}]".format(dict(response.headers)))
+        self.logger.info("接口请成功，响应内容为[{}]".format(response.text))
 
         # 框架目前只支持json数据，在这里尝试进行json数据转换
         try:
@@ -193,6 +240,7 @@ class Executor():
         :param data:
         :return:
         """
+        self.logger.info("[{}]接口测试第3步，接口结果断言".format(data['name']))
         self.result[data['name']]['result'] = []
         validator = Validator()
         for verify in data['verify']:
@@ -227,6 +275,12 @@ class Executor():
                 # 这里是计算断言通过，失败，跳过与整体数量。
                 self.verify[result] += 1
                 self.verify['total'] += 1
+                self.logger.info("断言，提取器[{}]".format(_extractor))
+                self.logger.info("断言，表达式[{}]".format(expression))
+                self.logger.info("断言，提取值[{}]".format(variable))
+                self.logger.info("断言，预期值[{}]".format(expected))
+                self.logger.info("断言，比较器[{}]".format(comparator))
+                self.logger.info("断言，结果[{}]".format(result))
             except Exception:
                 self.result[data['name']]['result'].append({
                     'status': 'error'
@@ -237,6 +291,7 @@ class Executor():
         :param data:
         :return:
         """
+        self.logger.info("[{}]接口测试第4步，提取接口间变量".format(data['name']))
         # 这里是临时加的，这里要详细看下如何处理。
         if 'response' not in data:
             return
@@ -246,11 +301,16 @@ class Executor():
 
         for extract in data['extract']:
             # 提取需要进行断言的数据
-            extractor = Extractor(extract.get('selector', 'delimiter'))
+            selector = extract.get('selector', 'delimiter')
+            extractor = Extractor(selector)
             expression = extract.get('expression', None)
             variable = extract.get('variable', None)
             result = extractor.extract(data['response']['content'], expression, '.')
             g.data.append({'name': variable, 'value': result})
+            self.logger.info("提取，选择器[{}]".format(selector))
+            self.logger.info("断言，表达式[{}]".format(expression))
+            self.logger.info("断言，变量名[{}]".format(variable))
+            self.logger.info("断言，变量值[{}]".format(result))
 
         self.log[-1].setdefault('extract', data.get('extract'))
 
@@ -264,6 +324,7 @@ class Executor():
         """
         self.start = datetime.datetime.now()
         for case in cases:
+            self.logger.info("[{}]接口测试开始...".format(case['name']))
             self.log.append({'name': case['name']})
             self.result.setdefault(case['name'], {})
             self.result[case['name']]['start'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -274,6 +335,7 @@ class Executor():
             self.extract_variable(case)
 
             self.result[case['name']]['end'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            self.logger.info("[{}]接口测试结束...".format(case['name']))
         self.end = datetime.datetime.now()
 
         self.interface = len(cases)
