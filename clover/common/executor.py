@@ -75,9 +75,9 @@ class Executor():
             'default': query_to_dict(results),
         }
 
-        self.logger.info("变量查找成功，预定义变量[{}]".format(variable['default']))
-        self.logger.info("变量查找成功，触发时变量[{}]".format(variable['trigger']))
-        self.logger.info("变量查找成功，运行时变量[{}]".format(variable['extract']))
+        self.logger.info("变量查找成功，预定义变量{}".format(variable['default']))
+        self.logger.info("变量查找成功，触发时变量{}".format(variable['trigger']))
+        self.logger.info("变量查找成功，运行时变量{}".format(variable['extract']))
 
         self.logger.info("域名替换前[{}]".format(case.get('host')))
         case['host'] = derivation(case.get('host'), variable)

@@ -73,12 +73,12 @@
             <el-table-column
               prop="caseId"
               label="用例ID"
-              width="150"
+              width="80"
             />
             <el-table-column
               prop="name"
               label="用例名"
-              width="180"
+              width="200"
             />
             <el-table-column
               fixed="right"
@@ -101,6 +101,14 @@
                   type="primary"
                 >
                   下移
+                </el-button>
+                <el-button
+                  @click="handleDelete(scope.$index, scope.row)"
+                  size="mini"
+                  icon="el-icon-delete"
+                  type="danger"
+                >
+                  移除
                 </el-button>
               </template>
             </el-table-column>
@@ -278,6 +286,9 @@ export default {
         const front = this.suite.splice(index, 1)
         this.suite.splice(index + 1, 0, ...front)
       }
+    },
+    handleDelete (index, row) {
+      this.suite.splice(index, 1)
     }
   }
 }

@@ -59,22 +59,9 @@ export default {
   padding-right: 80px;
 }
 
-h3 {
-  padding-top: 5px;
-  padding-bottom: 5px;
-}
-
-h4 {
-  padding-top: 10px;
-  padding-bottom: 10px;
-}
-
-.el-table .cell {
-  white-space: pre-line;
-}
-
-.title {
-  text-align: center;
+pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
 .download {
