@@ -4,7 +4,6 @@ import json
 import logging
 import datetime
 
-from flask import g
 from requests import request
 from requests.exceptions import InvalidURL
 from requests.exceptions import MissingSchema
@@ -24,7 +23,7 @@ from clover.environment.models import VariableModel
 class Executor():
 
     def __init__(self, type='trigger', log='default'):
-        g.data = []
+        self.variables = []
         self.status = 0
         self.message = 'ok'
         self.type = type
@@ -69,7 +68,7 @@ class Executor():
         self.logger.info("查找预定义变量，查找条件[{}]".format(filter))
 
         variable = {
-            'extract': g.data,
+            'extract': self.variables,
             'trigger': data.get('variables', []),
             'default': query_to_dict(results),
         }
@@ -291,7 +290,17 @@ class Executor():
             expression = extract.get('expression', None)
             variable = extract.get('variable', None)
             result = extractor.extract(data['response']['content'], expression, '.')
-            g.data.append({'name': variable, 'value': result})
+            """
+            # 这里不要简单的append，如果两个变量name相同，value不一样，
+            # 后面被追加进来的数据不会生效，因此变量在这里要保证唯一性。
+            """
+            for _varibale in self.variables:
+                if variable in _varibale:
+                    _varibale['value'] = result
+                    break
+            else:
+                self.variables.append({'name': variable, 'value': result})
+
             self.logger.info("提取，选择器[{}]".format(selector))
             self.logger.info("断言，表达式[{}]".format(expression))
             self.logger.info("断言，变量名[{}]".format(variable))
