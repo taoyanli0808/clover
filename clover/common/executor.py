@@ -295,7 +295,7 @@ class Executor():
             # 后面被追加进来的数据不会生效，因此变量在这里要保证唯一性。
             """
             for _varibale in self.variables:
-                if variable in _varibale:
+                if variable == _varibale['name']:
                     _varibale['value'] = result
                     break
             else:
