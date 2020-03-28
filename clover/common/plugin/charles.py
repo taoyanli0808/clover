@@ -8,60 +8,60 @@ class Charles(Pipeline):
     def __init__(self):
         super(Charles, self).__init__()
 
-    def change_charles_variable_to_clover(self, data):
-        """
-        :param data:
-        :return:
-        """
-        # 这里如果data是空值或者变量没有设置则不处理。
-        if not data:
-            return data
-
-        # 数据类型是字符串，目前只有host和path参数
-        if isinstance(data, str):
-            variables = re.findall(r'\{\{(.+?)\}\}', data)
-            for variable in variables:
-                if variable:
-                    data = data.replace('{{' + variable + '}}', '${' + variable + '}')
-            return data
-
-        """
-        # 数据类型是列表，目前只有header、params参数
-        # 且参数值均为字典，{key: xxx, value: xxx}
-        """
-        if isinstance(data, list):
-            for item in data:
-                variables = re.findall(r'\{\{(.+?)\}\}', item['value'])
-                for variable in variables:
-                    if variable:
-                        item['value'] = item['value'].replace('{{' + variable + '}}', '${' + variable + '}')
-            return data
-
-
-        """
-        # 数据类型是列表，目前只有body参数
-        # 且参数值均为字典，{mode: xxx, data: xxx}
-        # 这里注意body的data参数较为复杂
-        # 若mode为raw则data为文本
-        # 若mode为formdata或urlencoded则data为列表
-        """
-        if isinstance(data, dict):
-
-            if data['mode'] in ['formdata', 'urlencoded']:
-                for item in data['data']:
-                    variables = re.findall(r'\{\{(.+?)\}\}', item['value'])
-                    for variable in variables:
-                        if variable:
-                            item['value'] = item['value'].replace('{{' + variable + '}}', '${' + variable + '}')
-                return data
-            elif data['mode'] in ['file']:
-                return data
-            else:
-                variables = re.findall(r'\{\{(.+?)\}\}', data['data'])
-                for variable in variables:
-                    if variable:
-                        data['data'] = data['data'].replace('{{' + variable + '}}', '${' + variable + '}')
-                return data
+    # def change_charles_variable_to_clover(self, data):
+    #     """
+    #     :param data:
+    #     :return:
+    #     """
+    #     # 这里如果data是空值或者变量没有设置则不处理。
+    #     if not data:
+    #         return data
+    #
+    #     # 数据类型是字符串，目前只有host和path参数
+    #     if isinstance(data, str):
+    #         variables = re.findall(r'\{\{(.+?)\}\}', data)
+    #         for variable in variables:
+    #             if variable:
+    #                 data = data.replace('{{' + variable + '}}', '${' + variable + '}')
+    #         return data
+    #
+    #     """
+    #     # 数据类型是列表，目前只有header、params参数
+    #     # 且参数值均为字典，{key: xxx, value: xxx}
+    #     """
+    #     if isinstance(data, list):
+    #         for item in data:
+    #             variables = re.findall(r'\{\{(.+?)\}\}', item['value'])
+    #             for variable in variables:
+    #                 if variable:
+    #                     item['value'] = item['value'].replace('{{' + variable + '}}', '${' + variable + '}')
+    #         return data
+    #
+    #
+    #     """
+    #     # 数据类型是列表，目前只有body参数
+    #     # 且参数值均为字典，{mode: xxx, data: xxx}
+    #     # 这里注意body的data参数较为复杂
+    #     # 若mode为raw则data为文本
+    #     # 若mode为formdata或urlencoded则data为列表
+    #     """
+    #     if isinstance(data, dict):
+    #
+    #         if data['mode'] in ['formdata', 'urlencoded']:
+    #             for item in data['data']:
+    #                 variables = re.findall(r'\{\{(.+?)\}\}', item['value'])
+    #                 for variable in variables:
+    #                     if variable:
+    #                         item['value'] = item['value'].replace('{{' + variable + '}}', '${' + variable + '}')
+    #             return data
+    #         elif data['mode'] in ['file']:
+    #             return data
+    #         else:
+    #             variables = re.findall(r'\{\{(.+?)\}\}', data['data'])
+    #             for variable in variables:
+    #                 if variable:
+    #                     data['data'] = data['data'].replace('{{' + variable + '}}', '${' + variable + '}')
+    #             return data
 
     def handle_collection(self, content, type):
         """
@@ -134,11 +134,11 @@ class Charles(Pipeline):
                     'data': ''
                 }
                 params=[]
-            host = self.change_charles_variable_to_clover(host)
-            path = self.change_charles_variable_to_clover(path)
-            header = self.change_charles_variable_to_clover(header)
-            params = self.change_charles_variable_to_clover(params)
-            body = self.change_charles_variable_to_clover(body)
+            # host = self.change_charles_variable_to_clover(host)
+            # path = self.change_charles_variable_to_clover(path)
+            # header = self.change_charles_variable_to_clover(header)
+            # params = self.change_charles_variable_to_clover(params)
+            # body = self.change_charles_variable_to_clover(body)
 
             interface = {
                 'name': name,

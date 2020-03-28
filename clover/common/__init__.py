@@ -165,5 +165,6 @@ def rate_of_success(data):
 def allowed_file(filename):
     if ".har" in filename:
         return True
-    return '.' in filename and \
+    else:
+        return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in {'json'}
