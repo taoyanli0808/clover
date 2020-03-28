@@ -45,7 +45,7 @@
           @click="dialogSubmitFormVisible=true"
           type="primary"
         >
-          提 交
+          保存
         </el-button>
       </el-col>
     </el-row>
@@ -555,22 +555,28 @@ export default {
       return result
     },
     translateBody (data) {
-      const result = []
-      const newData = { ...data }
-      const variables = data.data.split('\n')
-      for (const index in variables) {
-        // remove empty string
-        if (variables[index] === '') {
-          continue
+      if (data.mode === '' || data.mode === '') {
+        const result = []
+        const newData = { ...data }
+        const variables = data.data.split('\n')
+        for (const index in variables) {
+          // remove empty string
+          if (variables[index] === '') {
+            continue
+          }
+          const sep = variables[index].indexOf(':')
+          result.push({
+            key: variables[index].slice(0, sep),
+            value: variables[index].slice(sep + 1, variables[index].length)
+          })
         }
-        const sep = variables[index].indexOf(':')
-        result.push({
-          key: variables[index].slice(0, sep),
-          value: variables[index].slice(sep + 1, variables[index].length)
-        })
+        newData.data = result
+        return newData
+      } else if (data.mode === 'file') { // mode === 'file'
+        return data
+      } else { // mode === 'raw'
+        return data
       }
-      newData.data = result
-      return newData
     },
     translateVerify (data) {
       return data.filter(item => item.extractor !== '')
@@ -740,8 +746,8 @@ export default {
         case 'file':
           break
         default:
-          data.mode = 'raw'
-          data.data = ''
+          data.mode = data.mode || 'raw'
+          data.data = data.data || ''
           break
       }
       return data

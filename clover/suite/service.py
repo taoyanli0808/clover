@@ -90,12 +90,7 @@ class SuiteService():
         # 通过接口传递过来的suite id来查询需要运行的接口。
         id = data.get('id')
         suite = SuiteModel.query.get(id)
-        cases = db.session.query(
-            InterfaceModel
-        ).filter(
-            InterfaceModel.id.in_(suite.cases)
-        ).all()
-        cases = query_to_dict(cases)
+        cases = [InterfaceModel.query.get(case).to_dict() for case in suite.cases]
 
         # 使用celery异步运行的接口任务。
         interface_task.apply_async(args=(cases, data, report))

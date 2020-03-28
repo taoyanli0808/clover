@@ -8,6 +8,38 @@
 
 changelog = [
     {
+        'version': '0.7.6',
+        'date': '2020-03-28',
+        'added': [
+            '更新导入charles脚本功能。',
+        ]
+    },
+    {
+        'version': '0.7.5',
+        'date': '2020-03-25',
+        'added': [
+            '创建套件页面被添加的接口可以删除。',
+        ]
+    },
+    {
+        'version': '0.7.4',
+        'date': '2020-03-25',
+        'changed': [
+            '日志采用logging记录到文件，采用pre标签直接展示。',
+        ]
+    },
+    {
+        'version': '0.7.3',
+        'date': '2020-03-23',
+        'fixed': [
+            '修复接口编辑页面提交后body部分变为[Object Object]问题',
+            '修复接口运行时"expected string or bytes-like object报错"',
+            '修复接口运行时"list" object has no attribute "encode"报错',
+            '修复接口运行时requests请求报错导致运行失败的问题',
+            '暂时关闭日志功能以解决运行出错的严重问题',
+        ]
+    },
+    {
         'version': '0.7.2',
         'date': '2020-03-21',
         'fixed': [

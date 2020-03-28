@@ -45,7 +45,7 @@
           @click="dialogSubmitFormVisible=true"
           type="primary"
         >
-          提 交
+          保存
         </el-button>
       </el-col>
     </el-row>

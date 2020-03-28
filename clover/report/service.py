@@ -1,8 +1,8 @@
 
+import os
 import datetime
 
 from clover.exts import db
-from clover.common import rate_of_success
 from clover.models import query_to_dict, soft_delete
 from clover.report.models import ReportModel
 from sqlalchemy.exc import ProgrammingError
@@ -38,12 +38,14 @@ class ReportService():
             old_model.project = data['project']
             old_model.name = data['name']
             old_model.type = data['type']
+            old_model.interface = data['interface']
+            old_model.verify = data['verify']
+            old_model.percent = data['percent']
             old_model.start = data['start']
             old_model.end = data['end']
             old_model.duration = data['duration']
             old_model.platform = data['platform']
             old_model.detail = data['detail']
-            old_model.log = data['log']
             db.session.commit()
 
         return old_model
@@ -69,7 +71,7 @@ class ReportService():
             filter.setdefault('id', data.get('id'))
             result = ReportModel.query.get(data['id'])
             count = 1 if result else 0
-            result = query_to_dict([result])[0] if result else None
+            result = result.to_dict() if result else None
 
             return count, result
 
@@ -97,15 +99,12 @@ class ReportService():
         ).offset(offset).limit(limit)
         results = query_to_dict(results)
 
-        results = [rate_of_success(result) for result in results]
         count = ReportModel.query.filter_by(**filter).count()
 
         # 暂时用笨方法删除列表页不需要展示的大量数据。
         for result in results:
             if 'detail' in result:
                 result.pop('detail')
-            if 'log' in result:
-                result.pop('log')
 
         return count, results
 
@@ -114,9 +113,24 @@ class ReportService():
         :param data:
         :return:
         """
-        result = ReportModel.query.get(data['id'])
-        result = result.to_dict() if result else None
-        return result.get('log')
+        log = '{}.log'.format(data.get('id', 0))
+        path = os.path.join(os.getcwd(), 'logs')
+        logs = os.listdir(path)
+        if log not in logs:
+            return {
+                'status': 501,
+                'message': '运行日志不存在！',
+                'data': ''
+            }
+        name = os.path.join(os.getcwd(), 'logs', log)
+        with open(name) as file:
+            content = file.read()
+        return {
+            'status': 0,
+            'message': '成功检索到日志！',
+            'data': content
+        }
+
 
     def empty_report(self, data):
         """

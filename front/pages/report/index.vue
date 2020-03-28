@@ -48,7 +48,7 @@
         width="120"
       />
       <el-table-column
-        prop="assertion"
+        prop="verify"
         label="断言数量"
         width="120"
       />

@@ -1,12 +1,12 @@
 
 # Clover全局配置
 DEBUG = True
-VERSION = '0.7.2'
+VERSION = '0.7.6'
 
 # MySQL数据库配置
 MYSQL = {
-    'user': 'root',
-    'pswd': '456Juezui',
+    'user': 'clover',
+    'pswd': '52.clover',
     'host': '127.0.0.1',
     'port': '3306',
 }
