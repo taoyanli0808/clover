@@ -43,8 +43,13 @@ class PluginService(object):
         elif plugin == 'jmeter':
             content = ''
             object.parse(content)
+        elif plugin == 'charles':
+            content = json.load(upload)
+            object.parse(content)
         else:
             return None
 
         # 创建插件
         object.create()
+
+

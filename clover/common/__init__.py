@@ -131,37 +131,5 @@ def get_nodejs_dependency():
     return dependency
 
 
-def rate_of_success(data):
-    """
-    :param data:
-    :return:
-    """
-    rate = {
-        'interface': 0,
-        'assertion': 0,
-        'percent': 0.0,
-    }
-    data = {** data, **rate}
-
-    # 如果detail还没有数据，可能是用例没有执行完或异常，直接返回。
-    if not data['detail']:
-        return data
-
-    # 统计接口，断言与成功率。
-    details = data['detail'].values()
-    results = [detail['result'] for detail in details if detail['result']]
-    results = list(itertools.chain(*results))
-    passed = len(list(filter(lambda x: x['status'] == 'passed', results)))
-    percent = 100 * (passed / len(results)) if len(results) else 0
-    percent = '{}%'.format(round(percent, 2))
-
-    data['interface'] = len(details)
-    data['assertion'] = len(results)
-    data['percent'] = percent
-
-    return data
-
-
 def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in {'json'}
+    return  filename.rsplit('.', 1)[1].lower() in {'json','har'}
