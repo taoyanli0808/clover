@@ -141,7 +141,7 @@ class VariableService(object):
         """
         # 查询数据库name值，存在已有变量就返回变量名存在
         status=0
-        filter = {"name": data["name"],"project":data["project"]}
+        filter = {"name": data["name"],"project":data["project"],"enable":0}
         count = VariableModel.query.filter_by(**filter).count()
         if count >= 1:
             status=1
@@ -169,7 +169,7 @@ class VariableService(object):
         :return:
         """
         status=0
-        filter = {"name": data["name"], "project": data["project"]}
+        filter = {"name": data["name"], "project": data["project"],"enable":0}
         count = VariableModel.query.filter_by(**filter).count()
         if count >= 1:
             status = 1
