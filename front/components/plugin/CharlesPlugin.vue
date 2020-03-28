@@ -74,7 +74,7 @@ export default {
 
       formData.append('team', this.team)
       formData.append('project', this.project)
-      formData.append('plugin', 'postman')
+      formData.append('plugin', 'charles')
       formData.append('file', params.file)
 
       this.$axios.post(
