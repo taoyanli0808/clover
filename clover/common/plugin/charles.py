@@ -29,7 +29,8 @@ class Charles(Pipeline):
             header=[]
             for headerone in old_headers:
                 headerone["key"] = headerone.pop("name")
-                header.append(headerone)
+                if headerone['key'] !="Content-Length":
+                    header.append(headerone)
 
             method = item['request']['method'].lower()
 

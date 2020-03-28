@@ -132,8 +132,4 @@ def get_nodejs_dependency():
 
 
 def allowed_file(filename):
-    if ".har" in filename:
-        return True
-    else:
-        return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in {'json'}
+    return  filename.rsplit('.', 1)[1].lower() in {'json','har'}
