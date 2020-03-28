@@ -47,7 +47,7 @@
           </div>
           <div class="text item">
             <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
-            <JmeterPlugin :team="team" :project="project" />
+            <CharlesPlugin :team="team" :project="project" />
           </div>
         </el-card>
       </el-col>
@@ -83,6 +83,7 @@
 import JmeterPlugin from '~/components/plugin/JmeterPlugin.vue'
 import PostmanPlugin from '~/components/plugin/PostmanPlugin.vue'
 import HTTPRunnerPlugin from '~/components/plugin/HTTPRunnerPlugin.vue'
+import CharlesPlugin from '~/components/plugin/CharlesPlugin.vue'
 import TeamProjectCascader from '~/components/TeamProjectCascader.vue'
 
 export default {
@@ -90,6 +91,7 @@ export default {
     JmeterPlugin,
     PostmanPlugin,
     HTTPRunnerPlugin,
+    CharlesPlugin,
     TeamProjectCascader
   },
   data () {
