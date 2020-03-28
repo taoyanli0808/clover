@@ -24,6 +24,10 @@ class Charles(Pipeline):
         for item in content['log']['entries']:
             # 注意这里是直接取charles数据，不改变数据类型，因此body是dict。
             name = item['request']['url']
+            if len(name)>=64:
+                name=name[0:64]
+            if '?' in name:
+                name = name.split("?")[0]
 
             old_headers = item['request']['headers']
             header=[]
@@ -37,8 +41,7 @@ class Charles(Pipeline):
             # urlparse.path方法会算出url后面跟的path
             url = item['request']['url']
             host = urlparse(url).scheme +"://"+urlparse(url).netloc
-            if '?' in name:
-                name=name.split("?")[0]
+
             path=urlparse(url).path
 
             if 'postData' in item['request']:
@@ -53,11 +56,10 @@ class Charles(Pipeline):
                     params=[]
                 #取body
                 if 'text' in item['request']['postData']:
-                    old_body = item['request']['postData']['text']
-                    new_body = str(old_body).replace('\\','')
+                    p_body = item['request']['postData']['text']
                     body={
                         'mode':"raw",
-                        'data':new_body
+                        'data':p_body
                     }
                 else:
                     body = {
