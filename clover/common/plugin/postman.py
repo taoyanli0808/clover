@@ -1,5 +1,7 @@
 import re
 
+from werkzeug.utils import import_string
+
 from clover.common.plugin import Pipeline
 
 
@@ -7,6 +9,12 @@ class Postman(Pipeline):
 
     def __init__(self):
         super(Postman, self).__init__()
+        self.result = {
+            'success': 0,
+            'failed': 0,
+            'total': 0,
+            'type': 'interface'
+        }
 
     def change_postman_variable_to_clover(self, data):
         """
@@ -61,88 +69,94 @@ class Postman(Pipeline):
                         data['data'] = data['data'].replace('{{' + variable + '}}', '${' + variable + '}')
                 return data
 
-    def handle_collection(self, content, type):
+    def handle_collection(self, content):
         """
         :param content:
-        :param type:
         :return:
         """
-        # 这里确保数据长度满足数据库字段长度要求
-        if len(content['info']['name']) < 64:
-            self.suite = content['info']['name']
-        else:
-            self.suite = content['info']['name'][0:64]
-
         for item in content['item']:
-            # 注意这里是直接取postman数据，不改变数据类型，因此body是dict。
-            if len(item['name']) < 64:
-                name = item['name']
-            else:
-                name = item['name'][0:64]
+            try:
+                # 注意这里是直接取postman数据，不改变数据类型，因此body是dict。
+                if len(item['name']) < 64:
+                    name = item['name']
+                else:
+                    name = item['name'][0:64]
 
-            header = item['request']['header']
-            method = item['request']['method'].lower()
+                header = item['request']['header']
+                method = item['request']['method'].lower()
 
-            host = item['request']['url']['protocol'] + '://' + \
-                   '.'.join(item['request']['url']['host'])
-            if 'port' in item['request']['url']:
-                host += ':' + item['request']['url']['port']
+                host = item['request']['url']['protocol'] + '://' + \
+                       '.'.join(item['request']['url']['host'])
+                if 'port' in item['request']['url']:
+                    host += ':' + item['request']['url']['port']
 
-            # path默认是首页请求，如果不是则进行拼接
-            path = '/'
-            if 'path' in item['request']['url']:
-                path += '/'.join(item['request']['url']['path'])
+                # path默认是首页请求，如果不是则进行拼接
+                path = '/'
+                if 'path' in item['request']['url']:
+                    path += '/'.join(item['request']['url']['path'])
 
-            if 'query' in item['request']['url']:
-                params = item['request']['url']['query']
-            else:
-                params = []
+                if 'query' in item['request']['url']:
+                    params = item['request']['url']['query']
+                else:
+                    params = []
 
-            if 'body' in item['request']:
-                if item['request']['body'].get('mode') == 'formdata':
-                    body = {
-                        'mode': item['request']['body']['mode'],
-                        'data': item['request']['body']['formdata']
-                    }
-                elif item['request']['body'].get('mode') == 'urlencoded':
-                    body = {
-                        'mode': item['request']['body']['mode'],
-                        'data': item['request']['body']['urlencoded']
-                    }
-                elif item['request']['body'].get('mode') == 'file':
-                    body = {
-                        'mode': item['request']['body']['mode'],
-                        'data': item['request']['body']['file']
-                    }
+                if 'body' in item['request']:
+                    if item['request']['body'].get('mode') == 'formdata':
+                        body = {
+                            'mode': item['request']['body']['mode'],
+                            'data': item['request']['body']['formdata']
+                        }
+                    elif item['request']['body'].get('mode') == 'urlencoded':
+                        body = {
+                            'mode': item['request']['body']['mode'],
+                            'data': item['request']['body']['urlencoded']
+                        }
+                    elif item['request']['body'].get('mode') == 'file':
+                        body = {
+                            'mode': item['request']['body']['mode'],
+                            'data': item['request']['body']['file']
+                        }
+                    else:
+                        body = {
+                            'mode': item['request']['body'].get('mode') or 'raw',
+                            'data': item['request']['body'].get('raw') or ''
+                        }
                 else:
                     body = {
-                        'mode': item['request']['body'].get('mode') or 'raw',
-                        'data': item['request']['body'].get('raw') or ''
+                        'mode': 'raw',
+                        'data': ''
                     }
-            else:
-                body = {
-                    'mode': 'raw',
-                    'data': ''
+
+                host = self.change_postman_variable_to_clover(host)
+                path = self.change_postman_variable_to_clover(path)
+                header = self.change_postman_variable_to_clover(header)
+                params = self.change_postman_variable_to_clover(params)
+                body = self.change_postman_variable_to_clover(body)
+
+                interface = {
+                    'team': self.team,
+                    'project': self.project,
+                    'name': name,
+                    'method': method,
+                    'host': host,
+                    'path': path,
+                    'header': header,
+                    'params': params,
+                    'body': body,
+                    'verify': [],
+                    'extract': [],
                 }
 
-            host = self.change_postman_variable_to_clover(host)
-            path = self.change_postman_variable_to_clover(path)
-            header = self.change_postman_variable_to_clover(header)
-            params = self.change_postman_variable_to_clover(params)
-            body = self.change_postman_variable_to_clover(body)
-
-            interface = {
-                'name': name,
-                'method': method,
-                'host': host,
-                'path': path,
-                'header': header,
-                'params': params,
-                'body': body,
-                'verify': [],
-                'extract': [],
-            }
-            self.interfaces.append(interface)
+                plugin = 'clover.interface.service:InterfaceService'
+                service = import_string(plugin)()
+                _, status, _, _ = service.create(interface)
+                if status == 0:
+                    self.result['success'] += 1
+                else:
+                    self.result['failed'] += 1
+            except Exception:
+                self.result['failed'] += 1
+            self.result['total'] += 1
 
     def handle_variable(self, content):
         """
@@ -150,11 +164,26 @@ class Postman(Pipeline):
         :return:
         """
         for item in content['values']:
-            self.variables.append({
-                'name': item['key'],
-                'value': item['value'],
-                'enable': 0 if item['enabled'] else 1
-            })
+            try:
+                variable = {
+                    'team': self.team,
+                    'project': self.project,
+                    'name': item['key'],
+                    'value': item['value'],
+                    'owner': 'plugin',
+                    'enable': 0 if item['enabled'] else 1
+                }
+                plugin = 'clover.environment.service:VariableService'
+                service = import_string(plugin)()
+                status = service.create(variable)
+                if status == 0:
+                    self.result['success'] += 1
+                else:
+                    self.result['failed'] += 1
+            except Exception as error:
+                self.result['failed'] += 1
+            self.result['total'] += 1
+            self.result['type'] = 'variable'
 
     def parse(self, content, type=None):
         """
@@ -169,4 +198,5 @@ class Postman(Pipeline):
             self.handle_variable(content)
         # 集合存在根节点info
         if 'info' in content:
-            self.handle_collection(content, type)
+            self.handle_collection(content)
+        return self.result

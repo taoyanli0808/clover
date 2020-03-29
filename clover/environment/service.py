@@ -140,17 +140,17 @@ class VariableService(object):
         :return:
         """
         # 查询数据库name值，存在已有变量就返回变量名存在
-        status=0
-        filter = {"name": data["name"],"project":data["project"]}
+        filter = {
+            "enable": 0,
+            "name": data["name"],
+            "project":data["project"]
+        }
         count = VariableModel.query.filter_by(**filter).count()
-        if count >= 1:
-            status=1
-            return status
-        else:
+        if not count:
             model = VariableModel(**data)
             db.session.add(model)
             db.session.commit()
-            return status
+        return count
 
     def detele(self, data):
         """
