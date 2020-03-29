@@ -3,7 +3,6 @@
     <el-row>
       <el-upload
         ref="upload"
-        :file-list="fileList"
         :show-file-list="false"
         action="null"
         class="upload-demo"
@@ -43,17 +42,8 @@ export default {
   },
   data () {
     return {
-      options: [{
-        label: '接口',
-        value: 'interface'
-      }, {
-        label: '变量',
-        value: 'variable'
-      }],
       team: '',
-      project: '',
-      file: '',
-      fileList: []
+      project: ''
     }
   },
   methods: {
@@ -69,7 +59,7 @@ export default {
           message: '请选择要上传的插件文件!',
           center: true
         })
-        return
+        return false
       }
 
       // 只取最新上传的文件
