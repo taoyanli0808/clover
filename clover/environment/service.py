@@ -169,7 +169,7 @@ class VariableService(object):
         :return:
         """
         status=0
-        filter = {"name": data["name"], "project": data["project"]}
+        filter = {"name": data["name"], "project": data["project"],"enable":0}
         count = VariableModel.query.filter_by(**filter).count()
         if count >= 1:
             status = 1
