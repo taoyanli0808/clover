@@ -3,6 +3,7 @@
     <el-row>
       <el-upload
         ref="upload"
+        :auto-upload="false"
         :show-file-list="false"
         action="null"
         class="upload-demo"
