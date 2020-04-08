@@ -8,6 +8,13 @@
 
 changelog = [
     {
+        'version': '0.8.1',
+        'date': '2020-04-08',
+        'changed': [
+            '优化插件提示。',
+        ]
+    },
+    {
         'version': '0.8.0',
         'date': '2020-03-29',
         'changed': [

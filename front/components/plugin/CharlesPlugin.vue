@@ -125,7 +125,7 @@ export default {
             })
           } else {
             this.$alert(
-              '您选择了' + res.data.data.total + '条接口，上传成功' + res.data.data.success + '条，上传失败' + res.data.data.failed + '条！',
+              '您选择了' + res.data.data.total + '个接口，上传时' + res.data.data.success + '个接口请求成功，上传时' + res.data.data.failed + '个接口请求失败，请关注！',
               '创建接口插件',
               {
                 confirmButtonText: '确定',

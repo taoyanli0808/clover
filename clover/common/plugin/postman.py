@@ -175,7 +175,7 @@ class Postman(Pipeline):
                 }
                 plugin = 'clover.environment.service:VariableService'
                 service = import_string(plugin)()
-                status = service.create(variable)
+                _, status, _, _ = service.create(variable)
                 if status == 0:
                     self.result['success'] += 1
                 else:

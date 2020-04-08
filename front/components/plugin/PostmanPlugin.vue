@@ -3,8 +3,9 @@
     <el-row>
       <el-upload
         ref="upload"
+        :limit="1"
         :auto-upload="false"
-        :show-file-list="false"
+        :on-exceed="handleExceed"
         action="null"
         class="upload-demo"
         style="margin-bottom: 20px;"
@@ -51,6 +52,9 @@ export default {
     selectedTeamProject (value) {
       this.team = value.team
       this.project = value.project
+    },
+    handleExceed (files, fileList) {
+      this.$message.warning('每次上传仅限一个插件文件，如果您选择了错误的插件文件，请删除当前文件再从新选择！')
     },
     handleUpload () {
       const fileList = this.$refs.upload.uploadFiles
@@ -131,7 +135,7 @@ export default {
             })
           } else {
             this.$alert(
-              '您选择了' + res.data.data.total + '条接口，上传成功' + res.data.data.success + '条，上传失败' + res.data.data.failed + '条！',
+              '您选择了' + res.data.data.total + '个接口，上传时' + res.data.data.success + '个接口请求成功，上传时' + res.data.data.failed + '个接口请求失败，请关注！',
               '创建接口插件',
               {
                 confirmButtonText: '确定',
