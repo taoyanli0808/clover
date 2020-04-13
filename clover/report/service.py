@@ -137,7 +137,7 @@ class ReportService():
         :param data:
         :return:
         """
-        name = data['report'] if 'report' in data and data['report'] else data['name']
+        name = data['report'] if 'report' in data and data['report'] else data.get('name')
         report = {
             'team': data['team'],
             'project': data['project'],
