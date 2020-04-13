@@ -38,7 +38,7 @@ export default {
         platform: {
           'title': 'platform',
           'name': 'linux',
-          'image': '团队数量'
+          'image': require('assets/img/info-platform.jpg')
         }
       }
     }
