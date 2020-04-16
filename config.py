@@ -51,6 +51,7 @@ EMAIL = {
     'sender': '12345678@qq.com',
     'receiver': ['12345678@qq.com'],
     'password': '',
+    'smtp_host': 'smtp.qq.com',
 }
 
 NOTIFY = {
