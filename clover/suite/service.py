@@ -82,17 +82,25 @@ class SuiteService():
         :param data:
         :return:
         """
+        # 通过接口传递过来的suite id来查询需要运行的接口。
+        id = data.get('id')
+        suite = SuiteModel.query.get(id)
+
+        # 如果不存在套件，则直接返回。
+        if not suite:
+            return
+
         # 创建空的report并提交
+        if 'team' not in data or not data['team']:
+            data['team'] = suite.team
+        if 'project' not in data or not data['project']:
+            data['project'] = suite.team
         report_service = ReportService()
         report = report_service.empty_report(data)
         report = report.to_dict()
 
-        # 通过接口传递过来的suite id来查询需要运行的接口。
-        id = data.get('id')
-        suite = SuiteModel.query.get(id)
         cases = [InterfaceModel.query.get(case).to_dict() for case in suite.cases]
 
         # 使用celery异步运行的接口任务。
         interface_task.apply_async(args=(cases, data, report))
-
-        return report
+        return report.get('id')

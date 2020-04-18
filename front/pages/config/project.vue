@@ -78,8 +78,8 @@
       background
       layout="total, prev, pager, next, jumper"
     />
-    <el-dialog :visible.sync="addDialogVisible" width="30%" title="添加项目">
-      <el-form ref="form" :model="add" label-width="80px">
+    <el-dialog :visible.sync="addDialogVisible" width="30%" title="添加项目" >
+      <el-form ref="form" :model="add" label-width="80px" >
         <el-form-item label="团队名称">
           <el-input v-model="add.team" />
         </el-form-item>
@@ -126,6 +126,8 @@ export default {
   },
   data () {
     return {
+      view: true,
+      menuKey: 1,
       data: [],
       total: 0,
       limit: 10,
@@ -223,6 +225,9 @@ export default {
           'Content-Type': 'application/json;'
         }
       }).then((res) => {
+        this.add.team = ''
+        this.add.project = ''
+        this.add.owner = ''
         if (res.data.status === 0) {
           this.refresh()
           this.$message({

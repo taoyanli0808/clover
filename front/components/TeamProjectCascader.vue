@@ -39,9 +39,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.el-cascader {
-  padding-bottom: 20px;
-}
-</style>

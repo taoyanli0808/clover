@@ -119,10 +119,10 @@ class SuiteView(CloverView):
         """
         data = request.get_json()
 
-        if 'cases' not in data or not data['cases']:
+        if 'id' not in data or not data['id']:
             return jsonify({
                 'status': 400,
-                'message': '请求缺少cases参数！',
+                'message': '运行接口用例需要指定ID参数',
                 'data': data
             })
 
