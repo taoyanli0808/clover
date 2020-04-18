@@ -95,9 +95,9 @@ class TeamService(object):
         """
         if 'cascader' in data:
             cascader = {}
-            results = TeamModel.query.\
-                with_entities(TeamModel.team, TeamModel.project).\
-                filter(TeamModel.enable == 0).\
+            results = TeamModel.query. \
+                with_entities(TeamModel.team, TeamModel.project). \
+                filter(TeamModel.enable == 0). \
                 distinct().all()
             for team, project in results:
                 if team not in cascader:
@@ -119,13 +119,13 @@ class TeamService(object):
             return list(cascader.values())
         else:
             if data['key'] == 'team':
-                results = TeamModel.query.with_entities(TeamModel.team).\
-                    filter(TeamModel.enable == 0).\
+                results = TeamModel.query.with_entities(TeamModel.team). \
+                    filter(TeamModel.enable == 0). \
                     distinct().all()
                 return [r[0] for r in results]
             elif data['key'] == 'owner':
-                results = TeamModel.query.with_entities(TeamModel.owner).\
-                    filter(TeamModel.enable == 0).\
+                results = TeamModel.query.with_entities(TeamModel.owner). \
+                    filter(TeamModel.enable == 0). \
                     distinct().all()
                 return [r[0] for r in results]
             else:
@@ -140,16 +140,11 @@ class VariableService(object):
         :return:
         """
         # 查询数据库name值，存在已有变量就返回变量名存在
-<<<<<<< HEAD
-        status=0
-        filter = {"name": data["name"],"project":data["project"],'enable':0}
-=======
         filter = {
             "enable": 0,
             "name": data["name"],
-            "project":data["project"]
+            "project": data["project"]
         }
->>>>>>> charles
         count = VariableModel.query.filter_by(**filter).count()
         if not count:
             model = VariableModel(**data)
@@ -173,12 +168,8 @@ class VariableService(object):
         :param data:
         :return:
         """
-        status=0
-<<<<<<< HEAD
-        filter = {"name": data["name"], "project": data["project"],'enable':0} #enable=1表示前端已删除
-=======
-        filter = {"name": data["name"], "project": data["project"],"enable":0}
->>>>>>> charles
+        status = 0
+        filter = {"name": data["name"], "project": data["project"], "enable": 0}
         count = VariableModel.query.filter_by(**filter).count()
         if count >= 1:
             status = 1
@@ -316,7 +307,7 @@ class KeywordService(object):
             limit = 10
 
         results = KeywordModel.query.filter_by(**filter) \
-                .offset(offset).limit(limit)
+            .offset(offset).limit(limit)
         results = query_to_dict(results)
         count = KeywordModel.query.filter_by(**filter).count()
         return count, results
