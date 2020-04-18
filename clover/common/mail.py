@@ -34,16 +34,17 @@ def send_email(data):
         content = render_html(data)
 
         message = MIMEText(content, 'html', 'utf-8')
+        message['To'] = ','.join(EMAIL['receiver'])
         message['From'] = Header("Clover测试平台", 'utf-8')  # 发送者
         message['Subject'] = Header('Clover平台运行报告！', 'utf-8')
 
-        smtp = smtplib.SMTP('smtp.qq.com')
+        smtp = smtplib.SMTP(EMAIL['smtp_host'])
         smtp.login(EMAIL['sender'], EMAIL['password'])
         smtp.sendmail(EMAIL['sender'], EMAIL['receiver'], message.as_string())
 
         print("邮件发送成功")
-    except smtplib.SMTPException:
-        print("Error: 无法发送邮件")
+    except smtplib.SMTPException as error:
+        print("Error: 无法发送邮件，错误码[{0}].".format(error.smtp_code))
 
 
 if __name__ == '__main__':

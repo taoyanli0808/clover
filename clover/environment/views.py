@@ -207,19 +207,18 @@ class VariableView(CloverView):
 
 
         try:
+            status = self.service.create(data)
+            if not status:
+                return jsonify({
+                    'status': 0,
+                    'message': '成功创建变量！',
+                })
+            else:
+                return jsonify({
+                    'status': 400,
+                    'message': '此项目已有相同的变量名，请更换！',
 
-                status = self.service.create(data)
-                if status==1:
-                    return jsonify({
-                        'status': 400,
-                        'message': '此项目已有相同的变量名，请更换',
-
-                    })
-                else:
-                    return jsonify({
-                        'status': 0,
-                        'message': 'ok',
-            })
+                })
         except Exception as error:
             return jsonify({
                 'status': 500,

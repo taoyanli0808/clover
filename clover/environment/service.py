@@ -140,17 +140,22 @@ class VariableService(object):
         :return:
         """
         # 查询数据库name值，存在已有变量就返回变量名存在
+<<<<<<< HEAD
         status=0
         filter = {"name": data["name"],"project":data["project"],'enable':0}
+=======
+        filter = {
+            "enable": 0,
+            "name": data["name"],
+            "project":data["project"]
+        }
+>>>>>>> charles
         count = VariableModel.query.filter_by(**filter).count()
-        if count >= 1:
-            status=1
-            return status
-        else:
+        if not count:
             model = VariableModel(**data)
             db.session.add(model)
             db.session.commit()
-            return status
+        return count
 
     def detele(self, data):
         """
@@ -169,7 +174,11 @@ class VariableService(object):
         :return:
         """
         status=0
+<<<<<<< HEAD
         filter = {"name": data["name"], "project": data["project"],'enable':0} #enable=1表示前端已删除
+=======
+        filter = {"name": data["name"], "project": data["project"],"enable":0}
+>>>>>>> charles
         count = VariableModel.query.filter_by(**filter).count()
         if count >= 1:
             status = 1

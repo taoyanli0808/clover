@@ -1,7 +1,7 @@
 
 # Clover全局配置
 DEBUG = True
-VERSION = '0.7.6'
+VERSION = '0.8.3'
 
 # MySQL数据库配置
 MYSQL = {
@@ -51,6 +51,7 @@ EMAIL = {
     'sender': '12345678@qq.com',
     'receiver': ['12345678@qq.com'],
     'password': '',
+    'smtp_host': 'smtp.qq.com',
 }
 
 NOTIFY = {

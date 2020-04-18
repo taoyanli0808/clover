@@ -8,7 +8,6 @@
             <!-- <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button> -->
           </div>
           <div class="text item">
-            <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
             <PostmanPlugin :team="team" :project="project" />
           </div>
         </el-card>
@@ -20,7 +19,6 @@
             <!-- <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button> -->
           </div>
           <div class="text item">
-            <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
             <JmeterPlugin :team="team" :project="project" />
           </div>
         </el-card>
@@ -32,7 +30,6 @@
             <!-- <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button> -->
           </div>
           <div class="text item">
-            <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
             <HTTPRunnerPlugin :team="team" :project="project" />
           </div>
         </el-card>
@@ -46,7 +43,6 @@
             <!-- <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button> -->
           </div>
           <div class="text item">
-            <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
             <CharlesPlugin :team="team" :project="project" />
           </div>
         </el-card>
@@ -58,7 +54,6 @@
             <!-- <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button> -->
           </div>
           <div class="text item">
-            <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
             <JmeterPlugin :team="team" :project="project" />
           </div>
         </el-card>
@@ -70,7 +65,6 @@
             <!-- <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button> -->
           </div>
           <div class="text item">
-            <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
             <HTTPRunnerPlugin :team="team" :project="project" />
           </div>
         </el-card>
@@ -84,15 +78,13 @@ import JmeterPlugin from '~/components/plugin/JmeterPlugin.vue'
 import PostmanPlugin from '~/components/plugin/PostmanPlugin.vue'
 import HTTPRunnerPlugin from '~/components/plugin/HTTPRunnerPlugin.vue'
 import CharlesPlugin from '~/components/plugin/CharlesPlugin.vue'
-import TeamProjectCascader from '~/components/TeamProjectCascader.vue'
 
 export default {
   components: {
     JmeterPlugin,
     PostmanPlugin,
     HTTPRunnerPlugin,
-    CharlesPlugin,
-    TeamProjectCascader
+    CharlesPlugin
   },
   data () {
     return {
@@ -102,12 +94,12 @@ export default {
       file: '',
       fileList: []
     }
-  },
-  methods: {
-    selectedTeamProject (value) {
-      this.team = value.team
-      this.project = value.project
-    }
   }
 }
 </script>
+
+<style scoped>
+.el-row {
+  margin-bottom: 20px;
+}
+</style>
