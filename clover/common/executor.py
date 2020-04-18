@@ -265,10 +265,11 @@ class Executor():
                 self.logger.info("断言，预期值[{}]".format(expected))
                 self.logger.info("断言，比较器[{}]".format(comparator))
                 self.logger.info("断言，结果[{}]".format(result))
-            except Exception:
+            except Exception as error:
                 self.result[data['name']]['result'].append({
                     'status': 'error'
                 })
+                self.logger.info("断言，执行异常[{}]".format(error))
 
     def extract_variable(self, data):
         """

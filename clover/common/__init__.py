@@ -84,6 +84,8 @@ def convert_type(convertor, data):
             return str(data)
     except ValueError:
         return data
+    except TypeError:
+        return data
 
 
 def get_system_info():
