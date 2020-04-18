@@ -3,6 +3,7 @@
 DEBUG = True
 VERSION = '0.8.3'
 
+
 # MySQL数据库配置
 MYSQL = {
     'user': 'root',
