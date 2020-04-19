@@ -132,27 +132,34 @@ export default {
     this.refresh()
   },
   methods: {
+    handleFormat (data) {
+      // python返回的None数据通过json转换成js的null。
+      if (data === null) {
+        return 'None'
+      }
+      return data
+    },
     refresh () {
       this.$axios
         .post('/api/v1/report/search', { id: this.$route.query.id })
         .then((res) => {
           if (res.data.status === 0) {
             this.data = res.data.data
+            this.total = this.data.interface.total
+            this.success = this.data.interface.passed
+            this.failed = this.data.interface.failed
+            this.error = this.data.interface.error
+            this.skiped = this.data.interface.skiped
+            this.percent = 100 * this.data.interface.percent.toFixed(2) + '%'
             // 这里是报告的详细数据。
             for (const name in this.data.detail) {
               for (const index in this.data.detail[name].result) {
                 let elapsed = 0
-                if (!isNaN(this.data.detail[name].elapsed)) {
-                  elapsed = this.data.detail[name].elapsed
-                }
+                elapsed = this.handleFormat(this.data.detail[name].elapsed)
                 let actual = '-'
-                if (!isNaN(this.data.detail[name].result[index].actual)) {
-                  actual = this.data.detail[name].result[index].actual
-                }
+                actual = this.handleFormat(this.data.detail[name].result[index].actual)
                 let expect = '-'
-                if (!isNaN(this.data.detail[name].result[index].expect)) {
-                  expect = this.data.detail[name].result[index].expect
-                }
+                expect = this.handleFormat(this.data.detail[name].result[index].expect)
                 this.results.push({
                   name,
                   start: this.data.detail[name].start,
@@ -163,10 +170,8 @@ export default {
                   expect,
                   operate: this.data.detail[name].result[index].operate
                 })
-                this.countStatus(this.data.detail[name].result[index].status)
               }
             }
-            this.percent = (100 * (this.success / this.total))
             if (isNaN(this.percent)) {
               this.percent = 0.0
             }
@@ -209,7 +214,7 @@ export default {
               hc3: this.failed,
               hc4: this.error,
               hc5: this.skip,
-              hc6: this.percent.toFixed(2) + '%'
+              hc6: this.percent
             })
             if (this.fail_or_error) {
               this.$message({
@@ -247,23 +252,6 @@ export default {
       } else {
         return 'primary'
       }
-    },
-    countStatus (status) {
-      if (status === 'passed') {
-        this.success++
-      }
-      if (status === 'failed') {
-        this.failed++
-        this.fail_or_error = true
-      }
-      if (status === 'error') {
-        this.error++
-        this.fail_or_error = true
-      }
-      if (status === 'skip') {
-        this.skip++
-      }
-      this.total++
     }
   }
 }

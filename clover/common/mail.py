@@ -8,15 +8,16 @@ from config import EMAIL
 
 
 def render_html(data):
+    print(data)
     template = '''
         <table border="1" cellspacing="0" cellpadding="0">
         <tr><td>类型</td><td>{type}</td></tr>
         <tr><td>团队</td><td>{team}</td></tr>
         <tr><td>项目</td><td>{project}</td></tr>
         <tr><td>名称</td><td>{name}</td></tr>
-        <tr><td>接口</td><td>{interface}个</td></tr>
-        <tr><td>断言</td><td>{verify}个</td></tr>
-        <tr><td>成功率</td><td>{percent}</td></tr>
+        <tr><td>接口</td><td>{interface[total]}个</td></tr>
+        <tr><td>断言</td><td>{interface[verify]}个</td></tr>
+        <tr><td>成功率</td><td>{interface[percent]}%%</td></tr>
         <tr><td>开始时间</td><td>{start}</td></tr>
         <tr><td>结束时间</td><td>{end}</td></tr>
         <tr><td>报告地址</td><td><a href="http://www.52clover.cn/report/detail?id={id}">测试报告-{id}</a></td></tr>

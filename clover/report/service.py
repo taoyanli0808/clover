@@ -2,10 +2,13 @@
 import os
 import datetime
 
-from clover.exts import db
-from clover.models import query_to_dict, soft_delete
-from clover.report.models import ReportModel
 from sqlalchemy.exc import ProgrammingError
+
+from clover.exts import db
+from clover.models import soft_delete
+from clover.models import query_to_dict
+from clover.common import friendly_datetime
+from clover.report.models import ReportModel
 
 
 class ReportService():
@@ -39,8 +42,6 @@ class ReportService():
             old_model.name = data['name']
             old_model.type = data['type']
             old_model.interface = data['interface']
-            old_model.verify = data['verify']
-            old_model.percent = data['percent']
             old_model.start = data['start']
             old_model.end = data['end']
             old_model.duration = data['duration']
@@ -72,6 +73,7 @@ class ReportService():
             result = ReportModel.query.get(data['id'])
             count = 1 if result else 0
             result = result.to_dict() if result else None
+            result = friendly_datetime(result)
 
             return count, result
 
@@ -143,6 +145,7 @@ class ReportService():
             'project': data['project'],
             'name': name,
             'type': 'interface',
+            'interface': {},
             'start': datetime.datetime.now(),
             'end': datetime.datetime.now(),
             'duration': 0,

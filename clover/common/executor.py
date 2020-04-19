@@ -27,17 +27,18 @@ class Executor():
         self.status = 0
         self.message = 'ok'
         self.type = type
-        self.interface = {
-            'passed': 0,
-            'failed': 0,
-            'sikped': 0,
-            'total': 0,
-        }
-        self.verify = 0
-        self.percent = 0.0
         self.start = 0
         self.end = 0
         self.result = {}    # 记录运行状态与相关数据。
+        self.interface = {
+            'verify': 0,
+            'passed': 0,
+            'failed': 0,
+            'error': 0,
+            'sikped': 0,
+            'total': 0,
+            'percent': 0.0,
+        }
 
         file = os.path.join(os.getcwd(), 'logs', '{}.log'.format(log))
         self.logger = logging.getLogger(__name__)
@@ -332,7 +333,7 @@ class Executor():
 
         self.interface['total'] = len(cases)
         for _, results in self.result.items():
-            self.verify += len(results['result'])
+            self.interface['verify'] += len(results['result'])
             for result in results['result']:
                 if result['status'] == 'failed':
                     self.interface['failed'] += 1
@@ -340,7 +341,7 @@ class Executor():
             else:
                 self.interface['passed'] += 1
         if self.interface['total'] == 0:
-            self.percent = 0.0
+            self.interface['percent'] = 0.0
         else:
-            self.percent = round(100 * self.interface['passed'] / self.interface['total'], 2)
-        self.logger.info("接口[{}],断言个数[{}],成功率[{}]".format(self.interface['total'], self.verify, self.percent))
+            self.interface['percent'] = round(100 * self.interface['passed'] / self.interface['total'], 2)
+        self.logger.info("接口[{}],断言个数[{}],成功率[{}]".format(self.interface['total'], self.interface['verify'], self.interface['percent']))

@@ -43,17 +43,17 @@
         width="120"
       />
       <el-table-column
-        prop="interface"
+        prop="interface.total"
         label="接口数量"
         width="120"
       />
       <el-table-column
-        prop="verify"
+        prop="interface.verify"
         label="断言数量"
         width="120"
       />
       <el-table-column
-        prop="percent"
+        prop="interface.percent"
         label="成功率"
         width="120"
       />
@@ -150,6 +150,9 @@ export default {
           if (res.data.status === 0) {
             this.total = res.data.total
             this.data = res.data.data
+            for (const i in this.data) {
+              this.data[i].interface.percent = 100 * this.data[i].interface.percent.toFixed(2) + '%'
+            }
           } else {
             this.$message({
               type: 'error',
