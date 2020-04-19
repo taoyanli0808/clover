@@ -145,12 +145,13 @@ export default {
         .then((res) => {
           if (res.data.status === 0) {
             this.data = res.data.data
+            console.log(res.data.data)
             this.total = this.data.interface.total
             this.success = this.data.interface.passed
             this.failed = this.data.interface.failed
             this.error = this.data.interface.error
             this.skiped = this.data.interface.skiped
-            this.percent = 100 * this.data.interface.percent.toFixed(2) + '%'
+            this.percent = this.data.interface.percent.toFixed(0) + '%'
             // 这里是报告的详细数据。
             for (const name in this.data.detail) {
               for (const index in this.data.detail[name].result) {
@@ -171,9 +172,6 @@ export default {
                   operate: this.data.detail[name].result[index].operate
                 })
               }
-            }
-            if (isNaN(this.percent)) {
-              this.percent = 0.0
             }
             // 这里是报告的表头数据。
             this.headers.push({

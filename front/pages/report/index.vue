@@ -151,7 +151,7 @@ export default {
             this.total = res.data.total
             this.data = res.data.data
             for (const i in this.data) {
-              this.data[i].interface.percent = 100 * this.data[i].interface.percent.toFixed(2) + '%'
+              this.data[i].interface.percent = this.data[i].interface.percent.toFixed(0) + '%'
             }
           } else {
             this.$message({
