@@ -27,13 +27,13 @@
         width="80"
       />
       <el-table-column
-        prop="project"
-        label="项目"
+        prop="team"
+        label="团队"
         width="180"
       />
       <el-table-column
-        prop="team"
-        label="团队"
+        prop="project"
+        label="项目"
         width="180"
       />
       <el-table-column
