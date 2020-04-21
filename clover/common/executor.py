@@ -170,6 +170,7 @@ class Executor():
         self.logger.info("接口请求体[{}]".format(body))
 
         try:
+            self.interface['total'] += 1
             response = request(
                 method, url,
                 params=params,
@@ -179,26 +180,31 @@ class Executor():
             self.result[data['name']]['elapsed'] = response.elapsed.microseconds
             self.logger.error("接口请成功，耗时[{}]毫秒".format(response.elapsed.microseconds))
         except InvalidURL:
+            self.interface['error'] += 1
             self.status = 601
             self.message = "您输入接口信息有误，URL格式非法，请确认！"
             self.logger.error("接口请失败，[{}]".format(self.message))
             return data
         except MissingSchema:
+            self.interface['error'] += 1
             self.status = 602
             self.message = "您输入接口缺少协议格式，请增加[http(s)://]协议头！"
             self.logger.error("接口请失败，[{}]".format(self.message))
             return data
         except InvalidSchema:
+            self.interface['error'] += 1
             self.status = 603
             self.message = "不支持的接口协议，请使用[http(s)://]协议头！"
             self.logger.error("接口请失败，[{}]".format(self.message))
             return data
         except ConnectionError:
+            self.interface['error'] += 1
             self.status = 604
             self.message = "当链接到服务器时出错，请确认域名[{}]是否正确！".format(data.get('host'))
             self.logger.error("接口请失败，[{}]".format(self.message))
             return data
         except InvalidHeader:
+            self.interface['error'] += 1
             self.status = 605
             self.message = "请求头包含非法字符！"
             self.logger.error("接口请失败，[{}]".format(self.message))
@@ -331,7 +337,6 @@ class Executor():
             self.logger.info("[{}]接口测试结束...".format(case['name']))
         self.end = datetime.datetime.now()
 
-        self.interface['total'] = len(cases)
         for _, results in self.result.items():
             self.interface['verify'] += len(results['result'])
             for result in results['result']:
