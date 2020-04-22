@@ -11,7 +11,8 @@ RUN echo "http://mirrors.ustc.edu.cn/alpine/v3.10/main/" > /etc/apk/repositories
     && apk add build-base mariadb-dev \
     && apk add nodejs \
     && apk add npm \
-    && apk add nginx
+    && apk add nginx \
+    && apk add redis
 
 # 编译前端资源
 RUN npm install && npm run generate
