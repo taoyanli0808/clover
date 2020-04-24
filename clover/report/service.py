@@ -37,16 +37,8 @@ class ReportService():
             db.session.commit()
             old_model = model
         else:
-            old_model.team = data['team']
-            old_model.project = data['project']
-            old_model.name = data['name']
-            old_model.type = data['type']
-            old_model.interface = data['interface']
-            old_model.start = data['start']
-            old_model.end = data['end']
-            old_model.duration = data['duration']
-            old_model.platform = data['platform']
-            old_model.detail = data['detail']
+            {setattr(old_model, k, v) for k, v in data.items()}
+            old_model.updated = datetime.datetime.now()
             db.session.commit()
 
         return old_model

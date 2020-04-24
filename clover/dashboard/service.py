@@ -41,17 +41,6 @@ class DashboardService(object):
                 return model.id
             else:
                 {setattr(old_model, k, v) for k, v in data.items()}
-                # old_model.team = data['team']
-                # old_model.project = data['project']
-                # old_model.name = data['name']
-                # old_model.method = data['method']
-                # old_model.host = data['host']
-                # old_model.path = data['path']
-                # old_model.header = data['header']
-                # old_model.params = data['params']
-                # old_model.body = data['body']
-                # old_model.verify = data['verify']
-                # old_model.extract = data['extract']
                 old_model.updated = datetime.datetime.now()
                 db.session.commit()
 

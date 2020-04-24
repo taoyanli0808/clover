@@ -43,9 +43,7 @@ class TeamService(object):
             db.session.add(model)
             db.session.commit()
         else:
-            old_model.team = data['team']
-            old_model.project = data['project']
-            old_model.owner = data['owner']
+            {setattr(old_model, k, v) for k, v in data.items()}
             old_model.updated = datetime.datetime.now()
             db.session.commit()
 
@@ -181,11 +179,7 @@ class VariableService(object):
                 db.session.add(model)
                 db.session.commit()
             else:
-                old_model.team = data['team']
-                old_model.project = data['project']
-                old_model.owner = data['owner']
-                old_model.name = data['name']
-                old_model.value = data['value']
+                {setattr(old_model, k, v) for k, v in data.items()}
                 old_model.updated = datetime.datetime.now()
                 db.session.commit()
             return status
@@ -274,12 +268,7 @@ class KeywordService(object):
             db.session.add(model)
             db.session.commit()
         else:
-            old_model.team = data['team']
-            old_model.project = data['project']
-            old_model.owner = data['owner']
-            old_model.name = data['name']
-            old_model.keyword = data['keyword']
-            old_model.mock = data['mock']
+            {setattr(old_model, k, v) for k, v in data.items()}
             old_model.updated = datetime.datetime.now()
             db.session.commit()
 
