@@ -3,17 +3,12 @@
 import datetime
 
 from clover.exts import db
-from clover.common.executor import Executor
-from clover.common.tasks import interface_task
 
-from clover.models import soft_delete
 from clover.models import query_to_dict
-from clover.interface.models import InterfaceModel
-
-from clover.report.service import ReportService
+from clover.dashboard.models import DashboardModel
 
 
-class InterfaceService(object):
+class DashboardService(object):
 
     def create(self, data):
         """
@@ -21,78 +16,55 @@ class InterfaceService(object):
         :param data:
         :return:
         """
-        model = InterfaceModel(**data)
-        db.session.add(model)
-        db.session.commit()
+        try:
+            model = DashboardModel(**data)
+            db.session.add(model)
+            db.session.commit()
 
-        executor = Executor('debug')
-        executor.execute([data], data)
-
-        return model.id, executor.status, executor.message, data
-
-    def delete(self, data):
-        """
-        :param data:
-        :return:
-        """
-        id_list = data.pop('id_list')
-        for id in id_list:
-            result = InterfaceModel.query.get(id)
-            soft_delete(result)
+            return model.id
+        except:
+            db.rollback()
 
     def update(self, data):
         """
-        # 使用id作为条件，更新数据库重的数据记录。
-        # 通过id查不到数据时增作为一条新的记录存入。
+        # Use ID as a condition to update the database's duplicate data records.
+        # If no data can be found through ID, it will be added as a new record.
         :param data:
         :return:
         """
-        old_model = InterfaceModel.query.get(data['id'])
-        if old_model is None:
-            model = InterfaceModel(**data)
-            db.session.add(model)
-            db.session.commit()
-            old_model = model
-        else:
-            old_model.team = data['team']
-            old_model.project = data['project']
-            old_model.name = data['name']
-            old_model.method = data['method']
-            old_model.host = data['host']
-            old_model.path = data['path']
-            old_model.header = data['header']
-            old_model.params = data['params']
-            old_model.body = data['body']
-            old_model.verify = data['verify']
-            old_model.extract = data['extract']
-            old_model.updated = datetime.datetime.now()
-            db.session.commit()
+        try:
+            old_model = DashboardModel.query.get(data['id'])
+            if old_model is None:
+                model = DashboardModel(**data)
+                db.session.add(model)
+                db.session.commit()
+                return model.id
+            else:
+                {setattr(old_model, k, v) for k, v in data.items()}
+                # old_model.team = data['team']
+                # old_model.project = data['project']
+                # old_model.name = data['name']
+                # old_model.method = data['method']
+                # old_model.host = data['host']
+                # old_model.path = data['path']
+                # old_model.header = data['header']
+                # old_model.params = data['params']
+                # old_model.body = data['body']
+                # old_model.verify = data['verify']
+                # old_model.extract = data['extract']
+                old_model.updated = datetime.datetime.now()
+                db.session.commit()
 
-        executor = Executor('debug')
-        executor.execute([data], data)
-
-        return old_model.id, executor.status, executor.message, data
+                return old_model.id
+        except:
+            db.rollback()
 
     def search(self, data):
         """
         :param data:
         :return:
         """
-        filter = {'enable': 0}
-
-        # 如果按照id查询则返回唯一的数据或None
-        if 'id' in data and data['id']:
-            filter.setdefault('id', data.get('id'))
-            result = InterfaceModel.query.get(data['id'])
-            count = 1 if result else 0
-            result = result.to_dict() if result else None
-            return count, result
-
-        if 'team' in data and data['team']:
-            filter.setdefault('team', data.get('team'))
-
-        if 'project' in data and data['project']:
-            filter.setdefault('project', data.get('project'))
+        filter = {'enable': 0, **data}
 
         try:
             offset = int(data.get('offset', 0))
@@ -104,42 +76,11 @@ class InterfaceService(object):
         except TypeError:
             limit = 10
 
-        results = InterfaceModel.query.filter_by(
+        results = DashboardModel.query.filter_by(
             **filter
         ).order_by(
-            InterfaceModel.created.desc()
+            DashboardModel.created.desc()
         ).offset(offset).limit(limit)
         results = query_to_dict(results)
-        count = InterfaceModel.query.filter_by(**filter).count()
+        count = DashboardModel.query.filter_by(**filter).count()
         return count, results
-
-    def trigger(self, data):
-        """
-        # 这里创建一个空report，然后使用celery异步运行任务，
-        # 当celery执行完毕后使用空report的id更新报告。
-        :param data:
-        :return:
-        """
-        # 通过接口传递过来的suite id来查询需要运行的接口。
-        id = data.get('id')
-        interface = InterfaceModel.query.get(id)
-
-        # 如果不存在接口则直接返回
-        if not interface:
-            return
-
-        # 创建空的report并提交
-        if 'team' not in data or not data['team']:
-            data['team'] = interface.team
-        if 'project' not in data or not data['project']:
-            data['project'] = interface.team
-        report_service = ReportService()
-        report = report_service.empty_report(data)
-        report = report.to_dict()
-
-        cases = [interface.to_dict()]
-
-        # 使用celery异步运行的接口任务。
-        interface_task.apply_async(args=(cases, data, report))
-
-        return report.get('id')

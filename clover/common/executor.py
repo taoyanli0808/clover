@@ -1,3 +1,107 @@
+"""
+Chapter 1
+The cases may be an interface or a suite.The suite is a collection of multiple interfaces.
+Host, path, header, parameter and body support parameterized variables, you can use ${var}
+to represent the value of the variable var.The parameters passed between interfaces extracted
+by extract are also considered as variables, and the value of extract['varibale'] is the variable name.
+    cases: [
+        {
+            'id': 25,
+            'team': 'qa',
+            'project': 'testing platform',
+            'name': 'alibaba map',
+            'method': 'get',
+            'host': '${ditu}',
+            'path': '/service/regeo',
+            'header': [
+                {
+                    'key': 'clover',
+                    'value': '0.3.4'
+                }
+            ],
+            'params': [
+                {
+                    'key': 'longitude',
+                    'value': '121.04925573429551'
+                },
+                {
+                    'key': 'latitude',
+                    'value': '31.315590522490712'
+                }
+            ],
+            'body': {
+                'data': '',
+                'mode': 'raw'
+            },
+            'verify': [
+                {
+                    'expected': '1',
+                    'convertor': 'int',
+                    'extractor': 'delimiter',
+                    'comparator': 'equal',
+                    'expression': 'status'
+                },
+                {
+                    'expected': '苏州市',
+                    'convertor': 'str',
+                    'extractor': 'delimiter',
+                    'comparator': 'equal',
+                    'expression': 'data.city'
+                },
+                {
+                    'expected': '512',
+                    'convertor': 'int',
+                    'extractor': 'regular',
+                    'comparator': 'equal',
+                    'expression': '\\"areacode\\":\\"(.+?)\\",'
+                }
+            ],
+            'extract': [
+                {
+                    'selector': 'delimiter',
+                    'variable': 'data',
+                    'varibale': '',
+                    'expression': 'status'
+                }
+            ],
+            'enable': 0,
+            'created': '2020-02-07T13:52:23',
+            'updated': '2020-04-19T14:15:19'
+        },
+        ...
+    ]
+------------------------------------------- It's a gorgeous divider -------------------------------------------
+Chapter 2
+Executor uses the result property to record the result of execution.
+The structure of the result property is used for data presentation of the report detail page, as follows:
+    result: {
+        'name1': {
+            'status': 'passed',                     # ['passed', 'failed', 'error', 'skiped']
+            'start': '2020-04-24 14:59:56',
+            'end': '2020-04-24 14:59:57',
+            'elapsed': 238568,
+            'result': [
+                {
+                    "actual": 1,
+                    "expect": 1,
+                    "status": "passed",
+                    "operate": "equal"
+                }, {
+                    "actual": "苏州市",
+                    "expect": "苏州市",
+                    "status": "passed",
+                    "operate": "equal"
+                }, {
+                    "actual": 512,
+                    "expect": 512,
+                    "status": "passed",
+                    "operate": "equal"
+                }
+            ]
+        },
+        'name2': {}
+    }
+"""
 
 import os
 import json
@@ -18,7 +122,7 @@ from clover.common.validator import Validator
 
 from clover.models import query_to_dict
 from clover.environment.models import VariableModel
-# from clover.dashboard.service import DashboardService
+from clover.dashboard.service import DashboardService
 
 
 class Executor():
@@ -324,23 +428,72 @@ class Executor():
 
         return data
 
-    # def sync_dashboard(self, data):
-    #     """
-    #     :param data:
-    #     :return:
-    #     """
-    #     dashboard = {
-    #         'team': data.get('team'),
-    #         'project': data.get('project'),
-    #         'type': 'interface',
-    #         'suite': 0,
-    #         'name': data.get('name'),
-    #         'identifier': data.get('id'),
-    #         'status': 0, # 这里需要写函数实现
-    #         'score': 0,  # 这里需要写函数实现
-    #     }
-    #     service = DashboardService()
-    #     service.create(dashboard)
+    def sync_dashboard(self, data):
+        """
+        # Use suite, name and identifier to uniquely mark a record.
+        # If the record does not exist, it will be created. Otherwise, it will be updated.
+        :param data:
+        :return:
+        """
+        service = DashboardService()
+        filter = {
+            'team': data.get('team'),
+            'project': data.get('project'),
+            'suite': 0,
+            'name': data.get('name'),
+            'identifier': data.get('id'),
+        }
+        _, history = service.search(filter)
+
+        if history:
+            history = history[0]
+            # get status from result property then update history
+            status = self.result[data['name']]['status']
+            history['statistics'][status] += 1
+            service.update(history)
+        else:
+            history = {
+                'team': data.get('team'),
+                'project': data.get('project'),
+                'type': 'interface',
+                'suite': 0,
+                'name': data.get('name'),
+                'identifier': data.get('id'),
+                'statistics': {
+                    'passed': 0,
+                    'failed': 0,
+                    'error': 0,
+                    'skiped': 0,
+                    'total': 0,
+                    'percent': 0,
+                },
+                'score': 0,  # 这里需要写函数实现
+            }
+
+            # get status from result property then create history
+            status = self.result[data['name']]['status']
+            history['statistics'][status] += 1
+            service.create(history)
+
+    def statistics(self):
+        """
+        # Statistics interface success, failure, error, skip and success rate.
+        :return:
+        """
+        for _, results in self.result.items():
+            self.interface['verify'] += len(results['result'])
+            if results['status'] == 'passed':
+                self.interface['passed'] += 1
+            if results['status'] == 'failed':
+                self.interface['failed'] += 1
+            if results['status'] == 'error':
+                self.interface['error'] += 1
+            if results['status'] == 'skiped':
+                self.interface['skiped'] += 1
+        if self.interface['total'] == 0:
+            self.interface['percent'] = 0.0
+        else:
+            self.interface['percent'] = round(100 * self.interface['passed'] / self.interface['total'], 2)
 
     def execute(self, cases, data=None):
         """
@@ -358,24 +511,11 @@ class Executor():
             self.send_request(case)
             self.validate_request(case)
             self.extract_variable(case)
-            # self.sync_dashboard(data)
+            self.sync_dashboard(case)
 
             self.result[case['name']]['end'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             self.logger.info("[{}]接口测试结束...".format(case['name']))
         self.end = datetime.datetime.now()
 
-        for _, results in self.result.items():
-            self.interface['verify'] += len(results['result'])
-            if results['status'] == 'passed':
-                self.interface['passed'] += 1
-            if results['status'] == 'failed':
-                self.interface['failed'] += 1
-            if results['status'] == 'error':
-                self.interface['error'] += 1
-            if results['status'] == 'skiped':
-                self.interface['skiped'] += 1
-        if self.interface['total'] == 0:
-            self.interface['percent'] = 0.0
-        else:
-            self.interface['percent'] = round(100 * self.interface['passed'] / self.interface['total'], 2)
+        self.statistics()
         self.logger.info("接口[{}],断言个数[{}],成功率[{}]".format(self.interface['total'], self.interface['verify'], self.interface['percent']))
