@@ -18,6 +18,7 @@ from clover.common.validator import Validator
 
 from clover.models import query_to_dict
 from clover.environment.models import VariableModel
+from clover.dashboard.service import DashboardService
 
 
 class Executor():
@@ -180,33 +181,33 @@ class Executor():
             self.result[data['name']]['elapsed'] = response.elapsed.microseconds
             self.logger.error("接口请成功，耗时[{}]毫秒".format(response.elapsed.microseconds))
         except InvalidURL:
-            self.interface['error'] += 1
             self.status = 601
             self.message = "您输入接口信息有误，URL格式非法，请确认！"
+            self.result[data['name']]['status'] = 'error'
             self.logger.error("接口请失败，[{}]".format(self.message))
             return data
         except MissingSchema:
-            self.interface['error'] += 1
             self.status = 602
             self.message = "您输入接口缺少协议格式，请增加[http(s)://]协议头！"
+            self.result[data['name']]['status'] = 'error'
             self.logger.error("接口请失败，[{}]".format(self.message))
             return data
         except InvalidSchema:
-            self.interface['error'] += 1
             self.status = 603
             self.message = "不支持的接口协议，请使用[http(s)://]协议头！"
+            self.result[data['name']]['status'] = 'error'
             self.logger.error("接口请失败，[{}]".format(self.message))
             return data
         except ConnectionError:
-            self.interface['error'] += 1
             self.status = 604
             self.message = "当链接到服务器时出错，请确认域名[{}]是否正确！".format(data.get('host'))
+            self.result[data['name']]['status'] = 'error'
             self.logger.error("接口请失败，[{}]".format(self.message))
             return data
         except InvalidHeader:
-            self.interface['error'] += 1
             self.status = 605
             self.message = "请求头包含非法字符！"
+            self.result[data['name']]['status'] = 'error'
             self.logger.error("接口请失败，[{}]".format(self.message))
             return data
 
@@ -260,6 +261,10 @@ class Executor():
 
                 result = validator.compare(comparator, variable, expected)
                 result = 'passed' if result else 'failed'
+                # 如果有任何一个断言失败，接口的状态则改为失败。
+                if result == 'failed':
+                    self.result[data['name']]['status'] = 'failed'
+                # 保存断言信息。
                 self.result[data['name']]['result'].append({
                     'status': result,
                     'actual': variable,
@@ -273,8 +278,11 @@ class Executor():
                 self.logger.info("断言，比较器[{}]".format(comparator))
                 self.logger.info("断言，结果[{}]".format(result))
             except Exception as error:
+                # 断言异常时则认定为接口测试失败
+                self.result[data['name']]['status'] = 'failed'
+                # 保存断言异常信息
                 self.result[data['name']]['result'].append({
-                    'status': 'error'
+                    'status': str(error)
                 })
                 self.logger.info("断言，执行异常[{}]".format(error))
 
@@ -316,6 +324,24 @@ class Executor():
 
         return data
 
+    def sync_dashboard(self, data):
+        """
+        :param data:
+        :return:
+        """
+        dashboard = {
+            'team': data.get('team'),
+            'project': data.get('project'),
+            'type': 'interface',
+            'suite': 0,
+            'name': data.get('name'),
+            'identifier': data.get('id'),
+            'status': 0, # 这里需要写函数实现
+            'score': 0,  # 这里需要写函数实现
+        }
+        service = DashboardService()
+        service.create(dashboard)
+
     def execute(self, cases, data=None):
         """
         :param cases:
@@ -325,13 +351,14 @@ class Executor():
         self.start = datetime.datetime.now()
         for case in cases:
             self.logger.info("[{}]接口测试开始...".format(case['name']))
-            self.result.setdefault(case['name'], {})
+            self.result.setdefault(case['name'], {'status': 'passed'})
             self.result[case['name']]['start'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
             self.replace_variable(case, data)
             self.send_request(case)
             self.validate_request(case)
             self.extract_variable(case)
+            self.sync_dashboard(data)
 
             self.result[case['name']]['end'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             self.logger.info("[{}]接口测试结束...".format(case['name']))
@@ -339,12 +366,14 @@ class Executor():
 
         for _, results in self.result.items():
             self.interface['verify'] += len(results['result'])
-            for result in results['result']:
-                if result['status'] == 'failed':
-                    self.interface['failed'] += 1
-                    break
-            else:
+            if results['status'] == 'passed':
                 self.interface['passed'] += 1
+            if results['status'] == 'failed':
+                self.interface['failed'] += 1
+            if results['status'] == 'error':
+                self.interface['error'] += 1
+            if results['status'] == 'skiped':
+                self.interface['skiped'] += 1
         if self.interface['total'] == 0:
             self.interface['percent'] = 0.0
         else:
