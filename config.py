@@ -1,7 +1,7 @@
 
 # Clover全局配置
 DEBUG = True
-VERSION = '0.8.4'
+VERSION = '0.8.5'
 
 # MySQL数据库配置
 MYSQL = {

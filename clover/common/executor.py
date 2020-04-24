@@ -18,7 +18,7 @@ from clover.common.validator import Validator
 
 from clover.models import query_to_dict
 from clover.environment.models import VariableModel
-from clover.dashboard.service import DashboardService
+# from clover.dashboard.service import DashboardService
 
 
 class Executor():
@@ -324,23 +324,23 @@ class Executor():
 
         return data
 
-    def sync_dashboard(self, data):
-        """
-        :param data:
-        :return:
-        """
-        dashboard = {
-            'team': data.get('team'),
-            'project': data.get('project'),
-            'type': 'interface',
-            'suite': 0,
-            'name': data.get('name'),
-            'identifier': data.get('id'),
-            'status': 0, # 这里需要写函数实现
-            'score': 0,  # 这里需要写函数实现
-        }
-        service = DashboardService()
-        service.create(dashboard)
+    # def sync_dashboard(self, data):
+    #     """
+    #     :param data:
+    #     :return:
+    #     """
+    #     dashboard = {
+    #         'team': data.get('team'),
+    #         'project': data.get('project'),
+    #         'type': 'interface',
+    #         'suite': 0,
+    #         'name': data.get('name'),
+    #         'identifier': data.get('id'),
+    #         'status': 0, # 这里需要写函数实现
+    #         'score': 0,  # 这里需要写函数实现
+    #     }
+    #     service = DashboardService()
+    #     service.create(dashboard)
 
     def execute(self, cases, data=None):
         """
@@ -358,7 +358,7 @@ class Executor():
             self.send_request(case)
             self.validate_request(case)
             self.extract_variable(case)
-            self.sync_dashboard(data)
+            # self.sync_dashboard(data)
 
             self.result[case['name']]['end'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             self.logger.info("[{}]接口测试结束...".format(case['name']))
