@@ -1,7 +1,6 @@
-from clover.common.plugin import Pipeline
 from urllib.parse import urlparse
 from werkzeug.utils import import_string
-
+from clover.common.plugin import Pipeline
 
 class Charles(Pipeline):
 
@@ -36,9 +35,6 @@ class Charles(Pipeline):
                 # urlparse.path方法会算出url后面跟的path
                 url = item['request']['url']
                 host = urlparse(url).scheme +"://"+urlparse(url).netloc
-                if '?' in name:
-                    name=name.split("?")[0]
-                path=urlparse(url).path
                 if len(name) >= 64:
                     name = name[0:64]
 
