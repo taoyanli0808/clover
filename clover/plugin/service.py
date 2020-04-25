@@ -13,6 +13,7 @@ class PluginService(object):
         :param upload:
         :return:
         """
+
         team = data.get('team')
         project = data.get('project')
         plugin = data.get('plugin')
@@ -21,6 +22,7 @@ class PluginService(object):
         directories = os.path.join(os.getcwd(), 'clover', 'common', 'plugin')
         plugin_file = [file for file in os.listdir(directories) if file != '__init__.py']
         plugins = list(map(lambda file: file.split('.')[0], plugin_file))
+
 
         if plugin not in plugins:
             return None

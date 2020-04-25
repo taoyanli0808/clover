@@ -1,7 +1,5 @@
-
 from urllib.parse import urlparse
 from werkzeug.utils import import_string
-
 from clover.common.plugin import Pipeline
 
 class Charles(Pipeline):
@@ -32,15 +30,13 @@ class Charles(Pipeline):
                     headerone["key"] = headerone.pop("name")
                     if headerone['key'] !="Content-Length":
                         header.append(headerone)
-
                 method = item['request']['method'].lower()
 
                 # urlparse.path方法会算出url后面跟的path
                 url = item['request']['url']
                 host = urlparse(url).scheme +"://"+urlparse(url).netloc
-                if '?' in name:
-                    name=name.split("?")[0]
-                path=urlparse(url).path
+                if len(name) >= 64:
+                    name = name[0:64]
 
                 if 'postData' in item['request']:
                     #取params
@@ -54,11 +50,10 @@ class Charles(Pipeline):
                         params=[]
                     #取body
                     if 'text' in item['request']['postData']:
-                        old_body = item['request']['postData']['text']
-                        new_body = str(old_body).replace('\\','')
+                        body1 = item['request']['postData']['text']
                         body={
                             'mode':"raw",
-                            'data':new_body
+                            'data':body1
                         }
                     else:
                         body = {
