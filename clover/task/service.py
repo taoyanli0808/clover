@@ -57,11 +57,7 @@ class TaskService():
             db.session.add(model)
             db.session.commit()
         else:
-            old_model.team = data['team']
-            old_model.project = data['project']
-            old_model.name = data['name']
-            old_model.cron = data['cron']
-            old_model.variable = data['variable']
+            {setattr(old_model, k, v) for k, v in data.items()}
             old_model.updated = datetime.datetime.now()
             db.session.commit()
 

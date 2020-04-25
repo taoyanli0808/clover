@@ -4,7 +4,7 @@ import os
 import time
 import json
 import platform
-import itertools
+import datetime
 
 from config import VERSION
 
@@ -135,3 +135,19 @@ def get_nodejs_dependency():
 
 def allowed_file(filename):
     return  filename.rsplit('.', 1)[1].lower() in {'json','har'}
+
+
+def friendly_datetime(data):
+    """
+    # 将字典里的datetime类型转化为字符串格式，方便前端展示。
+    :param data:
+    :return:
+    """
+    if not isinstance(data, (dict,)):
+        return data
+
+    for key, value in data.items():
+        if not isinstance(value, (datetime.datetime,)):
+            continue
+        data[key] = value.strftime("%Y-%m-%d %H:%M:%S")
+    return data

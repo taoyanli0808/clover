@@ -28,14 +28,14 @@
         align="ceDnter"
       />
       <el-table-column
-        prop="project"
-        label="项目"
+        prop="team"
+        label="团队"
         width="180"
         align="center"
       />
       <el-table-column
-        prop="team"
-        label="团队"
+        prop="project"
+        label="项目"
         width="180"
         align="center"
       />

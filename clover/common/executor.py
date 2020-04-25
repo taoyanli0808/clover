@@ -1,3 +1,107 @@
+"""
+Chapter 1
+The cases may be an interface or a suite.The suite is a collection of multiple interfaces.
+Host, path, header, parameter and body support parameterized variables, you can use ${var}
+to represent the value of the variable var.The parameters passed between interfaces extracted
+by extract are also considered as variables, and the value of extract['varibale'] is the variable name.
+    cases: [
+        {
+            'id': 25,
+            'team': 'qa',
+            'project': 'testing platform',
+            'name': 'alibaba map',
+            'method': 'get',
+            'host': '${ditu}',
+            'path': '/service/regeo',
+            'header': [
+                {
+                    'key': 'clover',
+                    'value': '0.3.4'
+                }
+            ],
+            'params': [
+                {
+                    'key': 'longitude',
+                    'value': '121.04925573429551'
+                },
+                {
+                    'key': 'latitude',
+                    'value': '31.315590522490712'
+                }
+            ],
+            'body': {
+                'data': '',
+                'mode': 'raw'
+            },
+            'verify': [
+                {
+                    'expected': '1',
+                    'convertor': 'int',
+                    'extractor': 'delimiter',
+                    'comparator': 'equal',
+                    'expression': 'status'
+                },
+                {
+                    'expected': '苏州市',
+                    'convertor': 'str',
+                    'extractor': 'delimiter',
+                    'comparator': 'equal',
+                    'expression': 'data.city'
+                },
+                {
+                    'expected': '512',
+                    'convertor': 'int',
+                    'extractor': 'regular',
+                    'comparator': 'equal',
+                    'expression': '\\"areacode\\":\\"(.+?)\\",'
+                }
+            ],
+            'extract': [
+                {
+                    'selector': 'delimiter',
+                    'variable': 'data',
+                    'varibale': '',
+                    'expression': 'status'
+                }
+            ],
+            'enable': 0,
+            'created': '2020-02-07T13:52:23',
+            'updated': '2020-04-19T14:15:19'
+        },
+        ...
+    ]
+------------------------------------------- It's a gorgeous divider -------------------------------------------
+Chapter 2
+Executor uses the result property to record the result of execution.
+The structure of the result property is used for data presentation of the report detail page, as follows:
+    result: {
+        'name1': {
+            'status': 'passed',                     # ['passed', 'failed', 'error', 'skiped']
+            'start': '2020-04-24 14:59:56',
+            'end': '2020-04-24 14:59:57',
+            'elapsed': 238568,
+            'result': [
+                {
+                    "actual": 1,
+                    "expect": 1,
+                    "status": "passed",
+                    "operate": "equal"
+                }, {
+                    "actual": "苏州市",
+                    "expect": "苏州市",
+                    "status": "passed",
+                    "operate": "equal"
+                }, {
+                    "actual": 512,
+                    "expect": 512,
+                    "status": "passed",
+                    "operate": "equal"
+                }
+            ]
+        },
+        'name2': {}
+    }
+"""
 
 import os
 import json
@@ -18,6 +122,7 @@ from clover.common.validator import Validator
 
 from clover.models import query_to_dict
 from clover.environment.models import VariableModel
+from clover.dashboard.service import DashboardService
 
 
 class Executor():
@@ -27,17 +132,18 @@ class Executor():
         self.status = 0
         self.message = 'ok'
         self.type = type
-        self.interface = {
-            'passed': 0,
-            'failed': 0,
-            'sikped': 0,
-            'total': 0,
-        }
-        self.verify = 0
-        self.percent = 0.0
         self.start = 0
         self.end = 0
         self.result = {}    # 记录运行状态与相关数据。
+        self.interface = {
+            'verify': 0,
+            'passed': 0,
+            'failed': 0,
+            'error': 0,
+            'sikped': 0,
+            'total': 0,
+            'percent': 0.0,
+        }
 
         file = os.path.join(os.getcwd(), 'logs', '{}.log'.format(log))
         self.logger = logging.getLogger(__name__)
@@ -169,6 +275,7 @@ class Executor():
         self.logger.info("接口请求体[{}]".format(body))
 
         try:
+            self.interface['total'] += 1
             response = request(
                 method, url,
                 params=params,
@@ -180,26 +287,31 @@ class Executor():
         except InvalidURL:
             self.status = 601
             self.message = "您输入接口信息有误，URL格式非法，请确认！"
+            self.result[data['name']]['status'] = 'error'
             self.logger.error("接口请失败，[{}]".format(self.message))
             return data
         except MissingSchema:
             self.status = 602
             self.message = "您输入接口缺少协议格式，请增加[http(s)://]协议头！"
+            self.result[data['name']]['status'] = 'error'
             self.logger.error("接口请失败，[{}]".format(self.message))
             return data
         except InvalidSchema:
             self.status = 603
             self.message = "不支持的接口协议，请使用[http(s)://]协议头！"
+            self.result[data['name']]['status'] = 'error'
             self.logger.error("接口请失败，[{}]".format(self.message))
             return data
         except ConnectionError:
             self.status = 604
             self.message = "当链接到服务器时出错，请确认域名[{}]是否正确！".format(data.get('host'))
+            self.result[data['name']]['status'] = 'error'
             self.logger.error("接口请失败，[{}]".format(self.message))
             return data
         except InvalidHeader:
             self.status = 605
             self.message = "请求头包含非法字符！"
+            self.result[data['name']]['status'] = 'error'
             self.logger.error("接口请失败，[{}]".format(self.message))
             return data
 
@@ -253,6 +365,10 @@ class Executor():
 
                 result = validator.compare(comparator, variable, expected)
                 result = 'passed' if result else 'failed'
+                # 如果有任何一个断言失败，接口的状态则改为失败。
+                if result == 'failed':
+                    self.result[data['name']]['status'] = 'failed'
+                # 保存断言信息。
                 self.result[data['name']]['result'].append({
                     'status': result,
                     'actual': variable,
@@ -266,8 +382,11 @@ class Executor():
                 self.logger.info("断言，比较器[{}]".format(comparator))
                 self.logger.info("断言，结果[{}]".format(result))
             except Exception as error:
+                # 断言异常时则认定为接口测试失败
+                self.result[data['name']]['status'] = 'failed'
+                # 保存断言异常信息
                 self.result[data['name']]['result'].append({
-                    'status': 'error'
+                    'status': str(error)
                 })
                 self.logger.info("断言，执行异常[{}]".format(error))
 
@@ -309,6 +428,73 @@ class Executor():
 
         return data
 
+    def sync_dashboard(self, data):
+        """
+        # Use suite, name and identifier to uniquely mark a record.
+        # If the record does not exist, it will be created. Otherwise, it will be updated.
+        :param data:
+        :return:
+        """
+        service = DashboardService()
+        filter = {
+            'team': data.get('team'),
+            'project': data.get('project'),
+            'suite': 0,
+            'name': data.get('name'),
+            'identifier': data.get('id'),
+        }
+        _, history = service.search(filter)
+
+        if history:
+            history = history[0]
+            # get status from result property then update history
+            status = self.result[data['name']]['status']
+            history['statistics'][status] += 1
+            service.update(history)
+        else:
+            history = {
+                'team': data.get('team'),
+                'project': data.get('project'),
+                'type': 'interface',
+                'suite': 0,
+                'name': data.get('name'),
+                'identifier': data.get('id'),
+                'statistics': {
+                    'passed': 0,
+                    'failed': 0,
+                    'error': 0,
+                    'skiped': 0,
+                    'total': 0,
+                    'percent': 0,
+                },
+                'score': 0,  # 这里需要写函数实现
+            }
+
+            # get status from result property then create history
+            status = self.result[data['name']]['status']
+            history['statistics'][status] += 1
+            service.create(history)
+
+    def statistics(self):
+        """
+        # Statistics interface success, failure, error, skip and success rate.
+        :return:
+        """
+        for _, results in self.result.items():
+            self.interface['verify'] += len(results['result'])
+            if results['status'] == 'passed':
+                self.interface['passed'] += 1
+            if results['status'] == 'failed':
+                self.interface['failed'] += 1
+            if results['status'] == 'error':
+                self.interface['error'] += 1
+            if results['status'] == 'skiped':
+                self.interface['skiped'] += 1
+        if self.interface['total'] == 0:
+            self.interface['percent'] = 0.0
+        else:
+            self.interface['percent'] = round(100 * self.interface['passed'] / self.interface['total'], 2)
+
     def execute(self, cases, data=None):
         """
         :param cases:
@@ -318,29 +504,18 @@ class Executor():
         self.start = datetime.datetime.now()
         for case in cases:
             self.logger.info("[{}]接口测试开始...".format(case['name']))
-            self.result.setdefault(case['name'], {})
+            self.result.setdefault(case['name'], {'status': 'passed'})
             self.result[case['name']]['start'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
             self.replace_variable(case, data)
             self.send_request(case)
             self.validate_request(case)
             self.extract_variable(case)
+            self.sync_dashboard(case)
 
             self.result[case['name']]['end'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             self.logger.info("[{}]接口测试结束...".format(case['name']))
         self.end = datetime.datetime.now()
 
-        self.interface['total'] = len(cases)
-        for _, results in self.result.items():
-            self.verify += len(results['result'])
-            for result in results['result']:
-                if result['status'] == 'failed':
-                    self.interface['failed'] += 1
-                    break
-            else:
-                self.interface['passed'] += 1
-        if self.interface['total'] == 0:
-            self.percent = 0.0
-        else:
-            self.percent = round(100 * self.interface['passed'] / self.interface['total'], 2)
-        self.logger.info("接口[{}],断言个数[{}],成功率[{}]".format(self.interface['total'], self.verify, self.percent))
+        self.statistics()
+        self.logger.info("接口[{}],断言个数[{}],成功率[{}]".format(self.interface['total'], self.interface['verify'], self.interface['percent']))

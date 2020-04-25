@@ -2,10 +2,13 @@
 import os
 import datetime
 
-from clover.exts import db
-from clover.models import query_to_dict, soft_delete
-from clover.report.models import ReportModel
 from sqlalchemy.exc import ProgrammingError
+
+from clover.exts import db
+from clover.models import soft_delete
+from clover.models import query_to_dict
+from clover.common import friendly_datetime
+from clover.report.models import ReportModel
 
 
 class ReportService():
@@ -34,18 +37,8 @@ class ReportService():
             db.session.commit()
             old_model = model
         else:
-            old_model.team = data['team']
-            old_model.project = data['project']
-            old_model.name = data['name']
-            old_model.type = data['type']
-            old_model.interface = data['interface']
-            old_model.verify = data['verify']
-            old_model.percent = data['percent']
-            old_model.start = data['start']
-            old_model.end = data['end']
-            old_model.duration = data['duration']
-            old_model.platform = data['platform']
-            old_model.detail = data['detail']
+            {setattr(old_model, k, v) for k, v in data.items()}
+            old_model.updated = datetime.datetime.now()
             db.session.commit()
 
         return old_model
@@ -72,6 +65,7 @@ class ReportService():
             result = ReportModel.query.get(data['id'])
             count = 1 if result else 0
             result = result.to_dict() if result else None
+            result = friendly_datetime(result)
 
             return count, result
 
@@ -143,6 +137,15 @@ class ReportService():
             'project': data['project'],
             'name': name,
             'type': 'interface',
+            'interface': {
+                'verify': 0,
+                'passed': 0,
+                'failed': 0,
+                'error': 0,
+                'sikped': 0,
+                'total': 0,
+                'percent': 0.0,
+            },
             'start': datetime.datetime.now(),
             'end': datetime.datetime.now(),
             'duration': 0,
