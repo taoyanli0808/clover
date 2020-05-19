@@ -15,30 +15,6 @@
       <el-col :span="8">
         <el-card class="box-card">
           <div slot="header" class="clearfix">
-            <span>Jmeter插件</span>
-            <!-- <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button> -->
-          </div>
-          <div class="text item">
-            <JmeterPlugin :team="team" :project="project" />
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="8">
-        <el-card class="box-card">
-          <div slot="header" class="clearfix">
-            <span>Httprunner插件</span>
-            <!-- <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button> -->
-          </div>
-          <div class="text item">
-            <HTTPRunnerPlugin :team="team" :project="project" />
-          </div>
-        </el-card>
-      </el-col>
-    </el-row>
-    <el-row :gutter="20">
-      <el-col :span="8">
-        <el-card class="box-card">
-          <div slot="header" class="clearfix">
             <span>Charles插件</span>
             <!-- <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button> -->
           </div>
@@ -50,22 +26,11 @@
       <el-col :span="8">
         <el-card class="box-card">
           <div slot="header" class="clearfix">
-            <span>Fiddler插件</span>
+            <span>待开放</span>
             <!-- <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button> -->
           </div>
           <div class="text item">
-            <JmeterPlugin :team="team" :project="project" />
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="8">
-        <el-card class="box-card">
-          <div slot="header" class="clearfix">
-            <span>MITMProxy</span>
-            <!-- <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button> -->
-          </div>
-          <div class="text item">
-            <HTTPRunnerPlugin :team="team" :project="project" />
+            <el-image :src="image.src" style="width: 100%; height: 100%;" />
           </div>
         </el-card>
       </el-col>
@@ -74,16 +39,12 @@
 </template>
 
 <script>
-import JmeterPlugin from '~/components/plugin/JmeterPlugin.vue'
 import PostmanPlugin from '~/components/plugin/PostmanPlugin.vue'
-import HTTPRunnerPlugin from '~/components/plugin/HTTPRunnerPlugin.vue'
 import CharlesPlugin from '~/components/plugin/CharlesPlugin.vue'
 
 export default {
   components: {
-    JmeterPlugin,
     PostmanPlugin,
-    HTTPRunnerPlugin,
     CharlesPlugin
   },
   data () {
@@ -92,7 +53,8 @@ export default {
       project: '',
       plugin: '',
       file: '',
-      fileList: []
+      fileList: [],
+      image: { src: require('assets/img/plugin.png'), alt: 'plugin' }
     }
   }
 }
@@ -101,5 +63,9 @@ export default {
 <style scoped>
 .el-row {
   margin-bottom: 20px;
+}
+
+img {
+  height: 50%;
 }
 </style>

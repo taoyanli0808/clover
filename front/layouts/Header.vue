@@ -32,7 +32,7 @@
       <el-menu-item index="/config/variable">
         变量配置
       </el-menu-item>
-      <el-menu-item index="/config/keyword">
+      <el-menu-item v-if="keyword" index="/config/keyword">
         关键字配置
       </el-menu-item>
       <el-menu-item index="/config/plugin">
@@ -58,7 +58,8 @@ export default {
   data () {
     return {
       join: true,
-      task: true
+      task: true,
+      keyword: true
     }
   },
   mounted () {
@@ -80,6 +81,7 @@ export default {
         .then((res) => {
           this.join = res.data.data.join
           this.task = res.data.data.task
+          this.keyword = res.data.data.keyword
         })
         .catch(() => {
           this.$message({
