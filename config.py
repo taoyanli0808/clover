@@ -1,4 +1,3 @@
-
 # Clover全局配置
 DEBUG = True
 VERSION = '0.9.1'
@@ -21,8 +20,9 @@ CELERY_RESULT_BACKEND = CELERY_HOST.format(1)
 
 # 功能控制，True则生效，False则无效
 MODULE = {
-    'join': True,   #展示加入我们
-    'task': False,  #开发中的定时任务
+    'join': True,   # 展示加入我们
+    'task': False,  # 开发中的定时任务
+    'keyword': False, # 开发中的关键字配置
 }
 
 # 企业微信配置
