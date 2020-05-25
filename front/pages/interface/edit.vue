@@ -555,7 +555,7 @@ export default {
       return result
     },
     translateBody (data) {
-      if (data.mode === '' || data.mode === '') {
+      if (data.mode === 'formdata' || data.mode === 'urlencoded') {
         const result = []
         const newData = { ...data }
         const variables = data.data.split('\n')

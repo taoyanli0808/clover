@@ -552,22 +552,28 @@ export default {
       return result
     },
     translateBody (data) {
-      const result = []
-      const newData = { ...data }
-      const variables = data.data.split('\n')
-      for (const index in variables) {
-        // remove empty string
-        if (variables[index] === '') {
-          continue
+      if (data.mode === 'formdata' || data.mode === 'urlencoded') {
+        const result = []
+        const newData = { ...data }
+        const variables = data.data.split('\n')
+        for (const index in variables) {
+          // remove empty string
+          if (variables[index] === '') {
+            continue
+          }
+          const sep = variables[index].indexOf(':')
+          result.push({
+            key: variables[index].slice(0, sep),
+            value: variables[index].slice(sep + 1, variables[index].length)
+          })
         }
-        const sep = variables[index].indexOf(':')
-        result.push({
-          key: variables[index].slice(0, sep),
-          value: variables[index].slice(sep + 1, variables[index].length)
-        })
+        newData.data = result
+        return newData
+      } else if (data.mode === 'file') { // mode === 'file'
+        return data
+      } else { // mode === 'raw'
+        return data
       }
-      newData.data = result
-      return newData
     },
     translateVerify (data) {
       return data.filter(item => item.extractor !== '')
