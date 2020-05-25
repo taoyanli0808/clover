@@ -43,8 +43,14 @@ def interface_task(cases, data, report):
 
         executor = Executor(log=report['id'])
         executor.execute(cases, data)
-
-        name = data['report'] if 'report' in data and data['report'] else data['name']
+        try:
+            if 'report' in data and data['report']: #正常传了report，平台触发的
+                name=data['report']
+            elif  data['report']=='' and data['name']!='': #没写report名，但是有套件名，平台触发的
+                name=data['name']
+        except Exception as error:
+            name='ci-AutoTest'
+        #name = data['report'] if 'report' in data and data['report'] else data['name']
         update_report = {
             'id': report['id'],
             'team': data['team'],
