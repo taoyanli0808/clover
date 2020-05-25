@@ -5,7 +5,7 @@ import datetime
 from clover.exts import db
 
 from clover.models import query_to_dict
-from clover.dashboard.models import DashboardModel
+from clover.dashboard.models import InterfaceDashboardModel
 
 
 class DashboardService(object):
@@ -33,9 +33,9 @@ class DashboardService(object):
         :return:
         """
         try:
-            old_model = DashboardModel.query.get(data['id'])
+            old_model = InterfaceDashboardModel.query.get(data['id'])
             if old_model is None:
-                model = DashboardModel(**data)
+                model = InterfaceDashboardModel(**data)
                 db.session.add(model)
                 db.session.commit()
                 return model.id
@@ -65,11 +65,11 @@ class DashboardService(object):
         except TypeError:
             limit = 10
 
-        results = DashboardModel.query.filter_by(
+        results = InterfaceDashboardModel.query.filter_by(
             **filter
         ).order_by(
-            DashboardModel.created.desc()
+            InterfaceDashboardModel.created.desc()
         ).offset(offset).limit(limit)
         results = query_to_dict(results)
-        count = DashboardModel.query.filter_by(**filter).count()
+        count = InterfaceDashboardModel.query.filter_by(**filter).count()
         return count, results

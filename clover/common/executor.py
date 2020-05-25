@@ -450,6 +450,8 @@ class Executor():
             # get status from result property then update history
             status = self.result[data['name']]['status']
             history['statistics'][status] += 1
+            history['statistics']['percent'] = round(
+                100 * history['statistics']['passed'] / history['statistics']['total'], 2)
             service.update(history)
         else:
             history = {
@@ -473,6 +475,8 @@ class Executor():
             # get status from result property then create history
             status = self.result[data['name']]['status']
             history['statistics'][status] += 1
+            history['statistics']['percent'] = round(
+                100 * history['statistics']['passed'] / history['statistics']['total'], 2)
             service.create(history)
 
     def statistics(self):
@@ -511,11 +515,11 @@ class Executor():
             self.send_request(case)
             self.validate_request(case)
             self.extract_variable(case)
-            self.sync_dashboard(case)
+            # self.sync_dashboard(case)
 
             self.result[case['name']]['end'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             self.logger.info("[{}]接口测试结束...".format(case['name']))
         self.end = datetime.datetime.now()
 
-        self.statistics()
+        # self.statistics()
         self.logger.info("接口[{}],断言个数[{}],成功率[{}]".format(self.interface['total'], self.interface['verify'], self.interface['percent']))
