@@ -104,24 +104,14 @@ The structure of the result property is used for data presentation of the report
 """
 
 import os
-import json
 import logging
 import datetime
 
-from requests import request
-from requests.exceptions import InvalidURL
-from requests.exceptions import MissingSchema
-from requests.exceptions import InvalidSchema
-from requests.exceptions import ConnectionError
-from requests.exceptions import InvalidHeader
+from clover.core.request import Request
+from clover.core.variable import Variable
+from clover.core.extractor import Extractor
+from clover.core.validator import Validator
 
-from clover.common import derivation
-from clover.common import convert_type
-from clover.common.extractor import Extractor
-from clover.common.validator import Validator
-
-from clover.models import query_to_dict
-from clover.environment.models import VariableModel
 from clover.dashboard.service import DashboardService
 
 
@@ -165,63 +155,14 @@ class Executor():
         :return:
         """
         self.logger.info("[{}]接口测试第1步，变量替换".format(case['name']))
-        filter = {
-            'team': case.get('team'),
-            'project': case.get('project')
-        }
-        results = VariableModel.query.filter_by(**filter).all()
-
         self.logger.info("查找预定义变量，查找条件[{}]".format(filter))
-
-        variable = {
-            'extract': self.variables,
-            'trigger': data.get('variables', []),
-            'default': query_to_dict(results),
-        }
-
         self.logger.info("变量查找成功，预定义变量{}".format(variable['default']))
         self.logger.info("变量查找成功，触发时变量{}".format(variable['trigger']))
         self.logger.info("变量查找成功，运行时变量{}".format(variable['extract']))
-
         self.logger.info("域名替换前[{}]".format(case.get('host')))
-        case['host'] = derivation(case.get('host'), variable)
         self.logger.info("域名替换后[{}]".format(case.get('host')))
-
         self.logger.info("路径替换前[{}]".format(case.get('path')))
-        case['path'] = derivation(case.get('path'), variable)
         self.logger.info("路径替换后[{}]".format(case.get('path')))
-
-        if 'header' in case:
-            self.logger.info("请求头替换前[{}]".format(case.get('header')))
-            for header in case['header']:
-                header['value'] = derivation(header['value'], variable)
-            self.logger.info("请求头换后[{}]".format(case.get('header')))
-
-        if 'params' in case:
-            self.logger.info("请求参数替换前[{}]".format(case.get('params')))
-            for param in case['params']:
-                param['value'] = derivation(param['value'], variable)
-            self.logger.info("请求参数换后[{}]".format(case.get('params')))
-
-        if 'body' in case:
-            self.logger.info("请求体替换前[{}]".format(case.get('body')))
-            if case['body']['mode'] in ['formdata', 'urlencoded']:
-                for param in case['body']['data']:
-                    param['value'] = derivation(param['value'], variable)
-            elif case['body']['mode'] in ['file']:
-                pass
-            else:
-                """
-                # 这是"expected string or bytes-like object"问题的一个临时解决方案。
-                # 原因是当body数据类型为raw，数据为json时，view层接收数据时自动将其转为
-                # python对象，因此这里进行derivation会报错。
-                """
-                if isinstance(case['body']['data'], (list,)):
-                    for param in case['body']['data']:
-                        param['value'] = derivation(param['value'], variable)
-                else:
-                    case['body']['data'] = derivation(case['body']['data'], variable)
-            self.logger.info("请求体换后[{}]".format(case.get('body')))
 
         return case
 
@@ -231,6 +172,9 @@ class Executor():
         :return:
         """
         self.logger.info("[{}]接口测试第2步，发送接口请求".format(data['name']))
+        team = data.get("team")
+        project = data.get("project")
+        trigger = data.get("trigger")
         # 发送http请求
         method = data.get("method")
         host = data.get("host")
@@ -238,34 +182,6 @@ class Executor():
         header = data.get('header', {})
         params = data.get('params', {})
         body = data.get('body', {})
-        url = host + path
-
-        # 将[{'a': 1}, {'b': 2}]转化为{'a': 1, 'b': 2}
-        # 注意，这里如果请求头包含前导空格会报InvalidHeader错误。
-        if header:
-            header = {item['key'].strip(): item['value'].strip() for item in header if item['key']}
-
-        # 将[{'a': 1}, {'b': 2}]转化为{'a': 1, 'b': 2}
-        if params:
-            params = {item['key']: item['value'] for item in params}
-
-        # 将[{'a': 1}, {'b': 2}]转化为{'a': 1, 'b': 2}
-        if body:
-            if body['mode'] in ['formdata', 'urlencoded']:
-                body = {item['key']: item['value'] for item in body['data']}
-            elif body['mode'] in ['file']:
-                pass
-            else:
-                # 当请求时有中文出现会报UnicodeEncodeError，暂时强制转UTF-8
-                """
-                # 这里是"'list' object has no attribute 'encode'"问题的一个临时解决方案
-                # 原因是当body数据类型为raw，数据为json时，view层接收数据时自动将其转为
-                # python对象，如果对象不为字符串（通常不为），encode会报错。
-                """
-                if isinstance(body['data'], (str,)):
-                    body = body['data'].encode('utf-8') if body['data'] else None
-                else:
-                    body = body['data']
 
         self.logger.info("接口请求方法[{}]".format(method))
         self.logger.info("接口请求域名[{}]".format(host))
@@ -274,65 +190,18 @@ class Executor():
         self.logger.info("接口请求参数[{}]".format(params))
         self.logger.info("接口请求体[{}]".format(body))
 
-        try:
-            self.interface['total'] += 1
-            response = request(
-                method, url,
-                params=params,
-                data=body,
-                headers=header
-            )
-            self.result[data['name']]['elapsed'] = response.elapsed.microseconds
-            self.logger.error("接口请成功，耗时[{}]毫秒".format(response.elapsed.microseconds))
-        except InvalidURL:
-            self.status = 601
-            self.message = "您输入接口信息有误，URL格式非法，请确认！"
-            self.result[data['name']]['status'] = 'error'
-            self.logger.error("接口请失败，[{}]".format(self.message))
-            return data
-        except MissingSchema:
-            self.status = 602
-            self.message = "您输入接口缺少协议格式，请增加[http(s)://]协议头！"
-            self.result[data['name']]['status'] = 'error'
-            self.logger.error("接口请失败，[{}]".format(self.message))
-            return data
-        except InvalidSchema:
-            self.status = 603
-            self.message = "不支持的接口协议，请使用[http(s)://]协议头！"
-            self.result[data['name']]['status'] = 'error'
-            self.logger.error("接口请失败，[{}]".format(self.message))
-            return data
-        except ConnectionError:
-            self.status = 604
-            self.message = "当链接到服务器时出错，请确认域名[{}]是否正确！".format(data.get('host'))
-            self.result[data['name']]['status'] = 'error'
-            self.logger.error("接口请失败，[{}]".format(self.message))
-            return data
-        except InvalidHeader:
-            self.status = 605
-            self.message = "请求头包含非法字符！"
-            self.result[data['name']]['status'] = 'error'
-            self.logger.error("接口请失败，[{}]".format(self.message))
-            return data
+        variable = Variable(team, project, trigger, extract)
+        request = Request(method, host, path, header, params, body)
+        validator = Validator()
 
-        # 这里将响应的状态码，头信息和响应体单独存储，后面断言或提取变量会用到
-        data['response'] = {
-            'status': response.status_code,
-            'header': dict(response.headers),
-            'content': response.text
-        }
+        variable.replace_variable(request)
+        response = request.send_request()
 
-        self.logger.info("接口请成功，响应状态码[{}]".format(response.status_code))
-        self.logger.info("接口请成功，响应头信息[{}]".format(dict(response.headers)))
-        self.logger.info("接口请成功，响应内容为[{}]".format(response.text))
+        self.logger.info("接口请成功，响应状态码[{}]".format(response.status))
+        self.logger.info("接口请成功，响应头信息[{}]".format(response.header))
+        self.logger.info("接口请成功，响应内容为[{}]".format(response.response))
 
-        # 框架目前只支持json数据，在这里尝试进行json数据转换
-        try:
-            data['response']['json'] = json.loads(data['response']['content'])
-        except Exception:
-            data['response']['json'] = {"message": "亲爱的小伙伴，目前接口仅支持json格式！"}
-
-        return data
+        return response
 
     def validate_request(self, data):
         """
@@ -341,54 +210,6 @@ class Executor():
         """
         self.logger.info("[{}]接口测试第3步，接口结果断言".format(data['name']))
         self.result[data['name']]['result'] = []
-        validator = Validator()
-        for verify in data['verify']:
-            try:
-                # 判断提取器是否合法，只支持三种提取器
-                _extractor = verify.get('extractor', 'delimiter')
-                if _extractor not in ['delimiter', 'regular', 'keyword']:
-                    # 这里最好给一个报错
-                    continue
-                # 提取需要进行断言的数据
-                extractor = Extractor(_extractor)
-                expression = verify.get('expression', None)
-                variable = extractor.extract(data['response']['content'], expression, '.')
-
-                expected = verify.get('expected', None)
-                # 转化预期结果为需要的数据类型，数据类型相同才能比较嘛
-                convertor = verify.get('convertor', None)
-                variable = convert_type(convertor, variable)
-                expected = convert_type(convertor, expected)
-
-                # 获取比较器进行断言操作
-                comparator = verify.get('comparator', None)
-
-                result = validator.compare(comparator, variable, expected)
-                result = 'passed' if result else 'failed'
-                # 如果有任何一个断言失败，接口的状态则改为失败。
-                if result == 'failed':
-                    self.result[data['name']]['status'] = 'failed'
-                # 保存断言信息。
-                self.result[data['name']]['result'].append({
-                    'status': result,
-                    'actual': variable,
-                    'expect': expected,
-                    'operate': comparator,
-                })
-                self.logger.info("断言，提取器[{}]".format(_extractor))
-                self.logger.info("断言，表达式[{}]".format(expression))
-                self.logger.info("断言，提取值[{}]".format(variable))
-                self.logger.info("断言，预期值[{}]".format(expected))
-                self.logger.info("断言，比较器[{}]".format(comparator))
-                self.logger.info("断言，结果[{}]".format(result))
-            except Exception as error:
-                # 断言异常时则认定为接口测试失败
-                self.result[data['name']]['status'] = 'failed'
-                # 保存断言异常信息
-                self.result[data['name']]['result'].append({
-                    'status': str(error)
-                })
-                self.logger.info("断言，执行异常[{}]".format(error))
 
     def extract_variable(self, data):
         """

@@ -31,42 +31,6 @@ def get_mysql_error(error):
     return tuple(error.split(","))
 
 
-def derivation(data, keywords):
-    """
-    :param data:
-    :param keywords:
-    :return:
-    """
-    # 这里如果data是空值或者变量没有设置则不处理。
-    if not data or not keywords:
-        return data
-
-    variables = re.findall(r'\$\{(.+?)\}', data)
-    for variable in variables:
-        if variable:
-            variable = variable.strip()
-
-            # 这里需要注意，变量的优先级是
-            # 接口上下文变量 > 触发运行时指定变量 > 用户默认配置变量
-
-            extract = keywords['extract']
-            for result in extract:
-                if variable == result['name']:
-                    data = data.replace('${' + variable + '}', str(result['value']))
-
-            trigger = keywords['trigger']
-            for result in trigger:
-                if variable == result['name']:
-                    data = data.replace('${' + variable + '}', str(result['value']))
-
-            default = keywords['default']
-            for result in default:
-                if variable == result['name']:
-                    data = data.replace('${' + variable + '}', str(result['value']))
-
-    return data
-
-
 def convert_type(convertor, data):
     """
     :param convertor:
