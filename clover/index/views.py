@@ -6,7 +6,6 @@ import config
 from clover.views import CloverView
 from clover.common import get_system_info
 from clover.common import get_python_dependency
-from clover.common import get_nodejs_dependency
 from clover.index.service import Service
 
 
@@ -24,8 +23,7 @@ class IndexView(CloverView):
         try:
             info = {
                 **get_system_info(),
-                'python-dependency': get_python_dependency(),
-                'nodejs-dependency': get_nodejs_dependency()
+                'python-dependency': get_python_dependency()
             }
             return jsonify({
                 'status': 0,
