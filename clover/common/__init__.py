@@ -31,27 +31,6 @@ def get_mysql_error(error):
     return tuple(error.split(","))
 
 
-def convert_type(convertor, data):
-    """
-    :param convertor:
-    :param data:
-    :return:
-    """
-    try:
-        if convertor == 'int':
-            return int(data)
-        elif convertor == 'float':
-            return float(data)
-        elif convertor == 'boolean':
-            return bool(data)
-        else:
-            return str(data)
-    except ValueError:
-        return data
-    except TypeError:
-        return data
-
-
 def get_system_info():
     _platform = platform.platform()
     _platform = _platform.lower()

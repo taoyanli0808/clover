@@ -3,15 +3,23 @@ import re
 from typing import Text
 
 from clover.core.request import Request
+from clover.core.response import Response
+from clover.core.extractor import Extractor
+
 from clover.models import query_to_dict
 from clover.environment.models import VariableModel
 
 class Variable(object):
 
-    def __init__(self, team, project, extract, trigger):
+    def __init__(self, team, project, trigger):
+        """
+        :param team:
+        :param project:
+        :param trigger:
+        """
         self.team = team
         self.project = project
-        self.extract = extract
+        self.extract = {}
         self.trigger = trigger
         self.variables = self.load_default_variable()
 
@@ -25,12 +33,7 @@ class Variable(object):
             'project': self.project
         }
         default = VariableModel.query.filter_by(**filter).all()
-
-        return {
-            'extract': self.extract,
-            'trigger': self.trigger,
-            'default': query_to_dict(default),
-        }
+        self.variables = query_to_dict(default)
 
     def derivation(self, data: Text):
         """
@@ -100,3 +103,30 @@ class Variable(object):
                     request.body['data'] = self.derivation(request.body['data'])
             # self.logger.info("请求体换后[{}]".format(case.get('body')))
         return request
+
+    def extract_variable_from_response(self, data, response: Response):
+        self.logger.info("[{}]接口测试第4步，提取接口间变量".format(data['name']))
+        # 这里是临时加的，这里要详细看下如何处理。
+        if 'response' not in response.response:
+            return
+
+        if 'extract' not in data or not data['extract']:
+            return data
+
+        for extract in data['extract']:
+            # 提取需要进行断言的数据
+            selector = extract.get('selector', 'delimiter')
+            extractor = Extractor(selector)
+            expression = extract.get('expression', None)
+            variable = extract.get('variable', None)
+            result = extractor.extract(response.response, expression, '.')
+            """
+            # 这里不要简单的append，如果两个变量name相同，value不一样，
+            # 后面被追加进来的数据不会生效，因此变量在这里要保证唯一性。
+            """
+            for _varibale in self.extract:
+                if variable == _varibale['name']:
+                    _varibale['value'] = result
+                    break
+            else:
+                self.extract.append({'name': variable, 'value': result})

@@ -11,7 +11,27 @@ class Validator():
 
     def _assert(self): pass
 
-    def verify(self, response: Response):
+    def convert_type(self, convertor, data):
+        """
+        :param convertor:
+        :param data:
+        :return:
+        """
+        try:
+            if convertor == 'int':
+                return int(data)
+            elif convertor == 'float':
+                return float(data)
+            elif convertor == 'boolean':
+                return bool(data)
+            else:
+                return str(data)
+        except ValueError:
+            return data
+        except TypeError:
+            return data
+
+    def verify(self, data, response: Response):
         # 这里载入验证项和验证过程是否需要分开？
         for verify in data['verify']:
             try:
@@ -23,43 +43,44 @@ class Validator():
                 # 提取需要进行断言的数据
                 extractor = Extractor(_extractor)
                 expression = verify.get('expression', None)
-                variable = extractor.extract(data['response']['content'], expression, '.')
+                variable = extractor.extract(response.response, expression, '.')
 
                 expected = verify.get('expected', None)
                 # 转化预期结果为需要的数据类型，数据类型相同才能比较嘛
                 convertor = verify.get('convertor', None)
-                variable = convert_type(convertor, variable)
-                expected = convert_type(convertor, expected)
+                variable = self.convert_type(convertor, variable)
+                # expected = self.convert_type(convertor, expected)
 
                 # 获取比较器进行断言操作
                 comparator = verify.get('comparator', None)
 
-                result = validator.compare(comparator, variable, expected)
+                result = self.compare(comparator, variable, expected)
                 result = 'passed' if result else 'failed'
                 # 如果有任何一个断言失败，接口的状态则改为失败。
-                if result == 'failed':
-                    self.result[data['name']]['status'] = 'failed'
-                # 保存断言信息。
-                self.result[data['name']]['result'].append({
-                    'status': result,
-                    'actual': variable,
-                    'expect': expected,
-                    'operate': comparator,
-                })
-                self.logger.info("断言，提取器[{}]".format(_extractor))
-                self.logger.info("断言，表达式[{}]".format(expression))
-                self.logger.info("断言，提取值[{}]".format(variable))
-                self.logger.info("断言，预期值[{}]".format(expected))
-                self.logger.info("断言，比较器[{}]".format(comparator))
-                self.logger.info("断言，结果[{}]".format(result))
+                # if result == 'failed':
+                #     self.result[data['name']]['status'] = 'failed'
+                # # 保存断言信息。
+                # self.result[data['name']]['result'].append({
+                #     'status': result,
+                #     'actual': variable,
+                #     'expect': expected,
+                #     'operate': comparator,
+                # })
+                # self.logger.info("断言，提取器[{}]".format(_extractor))
+                # self.logger.info("断言，表达式[{}]".format(expression))
+                # self.logger.info("断言，提取值[{}]".format(variable))
+                # self.logger.info("断言，预期值[{}]".format(expected))
+                # self.logger.info("断言，比较器[{}]".format(comparator))
+                # self.logger.info("断言，结果[{}]".format(result))
             except Exception as error:
-                # 断言异常时则认定为接口测试失败
-                self.result[data['name']]['status'] = 'failed'
-                # 保存断言异常信息
-                self.result[data['name']]['result'].append({
-                    'status': str(error)
-                })
-                self.logger.info("断言，执行异常[{}]".format(error))
+                pass
+                # # 断言异常时则认定为接口测试失败
+                # self.result[data['name']]['status'] = 'failed'
+                # # 保存断言异常信息
+                # self.result[data['name']]['result'].append({
+                #     'status': str(error)
+                # })
+                # self.logger.info("断言，执行异常[{}]".format(error))
 
     def compare(self, comparator, variable, expected):
         """

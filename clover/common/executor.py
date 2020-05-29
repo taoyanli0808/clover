@@ -103,16 +103,11 @@ The structure of the result property is used for data presentation of the report
     }
 """
 
-import os
-import logging
 import datetime
 
 from clover.core.request import Request
 from clover.core.variable import Variable
-from clover.core.extractor import Extractor
 from clover.core.validator import Validator
-
-from clover.dashboard.service import DashboardService
 
 
 class Executor():
@@ -135,191 +130,6 @@ class Executor():
             'percent': 0.0,
         }
 
-        file = os.path.join(os.getcwd(), 'logs', '{}.log'.format(log))
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.DEBUG)
-        handler = logging.FileHandler(file)
-        handler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('%(asctime)s - %(filename)s - %(funcName)s - %(lineno)d - %(message)s')
-        handler.setFormatter(formatter)
-        self.logger.addHandler(handler)
-
-    def replace_variable(self, case, data):
-        """
-        # 这里对请求数据进行变量替换，将变量替换为具体值。
-        # 变量和其值可以在"配置管理 -> 全局变量"里设置。
-        # 目前支持host，header与param的变量替换。
-        # 变量与值存储使用团队与项目进行区分，不同的团队与项目允许出现同名变量。
-        :param case:
-        :param data:
-        :return:
-        """
-        self.logger.info("[{}]接口测试第1步，变量替换".format(case['name']))
-        self.logger.info("查找预定义变量，查找条件[{}]".format(filter))
-        self.logger.info("变量查找成功，预定义变量{}".format(variable['default']))
-        self.logger.info("变量查找成功，触发时变量{}".format(variable['trigger']))
-        self.logger.info("变量查找成功，运行时变量{}".format(variable['extract']))
-        self.logger.info("域名替换前[{}]".format(case.get('host')))
-        self.logger.info("域名替换后[{}]".format(case.get('host')))
-        self.logger.info("路径替换前[{}]".format(case.get('path')))
-        self.logger.info("路径替换后[{}]".format(case.get('path')))
-
-        return case
-
-    def send_request(self, data):
-        """
-        :param data:
-        :return:
-        """
-        self.logger.info("[{}]接口测试第2步，发送接口请求".format(data['name']))
-        team = data.get("team")
-        project = data.get("project")
-        trigger = data.get("trigger")
-        # 发送http请求
-        method = data.get("method")
-        host = data.get("host")
-        path = data.get("path")
-        header = data.get('header', {})
-        params = data.get('params', {})
-        body = data.get('body', {})
-
-        self.logger.info("接口请求方法[{}]".format(method))
-        self.logger.info("接口请求域名[{}]".format(host))
-        self.logger.info("接口请求路径[{}]".format(path))
-        self.logger.info("接口请求头[{}]".format(header))
-        self.logger.info("接口请求参数[{}]".format(params))
-        self.logger.info("接口请求体[{}]".format(body))
-
-        variable = Variable(team, project, trigger, extract)
-        request = Request(method, host, path, header, params, body)
-        validator = Validator()
-
-        variable.replace_variable(request)
-        response = request.send_request()
-
-        self.logger.info("接口请成功，响应状态码[{}]".format(response.status))
-        self.logger.info("接口请成功，响应头信息[{}]".format(response.header))
-        self.logger.info("接口请成功，响应内容为[{}]".format(response.response))
-
-        return response
-
-    def validate_request(self, data):
-        """
-        :param data:
-        :return:
-        """
-        self.logger.info("[{}]接口测试第3步，接口结果断言".format(data['name']))
-        self.result[data['name']]['result'] = []
-
-    def extract_variable(self, data):
-        """
-        :param data:
-        :return:
-        """
-        self.logger.info("[{}]接口测试第4步，提取接口间变量".format(data['name']))
-        # 这里是临时加的，这里要详细看下如何处理。
-        if 'response' not in data:
-            return
-
-        if 'extract' not in data or not data['extract']:
-            return data
-
-        for extract in data['extract']:
-            # 提取需要进行断言的数据
-            selector = extract.get('selector', 'delimiter')
-            extractor = Extractor(selector)
-            expression = extract.get('expression', None)
-            variable = extract.get('variable', None)
-            result = extractor.extract(data['response']['content'], expression, '.')
-            """
-            # 这里不要简单的append，如果两个变量name相同，value不一样，
-            # 后面被追加进来的数据不会生效，因此变量在这里要保证唯一性。
-            """
-            for _varibale in self.variables:
-                if variable == _varibale['name']:
-                    _varibale['value'] = result
-                    break
-            else:
-                self.variables.append({'name': variable, 'value': result})
-
-            self.logger.info("提取，选择器[{}]".format(selector))
-            self.logger.info("断言，表达式[{}]".format(expression))
-            self.logger.info("断言，变量名[{}]".format(variable))
-            self.logger.info("断言，变量值[{}]".format(result))
-
-        return data
-
-    def sync_dashboard(self, data):
-        """
-        # Use suite, name and identifier to uniquely mark a record.
-        # If the record does not exist, it will be created. Otherwise, it will be updated.
-        :param data:
-        :return:
-        """
-        service = DashboardService()
-        filter = {
-            'team': data.get('team'),
-            'project': data.get('project'),
-            'suite': 0,
-            'name': data.get('name'),
-            'identifier': data.get('id'),
-        }
-        _, history = service.search(filter)
-
-        if history:
-            history = history[0]
-            # get status from result property then update history
-            status = self.result[data['name']]['status']
-            history['statistics'][status] += 1
-            history['statistics']['percent'] = round(
-                100 * history['statistics']['passed'] / history['statistics']['total'], 2)
-            service.update(history)
-        else:
-            history = {
-                'team': data.get('team'),
-                'project': data.get('project'),
-                'type': 'interface',
-                'suite': 0,
-                'name': data.get('name'),
-                'identifier': data.get('id'),
-                'statistics': {
-                    'passed': 0,
-                    'failed': 0,
-                    'error': 0,
-                    'skiped': 0,
-                    'total': 0,
-                    'percent': 0,
-                },
-                'score': 0,  # 这里需要写函数实现
-            }
-
-            # get status from result property then create history
-            status = self.result[data['name']]['status']
-            history['statistics'][status] += 1
-            history['statistics']['percent'] = round(
-                100 * history['statistics']['passed'] / history['statistics']['total'], 2)
-            service.create(history)
-
-    def statistics(self):
-        """
-        # Statistics interface success, failure, error, skip and success rate.
-        :return:
-        """
-        for _, results in self.result.items():
-            self.interface['verify'] += len(results['result'])
-            if results['status'] == 'passed':
-                self.interface['passed'] += 1
-            if results['status'] == 'failed':
-                self.interface['failed'] += 1
-            if results['status'] == 'error':
-                self.interface['error'] += 1
-            if results['status'] == 'skiped':
-                self.interface['skiped'] += 1
-        if self.interface['total'] == 0:
-            self.interface['percent'] = 0.0
-        else:
-            self.interface['percent'] = round(100 * self.interface['passed'] / self.interface['total'], 2)
-
     def execute(self, cases, data=None):
         """
         :param cases:
@@ -327,16 +137,33 @@ class Executor():
         :return: 返回值为元组，分别是flag，message和接口请求后的json数据。
         """
         self.start = datetime.datetime.now()
-        for case in cases:
-            self.logger.info("[{}]接口测试开始...".format(case['name']))
-            self.result.setdefault(case['name'], {'status': 'passed'})
-            self.result[case['name']]['start'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-            self.replace_variable(case, data)
-            self.send_request(case)
-            self.validate_request(case)
-            self.extract_variable(case)
-            # self.sync_dashboard(case)
+        """
+        # 注意，变量对象必须在循环外被实例化，变量声明周期与执行器相同。
+        # 使用团队和项目属性查询平台预置的自定义变量，通过触发时传递。
+        # trigger参数为触发时用户添加的变量，优先级高于平台预置变量。
+        """
+        team = data.get("team")
+        project = data.get("project")
+        trigger = data.get("trigger")
+        variable = Variable(team, project, trigger)
+
+        for case in cases:
+            # 发送http请求
+            method = case.get("method")
+            host = case.get("host")
+            path = case.get("path")
+            header = case.get('header', {})
+            params = case.get('params', {})
+            body = case.get('body', {})
+
+            request = Request(method, host, path, header, params, body)
+            validator = Validator()
+
+            variable.replace_variable(request)
+            response = request.send_request()
+            validator.verify(case, response)
+            variable.extract_variable_from_response(case, response)
 
             self.result[case['name']]['end'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             self.logger.info("[{}]接口测试结束...".format(case['name']))
