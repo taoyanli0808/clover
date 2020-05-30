@@ -33,7 +33,7 @@ class Variable(object):
             'project': self.project
         }
         default = VariableModel.query.filter_by(**filter).all()
-        self.variables = query_to_dict(default)
+        return query_to_dict(default)
 
     def derivation(self, data: Text):
         """
@@ -42,7 +42,7 @@ class Variable(object):
         :return:
         """
         # 这里如果data是空值则不处理。
-        if not data or not isinstance(Text):
+        if not data or not isinstance(data, (Text,)):
             return data
 
         variables = re.findall(r'\$\{(.+?)\}', data)
@@ -53,17 +53,18 @@ class Variable(object):
                 # 这里需要注意，变量的优先级是
                 # 接口上下文变量 > 触发运行时指定变量 > 用户默认配置变量
 
-                extract = self.variables['extract']
+                extract = self.extract
                 for result in extract:
                     if variable == result['name']:
                         data = data.replace('${' + variable + '}', str(result['value']))
 
-                trigger = self.variables['trigger']
+                trigger = self.trigger
                 for result in trigger:
                     if variable == result['name']:
                         data = data.replace('${' + variable + '}', str(result['value']))
 
-                default = self.variables['default']
+                print(self.variables)
+                default = self.variables
                 for result in default:
                     if variable == result['name']:
                         data = data.replace('${' + variable + '}', str(result['value']))
@@ -74,21 +75,21 @@ class Variable(object):
         request.url = self.derivation(request.url)
         if request.header:
             # self.logger.info("请求头替换前[{}]".format(case.get('header')))
-            for header in request.header:
-                header['value'] = self.derivation(header['value'])
+            for key, value in request.header.items():
+                request.header[key] = self.derivation(value)
             # self.logger.info("请求头换后[{}]".format(case.get('header')))
         if request.parameter:
             # self.logger.info("请求参数替换前[{}]".format(case.get('params')))
-            for parameter in request.parameter:
-                parameter['value'] = self.derivation(parameter['value'])
+            for key, value in request.parameter.items():
+                request.parameter[key] = self.derivation(value)
             # self.logger.info("请求参数换后[{}]".format(case.get('params')))
 
         if request.body:
             # self.logger.info("请求体替换前[{}]".format(case.get('body')))
-            if request.body['mode'] in ['formdata', 'urlencoded']:
-                for body in request.body:
-                    body['value'] = self.derivation(body['value'])
-            elif request.body['mode'] in ['file']:
+            if request.body_mode in ['formdata', 'urlencoded']:
+                for key, value in request.body.items():
+                    request.body[key] = self.derivation(value)
+            elif request.body_mode in ['file']:
                 pass
             else:
                 """
@@ -96,16 +97,16 @@ class Variable(object):
                 # 原因是当body数据类型为raw，数据为json时，view层接收数据时自动将其转为
                 # python对象，因此这里进行derivation会报错。
                 """
-                if isinstance(request.body['data'], (list,)):
-                    for body in request.body['data']:
-                        body['value'] = self.derivation(body['value'])
+                if isinstance(request.body, (list,)):
+                    for key, value in request.body.items():
+                        request.body[key] = self.derivation(value)
                 else:
-                    request.body['data'] = self.derivation(request.body['data'])
+                    request.body = self.derivation(request.body)
             # self.logger.info("请求体换后[{}]".format(case.get('body')))
         return request
 
     def extract_variable_from_response(self, data, response: Response):
-        self.logger.info("[{}]接口测试第4步，提取接口间变量".format(data['name']))
+        # self.logger.info("[{}]接口测试第4步，提取接口间变量".format(data['name']))
         # 这里是临时加的，这里要详细看下如何处理。
         if 'response' not in response.response:
             return

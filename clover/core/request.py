@@ -21,7 +21,7 @@ class Request(object):
         self.method = self.set_method(method)
         self.url = host.strip() + path.strip()
         self.header = self.set_header(header)
-        self.body = self.set_body(body)
+        self.body_mode, self.body = self.set_body(body)
         self.parameter = self.set_parameter(parameter)
 
     def set_method(self, method):
@@ -55,10 +55,11 @@ class Request(object):
         :param body:
         :return:
         """
+        mode = body.get('mode', 'raw')
         if body:
-            if body['mode'] in ['formdata', 'urlencoded']:
+            if mode in ['formdata', 'urlencoded']:
                 body = {item['key']: item['value'] for item in body['data']}
-            elif body['mode'] in ['file']:
+            elif mode in ['file']:
                 pass
             else:
                 # 当请求时有中文出现会报UnicodeEncodeError，暂时强制转UTF-8
@@ -71,7 +72,7 @@ class Request(object):
                     body = body['data'].encode('utf-8') if body['data'] else None
                 else:
                     body = body['data']
-        return body
+        return mode, body
 
     def send_request(self):
         try:

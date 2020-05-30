@@ -10,8 +10,6 @@ from clover.models import query_to_dict
 from clover.suite.models import SuiteModel
 from clover.interface.models import InterfaceModel
 
-from clover.report.service import ReportService
-
 
 class SuiteService():
 
@@ -90,17 +88,9 @@ class SuiteService():
         if not suite:
             return
 
-        # 创建空的report并提交
-        if 'team' not in data or not data['team']:
-            data['team'] = suite.team
-        if 'project' not in data or not data['project']:
-            data['project'] = suite.team
-        report_service = ReportService()
-        report = report_service.empty_report(data)
-        report = report.to_dict()
-
         cases = [InterfaceModel.query.get(case).to_dict() for case in suite.cases]
 
         # 使用celery异步运行的接口任务。
-        interface_task.apply_async(args=(cases, data, report))
-        return report.get('id')
+        interface_task.apply_async(args=(cases, data))
+        print("触发完毕！")
+        return

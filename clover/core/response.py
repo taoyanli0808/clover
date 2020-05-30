@@ -1,11 +1,11 @@
 
 from json import loads
 
-import requests.Response
+from urllib3.response import HTTPResponse
 
 class Response(object):
 
-    def __init__(self, response: requests.Response) -> None:
+    def __init__(self, response: HTTPResponse) -> None:
         self.status = response.status_code
         self.header = dict(response.headers)
         self.response = response.text

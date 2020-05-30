@@ -118,18 +118,9 @@ class InterfaceService(object):
         if not interface:
             return
 
-        # 创建空的report并提交
-        if 'team' not in data or not data['team']:
-            data['team'] = interface.team
-        if 'project' not in data or not data['project']:
-            data['project'] = interface.team
-        report_service = ReportService()
-        report = report_service.empty_report(data)
-        report = report.to_dict()
-
         cases = [interface.to_dict()]
 
         # 使用celery异步运行的接口任务。
-        interface_task.apply_async(args=(cases, data, report))
+        interface_task.apply_async(args=(cases, data))
 
-        return report.get('id')
+        return

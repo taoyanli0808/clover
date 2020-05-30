@@ -36,38 +36,15 @@ def notify(data, events):
 
 
 @task.task(base=QueueOnce, once={'graceful': True})
-def interface_task(cases, data, report):
+def interface_task(cases, data):
     from clover import app
 
     with app.test_request_context():
-
-        executor = Executor(log=report['id'])
+        print("What？！")
+        executor = Executor()
         executor.execute(cases, data)
-        try:
-            if 'report' in data and data['report']: #正常传了report，平台触发的
-                name=data['report']
-            elif  data['report']=='' and data['name']!='': #没写report名，但是有套件名，平台触发的
-                name=data['name']
-        except Exception as error:
-            name='ci-AutoTest'
-        #name = data['report'] if 'report' in data and data['report'] else data['name']
-        update_report = {
-            'id': report['id'],
-            'team': data['team'],
-            'project': data['project'],
-            'name': name,
-            'type': 'interface',
-            'interface': executor.interface,
-            'start': executor.start,
-            'end': executor.end,
-            'duration': (executor.end - executor.start).total_seconds(),
-            'platform': get_system_info(),
-            'detail': executor.result,
-        }
-        report_service = ReportService()
-        report_service.update(update_report)
 
-        events = 'success' if executor.interface['passed'] == executor.interface['total'] else 'failed'
-        notify(update_report, events)
+        # events = 'success' if executor.interface['passed'] == executor.interface['total'] else 'failed'
+        # notify(update_report, events)
 
-    return report
+    return 1

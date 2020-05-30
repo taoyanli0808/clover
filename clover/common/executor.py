@@ -105,6 +105,7 @@ The structure of the result property is used for data presentation of the report
 
 import datetime
 
+from clover.core.report import Report
 from clover.core.request import Request
 from clover.core.variable import Variable
 from clover.core.validator import Validator
@@ -136,17 +137,18 @@ class Executor():
         :param data:
         :return: 返回值为元组，分别是flag，message和接口请求后的json数据。
         """
-        self.start = datetime.datetime.now()
-
         """
         # 注意，变量对象必须在循环外被实例化，变量声明周期与执行器相同。
         # 使用团队和项目属性查询平台预置的自定义变量，通过触发时传递。
         # trigger参数为触发时用户添加的变量，优先级高于平台预置变量。
         """
+        print("开始执行用例...")
         team = data.get("team")
         project = data.get("project")
-        trigger = data.get("trigger")
+        trigger = data.get("trigger", {})
         variable = Variable(team, project, trigger)
+
+        report = Report(data)
 
         for case in cases:
             # 发送http请求
@@ -165,9 +167,5 @@ class Executor():
             validator.verify(case, response)
             variable.extract_variable_from_response(case, response)
 
-            self.result[case['name']]['end'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            self.logger.info("[{}]接口测试结束...".format(case['name']))
-        self.end = datetime.datetime.now()
-
-        # self.statistics()
-        self.logger.info("接口[{}],断言个数[{}],成功率[{}]".format(self.interface['total'], self.interface['verify'], self.interface['percent']))
+        report.update()
+        print("执行用例结束...")
