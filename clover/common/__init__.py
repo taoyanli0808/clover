@@ -1,5 +1,4 @@
 
-import re
 import os
 import time
 import json
@@ -94,3 +93,12 @@ def friendly_datetime(data):
             continue
         data[key] = value.strftime("%Y-%m-%d %H:%M:%S")
     return data
+
+
+class CloverJSONEncoder(json.JSONEncoder):
+
+    def default(self, data):
+        if isinstance(data, datetime.datetime):
+            return data.strftime('%Y-%m-%d %H:%M:%S')
+        else:
+            return json.JSONEncoder.default(self, data)

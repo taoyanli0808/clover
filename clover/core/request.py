@@ -19,7 +19,7 @@ class Request(object):
     def __init__(self, method: Text, host: Text, path: Text,
                  header: List, parameter: List, body: Dict) -> None:
         self.method = self.set_method(method)
-        self.url = host.strip() + path.strip()
+        self.host, self.path, self.url = host, path, host.strip() + path.strip()
         self.header = self.set_header(header)
         self.body_mode, self.body = self.set_body(body)
         self.parameter = self.set_parameter(parameter)
@@ -84,29 +84,29 @@ class Request(object):
             self.status = 601
             self.message = "您输入接口信息有误，URL格式非法，请确认！"
             # self.result[data['name']]['status'] = 'error'
-            self.logger.error("接口请失败，[{}]".format(self.message))
+            # self.logger.error("接口请失败，[{}]".format(self.message))
             raise ResponseException()
         except MissingSchema:
             self.status = 602
             self.message = "您输入接口缺少协议格式，请增加[http(s)://]协议头！"
             # self.result[data['name']]['status'] = 'error'
-            self.logger.error("接口请失败，[{}]".format(self.message))
-            return ResponseException()
+            # self.logger.error("接口请失败，[{}]".format(self.message))
+            raise ResponseException()
         except InvalidSchema:
             self.status = 603
             self.message = "不支持的接口协议，请使用[http(s)://]协议头！"
             # self.result[data['name']]['status'] = 'error'
-            self.logger.error("接口请失败，[{}]".format(self.message))
-            return ResponseException()
+            # self.logger.error("接口请失败，[{}]".format(self.message))
+            raise ResponseException()
         except ConnectionError:
             self.status = 604
-            self.message = "当链接到服务器时出错，请确认域名[{}]是否正确！".format(data.get('host'))
+            self.message = "当链接到服务器时出错，请确认域名[{}]是否正确！".format(self.host)
             # self.result[data['name']]['status'] = 'error'
-            self.logger.error("接口请失败，[{}]".format(self.message))
-            return ResponseException()
+            # self.logger.error("接口请失败，[{}]".format(self.message))
+            raise ResponseException()
         except InvalidHeader:
             self.status = 605
             self.message = "请求头包含非法字符！"
             # self.result[data['name']]['status'] = 'error'
-            self.logger.error("接口请失败，[{}]".format(self.message))
-            return ResponseException()
+            # self.logger.error("接口请失败，[{}]".format(self.message))
+            raise ResponseException()

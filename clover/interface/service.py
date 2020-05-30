@@ -3,14 +3,13 @@
 import datetime
 
 from clover.exts import db
+from clover.core.message import Message
 from clover.common.executor import Executor
-from clover.common.tasks import interface_task
 
 from clover.models import soft_delete
 from clover.models import query_to_dict
 from clover.interface.models import InterfaceModel
 
-from clover.report.service import ReportService
 
 
 class InterfaceService(object):
@@ -120,7 +119,7 @@ class InterfaceService(object):
 
         cases = [interface.to_dict()]
 
-        # 使用celery异步运行的接口任务。
-        interface_task.apply_async(args=(cases, data))
+        message = Message()
+        message.send({'case': cases, 'data': data})
 
         return

@@ -2,8 +2,8 @@
 from sqlalchemy.exc import ProgrammingError
 
 from clover.exts import db
+from clover.core.message import Message
 from clover.common import get_mysql_error
-from clover.common.tasks import interface_task
 
 from clover.models import soft_delete
 from clover.models import query_to_dict
@@ -90,7 +90,7 @@ class SuiteService():
 
         cases = [InterfaceModel.query.get(case).to_dict() for case in suite.cases]
 
-        # 使用celery异步运行的接口任务。
-        interface_task.apply_async(args=(cases, data))
-        print("触发完毕！")
+        message = Message()
+        message.send({'case': cases, 'data': data})
+
         return

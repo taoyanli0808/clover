@@ -103,12 +103,11 @@ The structure of the result property is used for data presentation of the report
     }
 """
 
-import datetime
-
 from clover.core.report import Report
 from clover.core.request import Request
 from clover.core.variable import Variable
 from clover.core.validator import Validator
+from clover.core.exception import ResponseException
 
 
 class Executor():
@@ -163,9 +162,13 @@ class Executor():
             validator = Validator()
 
             variable.replace_variable(request)
-            response = request.send_request()
-            validator.verify(case, response)
-            variable.extract_variable_from_response(case, response)
+            try:
+                response = request.send_request()
+                validator.verify(case, response)
+                variable.extract_variable_from_response(case, response)
+            except ResponseException:
+                print("请求异常，状态码：{}".format(request.status))
+                print(request.message)
 
         report.update()
         print("执行用例结束...")

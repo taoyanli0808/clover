@@ -12,13 +12,9 @@ MYSQL = {
 SQLALCHEMY_DATABASE_URI = 'mysql://{user}:{pswd}@{host}:{port}/clover?charset=utf8'.format(**MYSQL)
 SQLALCHEMY_TRACK_MODIFICATIONS=True
 
-# celery配置
-CELERY_HOST = 'redis://127.0.0.1:6379/{}'
-CELERY_TIMEZONE = 'Asia/Shanghai'
-CELERYD_FORCE_EXECV = True # 非常重要,有些情况下可以防止死锁
-CELERYD_TASK_TIME_LIMIT = 120 # 单个任务的运行时间不超过此值，否则会被SIGKILL 信号杀死
-CELERY_BROKER_URL = CELERY_HOST.format(0)
-CELERY_RESULT_BACKEND = CELERY_HOST.format(1)
+REDIS_HOST = '127.0.0.1'
+REDIS_PORT = 6379
+REDIS_DATABASE = 0
 
 # 功能控制，True则生效，False则无效
 MODULE = {
