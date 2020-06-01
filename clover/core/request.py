@@ -11,6 +11,7 @@ from requests.exceptions import ConnectionError
 from requests.exceptions import InvalidHeader
 
 from clover.core.response import Response
+from clover.core.logger import Logger, LogLevel
 from clover.core.exception import ResponseException
 
 
@@ -75,38 +76,42 @@ class Request(object):
         return mode, body
 
     def send_request(self):
+        Logger.log("准备发送http请求，请求方法[{}]".format(self.method), "发送请求")
+        Logger.log("准备发送http请求，请求域名[{}]".format(self.host), "发送请求")
+        Logger.log("准备发送http请求，请求路径[{}]".format(self.path), "发送请求")
+        Logger.log("准备发送http请求，请求地址[{}]".format(self.url), "发送请求")
+        Logger.log("准备发送http请求，请求头[{}]".format(self.header), "发送请求")
+        Logger.log("准备发送http请求，请求参数[{}]".format(self.parameter), "发送请求")
+        Logger.log("准备发送http请求，请求体类型[{}]".format(self.body_mode), "发送请求")
+        Logger.log("准备发送http请求，请求体[{}]".format(self.body), "发送请求")
         try:
             response = request(self.method, self.url, params=self.parameter, data=self.body, headers=self.header)
+            Logger.log("发送http请求成功，响应码[{}]".format(response.status_code), "发送请求")
+            Logger.log("发送http请求成功，请求耗时[{}]".format(response.elapsed), "发送请求")
+            Logger.log("发送http请求成功，请求响应[{}]".format(response.text), "发送请求", LogLevel.DEBUG)
             return Response(response)
-            # self.result[data['name']]['elapsed'] = response.elapsed.microseconds
-            # self.logger.error("接口请成功，耗时[{}]毫秒".format(response.elapsed.microseconds))
         except InvalidURL:
             self.status = 601
             self.message = "您输入接口信息有误，URL格式非法，请确认！"
-            # self.result[data['name']]['status'] = 'error'
-            # self.logger.error("接口请失败，[{}]".format(self.message))
+            Logger.log("发送http请求出错，原因[{}]".format(self.message), "发送请求", LogLevel.WARN)
             raise ResponseException()
         except MissingSchema:
             self.status = 602
             self.message = "您输入接口缺少协议格式，请增加[http(s)://]协议头！"
-            # self.result[data['name']]['status'] = 'error'
-            # self.logger.error("接口请失败，[{}]".format(self.message))
+            Logger.log("发送http请求出错，原因[{}]".format(self.message), "发送请求", LogLevel.WARN)
             raise ResponseException()
         except InvalidSchema:
             self.status = 603
             self.message = "不支持的接口协议，请使用[http(s)://]协议头！"
-            # self.result[data['name']]['status'] = 'error'
-            # self.logger.error("接口请失败，[{}]".format(self.message))
+            Logger.log("发送http请求出错，原因[{}]".format(self.message), "发送请求", LogLevel.WARN)
             raise ResponseException()
         except ConnectionError:
             self.status = 604
             self.message = "当链接到服务器时出错，请确认域名[{}]是否正确！".format(self.host)
-            # self.result[data['name']]['status'] = 'error'
-            # self.logger.error("接口请失败，[{}]".format(self.message))
+            Logger.log("发送http请求出错，原因[{}]".format(self.message), "发送请求", LogLevel.WARN)
             raise ResponseException()
         except InvalidHeader:
             self.status = 605
             self.message = "请求头包含非法字符！"
-            # self.result[data['name']]['status'] = 'error'
-            # self.logger.error("接口请失败，[{}]".format(self.message))
+            Logger.log("发送http请求出错，原因[{}]".format(self.message), "发送请求", LogLevel.WARN)
             raise ResponseException()

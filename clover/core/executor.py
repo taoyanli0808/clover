@@ -104,6 +104,7 @@ The structure of the result property is used for data presentation of the report
 """
 
 from clover.core.report import Report
+from clover.core.logger import Logger
 from clover.core.request import Request
 from clover.core.variable import Variable
 from clover.core.validator import Validator
@@ -141,13 +142,19 @@ class Executor():
         # 使用团队和项目属性查询平台预置的自定义变量，通过触发时传递。
         # trigger参数为触发时用户添加的变量，优先级高于平台预置变量。
         """
-        print("开始执行用例...")
+        id = data.get("id")
+        type = data.get('type', 'interface')
+        sub_type = data.get('sub_type', 'suite')
+
         team = data.get("team")
         project = data.get("project")
         trigger = data.get("trigger", {})
         variable = Variable(team, project, trigger)
-
         report = Report(data)
+
+        # 因为是类属性存储日志，使用前先清理历史日志数据。
+        Logger.clear()
+        Logger.log("团队：{}，项目：{}".format(team, project), "开始执行")
 
         for case in cases:
             # 发送http请求
@@ -171,4 +178,5 @@ class Executor():
                 print(request.message)
 
         report.update()
-        print("执行用例结束...")
+        Logger.save(type, sub_type, id)
+

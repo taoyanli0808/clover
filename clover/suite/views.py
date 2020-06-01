@@ -126,16 +126,22 @@ class SuiteView(CloverView):
                 'data': data
             })
 
-        try:
-            result = self.service.trigger(data)
-            return jsonify({
-                'status': 0,
-                'message': '运行测试套件[{0}]成功，测试报告ID[{1}]'.format(id, result),
-                'data': result
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': '运行套件出错，请联系管理员！',
-                'data': str(error)
-            })
+        result = self.service.trigger(data)
+        return jsonify({
+            'status': 0,
+            'message': '运行测试套件[{0}]成功，测试报告ID[{1}]'.format(id, result),
+            'data': result
+        })
+        # try:
+        #     result = self.service.trigger(data)
+        #     return jsonify({
+        #         'status': 0,
+        #         'message': '运行测试套件[{0}]成功，测试报告ID[{1}]'.format(id, result),
+        #         'data': result
+        #     })
+        # except Exception as error:
+        #     return jsonify({
+        #         'status': 500,
+        #         'message': '运行套件出错，请联系管理员！',
+        #         'data': str(error)
+        #     })

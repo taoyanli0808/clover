@@ -2,6 +2,7 @@
 import re
 from typing import Text
 
+from clover.core.logger import Logger
 from clover.core.request import Request
 from clover.core.response import Response
 from clover.core.extractor import Extractor
@@ -19,7 +20,7 @@ class Variable(object):
         """
         self.team = team
         self.project = project
-        self.extract = {}
+        self.extract = []
         self.trigger = trigger
         self.variables = self.load_default_variable()
 
@@ -74,18 +75,18 @@ class Variable(object):
     def replace_variable(self, request: Request) -> Request:
         request.url = self.derivation(request.url)
         if request.header:
-            # self.logger.info("请求头替换前[{}]".format(case.get('header')))
+            Logger.log("请求头替换前[{}]".format(request.header), "变量替换")
             for key, value in request.header.items():
                 request.header[key] = self.derivation(value)
-            # self.logger.info("请求头换后[{}]".format(case.get('header')))
+            Logger.log("请求头替换后[{}]".format(request.header), "变量替换")
         if request.parameter:
-            # self.logger.info("请求参数替换前[{}]".format(case.get('params')))
+            Logger.log("请求参数替换前[{}]".format(request.parameter), "变量替换")
             for key, value in request.parameter.items():
                 request.parameter[key] = self.derivation(value)
-            # self.logger.info("请求参数换后[{}]".format(case.get('params')))
+            Logger.log("请求参数替换后[{}]".format(request.parameter), "变量替换")
 
         if request.body:
-            # self.logger.info("请求体替换前[{}]".format(case.get('body')))
+            Logger.log("请求体替换前[{}]".format(request.body), "变量替换")
             if request.body_mode in ['formdata', 'urlencoded']:
                 for key, value in request.body.items():
                     request.body[key] = self.derivation(value)
@@ -102,11 +103,11 @@ class Variable(object):
                         request.body[key] = self.derivation(value)
                 else:
                     request.body = self.derivation(request.body)
-            # self.logger.info("请求体换后[{}]".format(case.get('body')))
+            Logger.log("请求体替换前[{}]".format(request.body), "变量替换")
         return request
 
     def extract_variable_from_response(self, data, response: Response):
-        # self.logger.info("[{}]接口测试第4步，提取接口间变量".format(data['name']))
+        Logger.log("提取接口间变量", "变量替换")
         # 这里是临时加的，这里要详细看下如何处理。
         if 'response' not in response.response:
             return
@@ -114,6 +115,7 @@ class Variable(object):
         if 'extract' not in data or not data['extract']:
             return data
 
+        Logger.log("提取接口间变量开始[{}]".format(self.extract), "变量替换")
         for extract in data['extract']:
             # 提取需要进行断言的数据
             selector = extract.get('selector', 'delimiter')
@@ -131,3 +133,4 @@ class Variable(object):
                     break
             else:
                 self.extract.append({'name': variable, 'value': result})
+        Logger.log("提取接口间变量完成[{}]".format(self.extract), "变量替换")

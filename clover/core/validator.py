@@ -1,6 +1,7 @@
 
 from clover.core.response import Response
 from clover.core.extractor import Extractor
+from clover.core.logger import Logger, LogLevel
 
 
 class Validator():
@@ -66,12 +67,12 @@ class Validator():
                 #     'expect': expected,
                 #     'operate': comparator,
                 # })
-                # self.logger.info("断言，提取器[{}]".format(_extractor))
-                # self.logger.info("断言，表达式[{}]".format(expression))
-                # self.logger.info("断言，提取值[{}]".format(variable))
-                # self.logger.info("断言，预期值[{}]".format(expected))
-                # self.logger.info("断言，比较器[{}]".format(comparator))
-                # self.logger.info("断言，结果[{}]".format(result))
+                Logger.log("断言，提取器[{}]".format(_extractor), "执行断言")
+                Logger.log("断言，表达式[{}]".format(expression), "执行断言")
+                Logger.log("断言，提取值[{}]".format(variable), "执行断言")
+                Logger.log("断言，预期值[{}]".format(expected), "执行断言")
+                Logger.log("断言，比较器[{}]".format(comparator), "执行断言")
+                Logger.log("断言，变量值[{}]".format(result), "执行断言")
             except Exception as error:
                 pass
                 # # 断言异常时则认定为接口测试失败
@@ -80,7 +81,7 @@ class Validator():
                 # self.result[data['name']]['result'].append({
                 #     'status': str(error)
                 # })
-                # self.logger.info("断言，执行异常[{}]".format(error))
+                Logger.log("断言，执行异常[{}]".format(error), "执行断言", level=LogLevel.ERROR)
 
     def compare(self, comparator, variable, expected):
         """

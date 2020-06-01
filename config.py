@@ -12,6 +12,7 @@ MYSQL = {
 SQLALCHEMY_DATABASE_URI = 'mysql://{user}:{pswd}@{host}:{port}/clover?charset=utf8'.format(**MYSQL)
 SQLALCHEMY_TRACK_MODIFICATIONS=True
 
+# 使用redis作为消息队列
 REDIS_HOST = '127.0.0.1'
 REDIS_PORT = 6379
 REDIS_DATABASE = 0

@@ -12,6 +12,8 @@ class InterfaceModel(CloverModel):
     team = db.Column(db.String(64), index=True, comment="团队")
     project = db.Column(db.String(256), index=True, comment="项目")
     name = db.Column(db.String(64), index=True, comment="用例名称")
+    type = db.Column(db.String(64), index=True, default="interface", comment="套件类型")
+    sub_type = db.Column(db.String(64), index=True, default="interface", comment="[suite|interface]")
     method = db.Column(db.String(64), comment="请求方法")
     host = db.Column(db.String(512), comment="测试域名")
     path = db.Column(db.String(4096), comment="请求路径")
