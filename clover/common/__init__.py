@@ -85,6 +85,9 @@ def friendly_datetime(data):
     :param data:
     :return:
     """
+    if isinstance(data, (datetime.datetime,)):
+        return data.strftime("%Y-%m-%d %H:%M:%S")
+
     if not isinstance(data, (dict,)):
         return data
 

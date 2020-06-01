@@ -103,11 +103,15 @@ The structure of the result property is used for data presentation of the report
     }
 """
 
+import datetime
+
+from clover.common import friendly_datetime
+
 from clover.core.report import Report
-from clover.core.logger import Logger
 from clover.core.request import Request
 from clover.core.variable import Variable
 from clover.core.validator import Validator
+from clover.core.logger import Logger, LogLevel
 from clover.core.exception import ResponseException
 
 
@@ -120,16 +124,7 @@ class Executor():
         self.type = type
         self.start = 0
         self.end = 0
-        self.result = {}    # 记录运行状态与相关数据。
-        self.interface = {
-            'verify': 0,
-            'passed': 0,
-            'failed': 0,
-            'error': 0,
-            'sikped': 0,
-            'total': 0,
-            'percent': 0.0,
-        }
+        self.report = Report()
 
     def execute(self, cases, data=None):
         """
@@ -137,6 +132,8 @@ class Executor():
         :param data:
         :return: 返回值为元组，分别是flag，message和接口请求后的json数据。
         """
+        # 注意需要在执行最前端实例化report，report初始化时会记录开始时间点。
+        report, execute_detail = Report(), {}
         """
         # 注意，变量对象必须在循环外被实例化，变量声明周期与执行器相同。
         # 使用团队和项目属性查询平台预置的自定义变量，通过触发时传递。
@@ -149,14 +146,19 @@ class Executor():
         team = data.get("team")
         project = data.get("project")
         trigger = data.get("trigger", {})
+
         variable = Variable(team, project, trigger)
-        report = Report(data)
 
         # 因为是类属性存储日志，使用前先清理历史日志数据。
         Logger.clear()
         Logger.log("团队：{}，项目：{}".format(team, project), "开始执行")
 
         for case in cases:
+
+            name = case.get("name")
+            execute_detail.setdefault(name, {})
+            execute_detail[name].setdefault('start', friendly_datetime(datetime.datetime.now()))
+
             # 发送http请求
             method = case.get("method")
             host = case.get("host")
@@ -173,10 +175,19 @@ class Executor():
                 response = request.send_request()
                 validator.verify(case, response)
                 variable.extract_variable_from_response(case, response)
+
+                execute_detail[name].setdefault('elapsed', response.elapsed.microseconds)
             except ResponseException:
-                print("请求异常，状态码：{}".format(request.status))
-                print(request.message)
+                Logger.logs("请求异常，状态码：{}".format(request.status), "发送请求", LogLevel.ERROR)
+                Logger.logs(request.message, "发送请求", LogLevel.ERROR)
 
-        report.update()
-        Logger.save(type, sub_type, id)
+            execute_detail[name].setdefault('status', validator.status)
+            execute_detail[name].setdefault('result', validator.result)
+            execute_detail[name].setdefault('end', friendly_datetime(datetime.datetime.now()))
 
+        # Logger.save(type, sub_type, id)
+        # 存储运行的测试报告到数据库。
+        print(50 * '*')
+        print(execute_detail)
+        print(50 * '*')
+        report.save(data, execute_detail, [])

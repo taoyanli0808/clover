@@ -8,6 +8,8 @@ class Validator():
 
     def __init__(self, data=None):
         self.data = data
+        self.status = 'failed'
+        self.result = []
         self.extractor = Extractor()
 
     def _assert(self): pass
@@ -33,8 +35,13 @@ class Validator():
             return data
 
     def verify(self, data, response: Response):
-        # 这里载入验证项和验证过程是否需要分开？
+        """
+        :param data:
+        :param response:
+        :return:
+        """
         for verify in data['verify']:
+            _extractor, expression, variable, expected, comparator = None, None, None, None, None
             try:
                 # 判断提取器是否合法，只支持三种提取器
                 _extractor = verify.get('extractor', 'delimiter')
@@ -50,23 +57,20 @@ class Validator():
                 # 转化预期结果为需要的数据类型，数据类型相同才能比较嘛
                 convertor = verify.get('convertor', None)
                 variable = self.convert_type(convertor, variable)
-                # expected = self.convert_type(convertor, expected)
+                expected = self.convert_type(convertor, expected)
 
                 # 获取比较器进行断言操作
                 comparator = verify.get('comparator', None)
 
                 result = self.compare(comparator, variable, expected)
-                result = 'passed' if result else 'failed'
-                # 如果有任何一个断言失败，接口的状态则改为失败。
-                # if result == 'failed':
-                #     self.result[data['name']]['status'] = 'failed'
-                # # 保存断言信息。
-                # self.result[data['name']]['result'].append({
-                #     'status': result,
-                #     'actual': variable,
-                #     'expect': expected,
-                #     'operate': comparator,
-                # })
+                # 保存断言信息。
+                self.result.append({
+                    'status': result,
+                    'actual': variable,
+                    'expect': expected,
+                    'operate': comparator,
+                })
+                Logger.log("断言，执行通过[{}]", "执行断言")
                 Logger.log("断言，提取器[{}]".format(_extractor), "执行断言")
                 Logger.log("断言，表达式[{}]".format(expression), "执行断言")
                 Logger.log("断言，提取值[{}]".format(variable), "执行断言")
@@ -74,14 +78,23 @@ class Validator():
                 Logger.log("断言，比较器[{}]".format(comparator), "执行断言")
                 Logger.log("断言，变量值[{}]".format(result), "执行断言")
             except Exception as error:
-                pass
-                # # 断言异常时则认定为接口测试失败
-                # self.result[data['name']]['status'] = 'failed'
-                # # 保存断言异常信息
-                # self.result[data['name']]['result'].append({
-                #     'status': str(error)
-                # })
+                # 断言异常时则认定为接口测试失败
+                self.result.append({
+                    'status': 'error',
+                    'actual': variable,
+                    'expect': expected,
+                    'operate': comparator,
+                })
                 Logger.log("断言，执行异常[{}]".format(error), "执行断言", level=LogLevel.ERROR)
+                Logger.log("断言，提取器[{}]".format(_extractor), "执行断言")
+                Logger.log("断言，表达式[{}]".format(expression), "执行断言")
+                Logger.log("断言，提取值[{}]".format(variable), "执行断言")
+                Logger.log("断言，预期值[{}]".format(expected), "执行断言")
+                Logger.log("断言，比较器[{}]".format(comparator), "执行断言")
+
+        # 这里对断言结果进行统计，全部为passed才认为接口断言通过。
+        status = [result['status'] for result in self.result]
+        self.status = 'passed' if {'passed'} == set(status) else 'failed'
 
     def compare(self, comparator, variable, expected):
         """

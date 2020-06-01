@@ -21,7 +21,9 @@ class ReportService():
         :param data:
         :return:
         """
-        pass
+        model = ReportModel(**data)
+        db.session.add(model)
+        db.session.commit()
 
     def update(self, data):
         """
@@ -30,7 +32,7 @@ class ReportService():
         :param data:
         :return:
         """
-        old_model = ReportModel.query.get(data['id'])
+        old_model = ReportModel.query.get(data.get('id'))
         if old_model is None:
             model = ReportModel(**data)
             db.session.add(model)
