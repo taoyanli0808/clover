@@ -12,7 +12,27 @@ class Report():
         """
         self.start = datetime.datetime.now()
 
-    def save(self, data, detail, log):
+    def get_log(self, data, logger):
+        """
+        :param data:
+        :param logger:
+        :return:
+        """
+        case = data.get("id")
+        type = data.get('type', 'interface')
+        sub_type = data.get('sub_type', 'suite')
+        data = {
+            'type': type,
+            'sub_type': sub_type,
+            'case': case,
+            'logs': logger.to_dict(),
+        }
+        print(50 * '*')
+        print(data)
+        print(50 * '*')
+        return data
+
+    def save(self, data, detail, logger):
         """
         :param data:
         :param detail:
@@ -36,7 +56,7 @@ class Report():
             'end': friendly_datetime(end),
             'duration': (end - self.start).total_seconds(),
             'detail': detail,
-            'log': log,
+            'log': self.get_log(data, logger),
         }
 
         service = ReportService()

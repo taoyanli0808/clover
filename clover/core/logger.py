@@ -5,9 +5,6 @@
 import enum
 import datetime
 
-from clover import db
-from clover.logger.models import LoggerModel
-
 
 class LogLevel(enum.Enum):
     """
@@ -47,24 +44,3 @@ class Logger(object):
             data['level'] = data['level'].name.lower()
             return data
         return [translate(log) for log in cls.logs]
-
-    @classmethod
-    def save(cls, _type, sub_type, case):
-        data = {
-            'type': _type,
-            'sub_type': sub_type,
-            'case': case,
-            'logs': cls.to_dict(),
-        }
-        # print(type(logs), logs)
-        # print(type(logs['logs']), logs['logs'])
-        # print(type(logs['logs'][0]), logs['logs'][0])
-        print(50 * '*')
-        print(type(data['logs'][0]['level']), data['logs'][0]['level'])
-        print(50 * '*')
-        for log in data['logs']:
-            print(type(log['level']), log['level'])
-        print(50 * '*')
-        model = LoggerModel(**data)
-        db.session.add(model)
-        db.session.commit()

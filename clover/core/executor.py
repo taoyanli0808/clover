@@ -139,10 +139,6 @@ class Executor():
         # 使用团队和项目属性查询平台预置的自定义变量，通过触发时传递。
         # trigger参数为触发时用户添加的变量，优先级高于平台预置变量。
         """
-        id = data.get("id")
-        type = data.get('type', 'interface')
-        sub_type = data.get('sub_type', 'suite')
-
         team = data.get("team")
         project = data.get("project")
         trigger = data.get("trigger", {})
@@ -185,9 +181,5 @@ class Executor():
             execute_detail[name].setdefault('result', validator.result)
             execute_detail[name].setdefault('end', friendly_datetime(datetime.datetime.now()))
 
-        # Logger.save(type, sub_type, id)
         # 存储运行的测试报告到数据库。
-        print(50 * '*')
-        print(execute_detail)
-        print(50 * '*')
-        report.save(data, execute_detail, [])
+        report.save(data, execute_detail, Logger)
