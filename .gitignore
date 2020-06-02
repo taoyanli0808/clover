@@ -4,6 +4,7 @@
 
 .idea/
 __pycache__/
+migrations/
 
 # 虚拟环境
 venv/

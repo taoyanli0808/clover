@@ -12,16 +12,16 @@ from clover.environment.models import VariableModel
 
 class Variable(object):
 
-    def __init__(self, team, project, trigger):
+    def __init__(self, context):
         """
         :param team:
         :param project:
         :param trigger:
         """
-        self.team = team
-        self.project = project
+        self.team = context.user['team']
+        self.project = context.user['project']
         self.extract = []
-        self.trigger = trigger
+        self.trigger = context.user['variables']
         self.variables = self.load_default_variable()
 
     def load_default_variable(self):

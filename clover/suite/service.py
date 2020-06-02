@@ -80,17 +80,12 @@ class SuiteService():
         :param data:
         :return:
         """
-        # 通过接口传递过来的suite id来查询需要运行的接口。
-        id = data.get('id')
-        suite = SuiteModel.query.get(id)
-
-        # 如果不存在套件，则直接返回。
-        if not suite:
-            return
-
-        cases = [InterfaceModel.query.get(case).to_dict() for case in suite.cases]
 
         message = Message()
-        message.send({'case': cases, 'data': data})
-
+        message.send({
+            'type': 'suite',
+            'sub_type': 'interface',
+            'id': data.get('id'),
+            'user': data,
+        })
         return

@@ -1,8 +1,4 @@
 
-from typing import List
-from typing import Dict
-from typing import Text
-
 from requests import request
 from requests.exceptions import InvalidURL
 from requests.exceptions import MissingSchema
@@ -17,13 +13,16 @@ from clover.core.exception import ResponseException
 
 class Request(object):
 
-    def __init__(self, method: Text, host: Text, path: Text,
-                 header: List, parameter: List, body: Dict) -> None:
-        self.method = self.set_method(method)
-        self.host, self.path, self.url = host, path, host.strip() + path.strip()
-        self.header = self.set_header(header)
-        self.body_mode, self.body = self.set_body(body)
-        self.parameter = self.set_parameter(parameter)
+    def __init__(self, case):
+        """
+        :param case:
+        """
+        self.method = self.set_method(case.get("method"))
+        self.host, self.path = case.get("host"), case.get("path")
+        self.url = self.host + self.path
+        self.header = self.set_header(case.get('header', {}))
+        self.body_mode, self.body = self.set_body(case.get('body', {}))
+        self.parameter = self.set_parameter(case.get('params', {}))
 
     def set_method(self, method):
         """
@@ -33,7 +32,7 @@ class Request(object):
         """
         return method.lower() if method.lower() in ['get', 'post', 'put', 'delete'] else 'get'
 
-    def set_header(self, header: List) -> Dict:
+    def set_header(self, header):
         """
         # 将数据库中取到的[{'a': 1}, {'b': 2}]转化为requests请求需要的{'a': 1, 'b': 2}
         # 注意，这里如果请求头包含前导空格会报InvalidHeader错误，所以建议对数据进行strip操作。

@@ -108,17 +108,11 @@ class InterfaceService(object):
         :param data:
         :return:
         """
-        # 通过接口传递过来的suite id来查询需要运行的接口。
-        id = data.get('id')
-        interface = InterfaceModel.query.get(id)
-
-        # 如果不存在接口则直接返回
-        if not interface:
-            return
-
-        cases = [interface.to_dict()]
-
         message = Message()
-        message.send({'case': cases, 'data': data})
-
+        message.send({
+            'type': 'interface',
+            'sub_type': 'interface',
+            'id': data.get('id'),
+            'user': data,
+        })
         return

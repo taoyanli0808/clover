@@ -126,44 +126,29 @@ class Executor():
         self.end = 0
         self.report = Report()
 
-    def execute(self, cases, data=None):
+    def execute(self, context):
         """
-        :param cases:
-        :param data:
-        :return: 返回值为元组，分别是flag，message和接口请求后的json数据。
+        :param context:
+        :return:
         """
         # 注意需要在执行最前端实例化report，report初始化时会记录开始时间点。
-        report, execute_detail = Report(), {}
+        report, details = Report(), []
         """
         # 注意，变量对象必须在循环外被实例化，变量声明周期与执行器相同。
         # 使用团队和项目属性查询平台预置的自定义变量，通过触发时传递。
         # trigger参数为触发时用户添加的变量，优先级高于平台预置变量。
         """
-        team = data.get("team")
-        project = data.get("project")
-        trigger = data.get("trigger", {})
-
-        variable = Variable(team, project, trigger)
+        variable = Variable(context)
 
         # 因为是类属性存储日志，使用前先清理历史日志数据。
         Logger.clear()
-        Logger.log("团队：{}，项目：{}".format(team, project), "开始执行")
+        Logger.log("团队：{}，项目：{}".format(context.user['team'], context.user['project']), "开始执行")
 
-        for case in cases:
+        for case in context.data:
+            detail = {'name': case.get("name")}
+            detail.setdefault('start', friendly_datetime(datetime.datetime.now()))
 
-            name = case.get("name")
-            execute_detail.setdefault(name, {})
-            execute_detail[name].setdefault('start', friendly_datetime(datetime.datetime.now()))
-
-            # 发送http请求
-            method = case.get("method")
-            host = case.get("host")
-            path = case.get("path")
-            header = case.get('header', {})
-            params = case.get('params', {})
-            body = case.get('body', {})
-
-            request = Request(method, host, path, header, params, body)
+            request = Request(case)
             validator = Validator()
 
             variable.replace_variable(request)
@@ -172,14 +157,15 @@ class Executor():
                 validator.verify(case, response)
                 variable.extract_variable_from_response(case, response)
 
-                execute_detail[name].setdefault('elapsed', response.elapsed.microseconds)
+                detail.setdefault('elapsed', response.elapsed.microseconds)
             except ResponseException:
                 Logger.logs("请求异常，状态码：{}".format(request.status), "发送请求", LogLevel.ERROR)
                 Logger.logs(request.message, "发送请求", LogLevel.ERROR)
 
-            execute_detail[name].setdefault('status', validator.status)
-            execute_detail[name].setdefault('result', validator.result)
-            execute_detail[name].setdefault('end', friendly_datetime(datetime.datetime.now()))
+            detail.setdefault('status', validator.status)
+            detail.setdefault('result', validator.result)
+            detail.setdefault('end', friendly_datetime(datetime.datetime.now()))
+            details.append(detail)
 
         # 存储运行的测试报告到数据库。
-        report.save(data, execute_detail, Logger)
+        report.save(context, details, Logger)
