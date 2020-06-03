@@ -12,25 +12,21 @@ class Report():
         """
         self.start = datetime.datetime.now()
 
-    def get_log(self, data, logger):
+    def get_log(self, context, logger):
         """
-        :param data:
+        :param context:
         :param logger:
         :return:
         """
-        case = data.get("id")
-        type = data.get('type', 'interface')
-        sub_type = data.get('sub_type', 'suite')
-        data = {
+        case = context.case[0].id
+        type = context.case[0].type
+        sub_type = context.case[0].sub_type
+        return {
             'type': type,
             'sub_type': sub_type,
             'case': case,
             'logs': logger.to_dict(),
         }
-        print(50 * '*')
-        print(data)
-        print(50 * '*')
-        return data
 
     def get_interface_statistics(self, details):
         """
@@ -69,17 +65,17 @@ class Report():
         :param detail:
         :param log:
         """
-        if 'report' in context.user and context.user['report']:
-            name = context.user.get('report')
-        elif 'name' in context.user and context.user['name']:
-            name = context.user.get('name')
+        if hasattr(context.submit, 'report') and context.submit.report:
+            name = context.submit.report
+        elif hasattr(context.submit, 'name') and context.submit.name:
+            name = context.submit.name
         else:
             name = 'Clover测试平台报告'
         end = datetime.datetime.now()
 
         report = {
-            'team': context.user.get('team'),
-            'project': context.user.get('project'),
+            'team': context.submit.team,
+            'project': context.submit.project,
             'name': name,
             'type': 'interface',
             'platform': get_system_info(),
@@ -88,7 +84,7 @@ class Report():
             'duration': (end - self.start).total_seconds(),
             'interface': self.get_interface_statistics(details),
             'detail': details,
-            'log': [],#self.get_log(data, logger),
+            'log': self.get_log(context, logger),
         }
 
         service = ReportService()

@@ -1,14 +1,16 @@
 
-from clover.models import query_to_dict
 from clover.suite.models import SuiteModel
 from clover.interface.models import InterfaceModel
+
+
+class Submit(object): pass
 
 
 class Context(object):
 
     def __init__(self):
-        self.data = []
-        self.user = None
+        self.case = []
+        self.submit = Submit()
 
     def build_context(self, data):
         """
@@ -18,9 +20,11 @@ class Context(object):
         id = data.get('id')
         type = data.get('type')
         if type == 'interface':
-            self.data = query_to_dict([InterfaceModel.query.get(id)])
+            self.case = [InterfaceModel.query.get(id)]
         elif type == 'suite':
-            self.data = query_to_dict(SuiteModel.query.get(id))
+            suite = SuiteModel.query.get(id)
+            self.case = [InterfaceModel.query.get(case) for case in suite.cases]
         else:
             print("类型错误！")
-        self.user = data.get('user')
+        for key, value in data.get('user').items():
+            setattr(self.submit, key, value)
