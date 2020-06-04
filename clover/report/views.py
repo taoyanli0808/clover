@@ -93,7 +93,18 @@ class ReportView(CloverView):
 
         try:
             result = self.service.log(data)
-            return jsonify(result)
+            if result is None:
+                return jsonify({
+                    'status': 0,
+                    'message': "日志不存在！",
+                    'data': []
+                })
+            else:
+                return jsonify({
+                    'status': 0,
+                    'message': "日志不存在！",
+                    'data': result
+                })
         except Exception as error:
             return jsonify({
                 'status': 500,
