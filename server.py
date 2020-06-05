@@ -6,9 +6,9 @@ import multiprocessing
 debug = True
 loglevel = 'debug'
 bind = "0.0.0.0:5000"
-pidfile = "clover/logs/gunicorn.pid"
-accesslog = "clover/logs/flask_access.log"
-errorlog = "clover/logs/flask_error.log"
+pidfile = "logs/gunicorn.pid"
+accesslog = "logs/flask_access.log"
+errorlog = "logs/flask_error.log"
 timeout = 300
 daemon = True
 
