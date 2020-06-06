@@ -10,6 +10,7 @@ from clover.core.extractor import Extractor
 from clover.models import query_to_dict
 from clover.environment.models import VariableModel
 
+
 class Variable(object):
 
     def __init__(self, context):
@@ -18,10 +19,13 @@ class Variable(object):
         :param project:
         :param trigger:
         """
-        self.team = context.user['team']
-        self.project = context.user['project']
+        self.team = context.submit.team
+        self.project = context.submit.project
         self.extract = []
-        self.trigger = context.user['variables']
+        if hasattr(context.submit, 'variables'):
+            self.trigger = context.submit.variables
+        else:
+            self.trigger = []
         self.variables = self.load_default_variable()
 
     def load_default_variable(self):
@@ -64,7 +68,6 @@ class Variable(object):
                     if variable == result['name']:
                         data = data.replace('${' + variable + '}', str(result['value']))
 
-                print(self.variables)
                 default = self.variables
                 for result in default:
                     if variable == result['name']:
@@ -106,17 +109,22 @@ class Variable(object):
             Logger.log("请求体替换前[{}]".format(request.body), "变量替换")
         return request
 
-    def extract_variable_from_response(self, data, response: Response):
+    def extract_variable_from_response(self, case, response: Response):
+        """
+        :param case:
+        :param response:
+        :return:
+        """
         Logger.log("提取接口间变量", "变量替换")
         # 这里是临时加的，这里要详细看下如何处理。
-        if 'response' not in response.response:
+        if response is None or not hasattr(response, 'response'):
             return
 
-        if 'extract' not in data or not data['extract']:
-            return data
+        if not hasattr(case, 'extract') or not case.extract:
+            return case
 
         Logger.log("提取接口间变量开始[{}]".format(self.extract), "变量替换")
-        for extract in data['extract']:
+        for extract in case.extract:
             # 提取需要进行断言的数据
             selector = extract.get('selector', 'delimiter')
             extractor = Extractor(selector)

@@ -1,7 +1,7 @@
 
+from clover.core.logger import Logger
 from clover.core.response import Response
 from clover.core.extractor import Extractor
-from clover.core.logger import Logger, LogLevel
 
 
 class Validator():
@@ -34,13 +34,13 @@ class Validator():
         except TypeError:
             return data
 
-    def verify(self, data, response: Response):
+    def verify(self, case, response: Response):
         """
         :param data:
         :param response:
         :return:
         """
-        for verify in data['verify']:
+        for verify in case.verify:
             _extractor, expression, variable, expected, comparator = None, None, None, None, None
             try:
                 # 判断提取器是否合法，只支持三种提取器
@@ -85,16 +85,16 @@ class Validator():
                     'expect': expected,
                     'operate': comparator,
                 })
-                Logger.log("断言，执行异常[{}]".format(error), "执行断言", level=LogLevel.ERROR)
-                Logger.log("断言，提取器[{}]".format(_extractor), "执行断言")
-                Logger.log("断言，表达式[{}]".format(expression), "执行断言")
-                Logger.log("断言，提取值[{}]".format(variable), "执行断言")
-                Logger.log("断言，预期值[{}]".format(expected), "执行断言")
-                Logger.log("断言，比较器[{}]".format(comparator), "执行断言")
+                Logger.log("断言，执行异常[{}]".format(error), "执行断言", level='error')
+                Logger.log("断言，提取器[{}]".format(_extractor), "执行断言", level='error')
+                Logger.log("断言，表达式[{}]".format(expression), "执行断言", level='error')
+                Logger.log("断言，提取值[{}]".format(variable), "执行断言", level='error')
+                Logger.log("断言，预期值[{}]".format(expected), "执行断言", level='error')
+                Logger.log("断言，比较器[{}]".format(comparator), "执行断言", level='error')
 
         # 这里对断言结果进行统计，全部为passed才认为接口断言通过。
         status = [result['status'] for result in self.result]
-        self.status = 'passed' if {'passed'} == set(status) else 'failed'
+        self.status = 'passed' if {True} == set(status) else 'failed'
 
     def compare(self, comparator, variable, expected):
         """

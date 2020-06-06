@@ -107,11 +107,11 @@ import datetime
 
 from clover.common import friendly_datetime
 
+from clover.core.logger import Logger
 from clover.core.report import Report
 from clover.core.request import Request
 from clover.core.variable import Variable
 from clover.core.validator import Validator
-from clover.core.logger import Logger, LogLevel
 from clover.core.exception import ResponseException
 
 
@@ -142,30 +142,32 @@ class Executor():
 
         # 因为是类属性存储日志，使用前先清理历史日志数据。
         Logger.clear()
-        Logger.log("团队：{}，项目：{}".format(context.user['team'], context.user['project']), "开始执行")
+        Logger.log("团队：{}，项目：{}".format(context.submit.team, context.submit.project), "开始执行")
 
-        for case in context.data:
-            detail = {'name': case.get("name")}
+        for case in context.case:
+            detail = {'name': case.name}
             detail.setdefault('start', friendly_datetime(datetime.datetime.now()))
 
             request = Request(case)
+            response = None
             validator = Validator()
 
             variable.replace_variable(request)
             try:
                 response = request.send_request()
-                validator.verify(case, response)
-                variable.extract_variable_from_response(case, response)
-
                 detail.setdefault('elapsed', response.elapsed.microseconds)
             except ResponseException:
-                Logger.logs("请求异常，状态码：{}".format(request.status), "发送请求", LogLevel.ERROR)
-                Logger.logs(request.message, "发送请求", LogLevel.ERROR)
+                Logger.log("请求异常，状态码：{}".format(request.status), "发送请求", 'error')
+                Logger.log(request.message, "发送请求", 'error')
+
+            validator.verify(case, response)
+            variable.extract_variable_from_response(case, response)
 
             detail.setdefault('status', validator.status)
             detail.setdefault('result', validator.result)
             detail.setdefault('end', friendly_datetime(datetime.datetime.now()))
             details.append(detail)
+        # print(Logger.logs)
 
         # 存储运行的测试报告到数据库。
         report.save(context, details, Logger)
