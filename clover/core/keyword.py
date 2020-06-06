@@ -7,6 +7,7 @@
 
 import re
 
+from clover.core.logger import Logger
 from clover.core.exception import KeywordException
 
 
@@ -35,13 +36,13 @@ class Keyword(object):
 
         function = re.findall(r'\$\{(.+?)\(', keyword)
         if not function:
-            print("不能提取关键字名称，执行失败！")
+            Logger.log("不能提取关键字名称，执行失败！", "关键字判定")
             return False
         self.function_name = function[0]
 
         parameters = re.findall(r'\$\{\w+\((.+?)\)\}', keyword)
         if not parameters:
-            print("不能提取关键字参数，执行失败！")
+            Logger.log("不能提取关键字参数，执行失败！", "关键字判定")
             return False
         parameters = parameters[0]
         for param in parameters.split(','):
@@ -61,21 +62,21 @@ class Keyword(object):
 
             # 从locals获取执行关键字。
             if self.function_name not in locals():
-                print("获取关键字失败！")
+                Logger.log("获取关键字失败！", "关键字执行")
                 raise KeywordException
             self.function = locals()[self.function_name]
 
             # 判断正则提取的参数与函数实际参数是否一致。
             parameter_count = locals()[self.function_name].__code__.co_argcount
             if len(self.parameters) != parameter_count:
-                print("执行关键字时实际参数与所需参数不匹配")
+                Logger.log("执行关键字时实际参数与所需参数不匹配", "关键字执行")
                 raise KeywordException
 
             # 从locals获取执行关键字所需参数列表。
             parameters = []
             for parameter in self.parameters:
                 if parameter not in globals() and parameter not in locals():
-                    print("找不到执行关键字的必要参数！")
+                    Logger.log("找不到执行关键字的必要参数！", "关键字执行")
                     continue
                 if parameter in globals():
                     parameters.append(globals()[parameter])
@@ -86,7 +87,7 @@ class Keyword(object):
             # 执行关键字并返回结果。
             return self.function(*parameters)
         except Exception as error:
-            print("执行关键字时发生异常", error)
+            Logger.log("执行关键字时发生异常{}".format(error), "关键字执行", level="error")
 
 
 if __name__ == '__main__':
