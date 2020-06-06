@@ -2,9 +2,7 @@
 # clover关键字机制预研第一版，主要实现执行关键字函数并返回结果。
 # author ：taoyanli0808
 # date   ：2020年6月6日22:03:10
-# version：1.0.0
-# 待解决问题：
-# 1、需要解决参数globals与locals作用域兼容。
+# version：1.1.0
 """
 
 import re
@@ -77,10 +75,14 @@ class Keyword(object):
             # 从locals获取执行关键字所需参数列表。
             parameters = []
             for parameter in self.parameters:
-                if parameter not in globals():
+                if parameter not in globals() and parameter not in locals():
                     print("找不到执行关键字的必要参数！")
                     continue
-                parameters.append(globals()[parameter])
+                if parameter in globals():
+                    parameters.append(globals()[parameter])
+                else:
+                    parameters.append(locals()[parameter])
+                    continue
 
             # 执行关键字并返回结果。
             return self.function(*parameters)
@@ -90,13 +92,14 @@ class Keyword(object):
 
 if __name__ == '__main__':
     secret = '123456'
-    data = 'abcdefg'
-    source = """def sign(secret, data):
-        import hashlib
-        raw = (secret + data).encode('utf-8')
-        md5 = hashlib.md5()
-        md5.update(raw)
-        return md5.hexdigest()"""
+    # data = 'abcdefg'
+    source = """data = 'abcdefg'
+def sign(secret, data):
+    import hashlib
+    raw = (secret + data).encode('utf-8')
+    md5 = hashlib.md5()
+    md5.update(raw)
+    return md5.hexdigest()"""
     keyword = Keyword(source)
     keyword.is_keyword('${sign(secret, data)}')
     result = keyword.execute()
