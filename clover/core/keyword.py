@@ -7,8 +7,7 @@
 
 import re
 
-
-class KeywordExcption(Exception): pass
+from clover.core.exception import KeywordException
 
 
 class Keyword(object):
@@ -63,14 +62,14 @@ class Keyword(object):
             # 从locals获取执行关键字。
             if self.function_name not in locals():
                 print("获取关键字失败！")
-                raise KeywordExcption
+                raise KeywordException
             self.function = locals()[self.function_name]
 
             # 判断正则提取的参数与函数实际参数是否一致。
             parameter_count = locals()[self.function_name].__code__.co_argcount
             if len(self.parameters) != parameter_count:
                 print("执行关键字时实际参数与所需参数不匹配")
-                raise KeywordExcption
+                raise KeywordException
 
             # 从locals获取执行关键字所需参数列表。
             parameters = []

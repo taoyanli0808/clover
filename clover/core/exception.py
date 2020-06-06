@@ -3,6 +3,8 @@ class CloverException(Exception): pass
 
 class DatabaseException(CloverException): pass
 
+class KeywordException(CloverException): pass
+
 class PythonException(CloverException): pass
 
 class RequestException(CloverException): pass
