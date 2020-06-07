@@ -263,7 +263,8 @@ class KeywordService(object):
         :param data:
         :return:
         """
-        old_model = KeywordModel.query.get(data['id'])
+        id = data.get('id')
+        old_model = KeywordModel.query.get(id)
         if old_model is None:
             model = TeamModel(**data)
             db.session.add(model)
@@ -279,6 +280,14 @@ class KeywordService(object):
         :return:
         """
         filter = {'enable': 0}
+
+        # 如果按照id查询则返回唯一的数据或None
+        if 'id' in data and data['id']:
+            filter.setdefault('id', data.get('id'))
+            result = KeywordModel.query.get(data['id'])
+            count = 1 if result else 0
+            result = result.to_dict() if result else None
+            return count, result
 
         try:
             offset = int(data.get('offset', 0))

@@ -397,7 +397,7 @@ class KeywordView(CloverView):
             id = self.service.update(data)
             return jsonify({
                 'status': 0,
-                'message': 'ok',
+                'message': '更新关键字成功！',
                 'data': id
             })
         except Exception as error:
