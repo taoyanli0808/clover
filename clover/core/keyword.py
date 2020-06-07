@@ -22,6 +22,17 @@ class Keyword(object):
         self.parameters = []
         self.function_name = None
 
+    def get_function_name_from_source(self):
+        """
+        :return:
+        """
+        function = re.findall(r'def\s+(.+?)\(', self.source)
+        print(function)
+        if not function:
+            Logger.log("不能提取关键字名称，执行失败！", "获取关键字名")
+            return False
+        return function[0]
+
     def is_keyword(self, keyword):
         """
         # 给定字符串keyword，判断次字符串是否为需要处理的关键字定义。

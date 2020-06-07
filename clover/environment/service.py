@@ -3,6 +3,7 @@ import json
 import datetime
 
 from clover.exts import db
+from clover.core.keyword import Keyword
 from clover.models import query_to_dict, soft_delete
 from clover.environment.models import TeamModel
 from clover.environment.models import KeywordModel
@@ -229,19 +230,19 @@ class KeywordService(object):
         :param data:
         :return:
         """
-        team = data.get('team')
-        project = data.get('project')
-        mock = json.loads(data.get('mock'))
         keyword = data.get('keyword')
-        func = re.findall(r'def\s+(.+?)\(', keyword)
-        name = func[0] if func else ""
+        description = data.get('description')
+
+        # 执行关键字提取函数名称
+        _keyword = Keyword(keyword)
+        function_name = _keyword.get_function_name_from_source()
+
         data = {
-            'team': team,
-            'project': project,
-            'name': name,
-            'mock': mock,
-            'snippet': keyword,
+            'name': function_name,
+            'description': description,
+            'keyword': keyword
         }
+
         model = KeywordModel(**data)
         db.session.add(model)
         db.session.commit()
@@ -307,11 +308,9 @@ class KeywordService(object):
         :param data:
         :return:
         """
-        # 这里是否需要try except兜一下？
-        mock = json.loads(data.get('mock'))
         keyword = data.get('keyword')
-        func = re.findall(r'def\s+(.+?):', keyword)
-        if func:
-            keyword += '\n' + func[0]
-            exec(keyword, {'data': mock})
-        return mock
+        expression = data.get('expression')
+        _keyword = Keyword(keyword)
+        _keyword.is_keyword(expression)
+        result = _keyword.execute()
+        return result
