@@ -118,7 +118,7 @@ def map_urls(app):
     app.add_url_rule(
         "/api/v1/keyword/search",
         view_func=keyword,
-        methods=['GET'],
+        methods=['POST'],
         strict_slashes=False,
     )
     app.add_url_rule(

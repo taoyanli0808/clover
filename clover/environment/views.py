@@ -412,7 +412,7 @@ class KeywordView(CloverView):
         """
         :return:
         """
-        data = request.values.to_dict()
+        data = request.get_json()
 
         try:
             total, result = self.service.search(data)

@@ -253,7 +253,8 @@ class KeywordService(object):
         :param data:
         :return:
         """
-        model = KeywordModel.query.get(data['id'])
+        id = data.get('id')
+        model = KeywordModel.query.get(id)
         if model is not None:
             soft_delete(model)
 
@@ -278,12 +279,6 @@ class KeywordService(object):
         :return:
         """
         filter = {'enable': 0}
-
-        if 'team' in data and data['team']:
-            filter.setdefault('team', data.get('team'))
-
-        if 'owner' in data and data['owner']:
-            filter.setdefault('owner', data.get('owner'))
 
         try:
             offset = int(data.get('offset', 0))
