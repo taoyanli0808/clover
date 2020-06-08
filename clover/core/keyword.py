@@ -45,7 +45,7 @@ class Keyword(object):
         if not isinstance(keyword, (str,)):
             return False
 
-        function = re.findall(r'\$\{(.+?)\(', keyword)
+        function = re.findall(r'\$\{(\w+?)\(', keyword)
         if not function:
             Logger.log("不能提取关键字名称，执行失败！", "关键字判定")
             return False
