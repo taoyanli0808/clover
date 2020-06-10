@@ -1,4 +1,10 @@
 import logging
+import os
+import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(os.getcwd())))
+sys.path.append(os.getcwd())
+print(sys.path)
 from clover.core.message import Message
 
 
@@ -33,7 +39,11 @@ class myWorker(object):
                 1. 线程
                 2. Click命令行传参
         """
-        self.mq.stream_consumer()
+        try:
+            self.mq.stream_consumer()
+        except KeyboardInterrupt:
+            print(' 退出 Crtl + C ')
+            sys.exit()
 
 
 if __name__ == '__main__':
