@@ -82,7 +82,13 @@ class SuiteService():
         """
 
         message = Message()
-        message.send({
+        # message.send({
+        #     'type': 'suite',
+        #     'sub_type': 'interface',
+        #     'id': data.get('id'),
+        #     'user': data,
+        # })
+        msg_id = message.send_stream({
             'type': 'suite',
             'sub_type': 'interface',
             'id': data.get('id'),

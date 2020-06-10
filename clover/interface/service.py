@@ -109,7 +109,13 @@ class InterfaceService(object):
         :return:
         """
         message = Message()
-        message.send({
+        # message.send({
+        #     'type': 'interface',
+        #     'sub_type': 'interface',
+        #     'id': data.get('id'),
+        #     'user': data,
+        # })
+        msg_id = message.send_stream({
             'type': 'interface',
             'sub_type': 'interface',
             'id': data.get('id'),
