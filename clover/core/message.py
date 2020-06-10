@@ -10,6 +10,8 @@ import redis
 import config
 
 from clover.common import CloverJSONEncoder, get_timestamp
+from clover.core.context import Context
+from clover.core.executor import Executor
 
 
 class Message(object):
@@ -22,6 +24,8 @@ class Message(object):
             decode_responses=True,
         )
         self.ps = self.client.pubsub()
+        self.executor = Executor()
+        self.context = Context()
 
     def send(self, data):
         """
@@ -84,23 +88,40 @@ class Message(object):
             if item['type'] == 'message':
                 return item['data']
 
-    def send_stream(self, data):
-        print('send mes into stream:')
-        self.client.xadd('clover', data)
-        print(self.client.xinfo_stream('clover'))
+    def send_stream(self, data, *args, **kwargs):
+        """
+        stream 生产者
+        data: 暂定业务数据
+        *args: 预留1.stream名称；2.group名称
+        **kwargs: Still not ready yet
+        return: 消息队列id
+        TODO:
+            1. 增加独立日志
+        """
         try:
+            print('start send msg into stream:')
+            stream_id = self.client.xadd('clover', data)
+            print(self.client.xinfo_stream('clover'))
+            print('异步任务id: {}'.format(stream_id))
             self.client.xgroup_create('clover', 'group_clover', id=0)
             print(self.client.xinfo_groups('clover'))
         except Exception as e:  # redis.exceptions.ResponseError
             print(e)
+            return None
+        else:
+            return stream_id
 
-    def stream_consumer(self):
-        # while True:
-        #     data = self.client.xread({'clover': '$'}, block=0)
-        #     print('stream is name: {}'.format(data[-1][0]))
-        #     for i in data[-1][1]:
-        #         print('data is {}'.format(i))
-
+    def stream_consumer(self, *args, **kwargs):
+        """
+        stream消费者
+        *args: 预留1.stream名称；2.group名称；3.consumer名称
+        **kwargs: Still not ready yet
+        TODO:
+            1. ack后给外层提供一个回调函数       on_success()
+            2. 异步任务执行失败后提供一个回调函数  on_failure()
+            3. 异步任务重试时提供一个回调函数     on_retry()
+            4. 增加独立日志
+        """
         last_id = '0-0'
         check_backlog = True
         while True:
@@ -108,6 +129,7 @@ class Message(object):
                 consumer_id = last_id
             else:
                 consumer_id = '>'
+
             items = self.client.xreadgroup(
                 'group_clover',
                 'consumer_name',
@@ -116,7 +138,7 @@ class Message(object):
                 count=10
             )
             print(self.client.xpending('clover', 'group_clover'))
-            if not items:  # 如果 block 不是 0或者为空, 会需要这段
+            if not items:  # 处理空消息
                 print('Timeout')
                 print('Info Stream: {}'.format(self.client.xinfo_stream('clover')))
                 print('Info Group: {}'.format(self.client.xinfo_groups('group_clover')))
@@ -126,22 +148,24 @@ class Message(object):
             print(len(items[0][1]))
             check_backlog = False if len(items[0][1]) == 0 else True
             for id, fields in items[0][1]:
-                print('Info: {0} {1}={2}'.format('consumer_name', id, fields))
+                print('Info: {0} {1} {2}'.format('consumer_name', id, fields))
                 try:
-                    print('执行函数')
-                    time.sleep(3)
-                    print('end...')
+                    print('...开始执行业务任务...')
+                    self.context.build_context(fields)
+                    self.executor.execute(self.context)
+                    print('...业务任务执行完毕...')
                 except Exception as e:
                     print(e)
                     continue
+                else:
+                    flag = self.client.xack('clover', 'group_clover', id)
+                    print(self.client.xpending('clover', 'group_clover'))
+                    if flag == 1:
+                        self.client.xdel('clover', id)
                 finally:
                     last_id = id
-                flag = self.client.xack('clover', 'group_clover', id)
-                print(self.client.xpending('clover', 'group_clover'))
-                # if flag == 1:
-                #     self.client.xdel('clover', id)
 
-            time.sleep(5)  # 轮询间隔
+            time.sleep(1)  # 轮询间隔，目前无意义，需等加入线程运行后才可用
 
 
 if __name__ == '__main__':

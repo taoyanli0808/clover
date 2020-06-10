@@ -41,7 +41,7 @@ class TestMessage(unittest.TestCase):
             print(self.mq.listen())
 
     def test_stream(self):
-        for i in range(105, 111):
+        for i in range(120, 130):
             self.mq.send_stream({'test': i})
 
     def test_stream_consumer(self):

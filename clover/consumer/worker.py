@@ -1,7 +1,5 @@
 import logging
 from clover.core.message import Message
-from clover.core.context import Context
-from clover.core.executor import Executor
 
 
 class myWorker(object):
@@ -27,27 +25,16 @@ class myWorker(object):
 
     def __init__(self):
         self.mq = Message()
-        self.executor = Executor()
-        self.context = Context()
         super().__init__()
 
     def run(self):
-        while True:
-            # 1. 获取队列消息
-            data = self.mq.receive()
-            try:
-                # 2. 解析参数
-                if data['business_data']:
-                    self.context.build_context(data['business_data'])
-                    # 3. 执行指定函数
-                    self.executor.execute(self.context)
-            except Exception as e:
-                self.mq.send(data)
-                logging.error(e)
-
-    def start(self):
-        pass
+        """
+            TODO:
+                1. 线程
+                2. Click命令行传参
+        """
+        self.mq.stream_consumer()
 
 
 if __name__ == '__main__':
-    pass
+    myWorker().run()
