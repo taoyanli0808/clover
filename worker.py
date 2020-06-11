@@ -2,10 +2,9 @@ import logging
 import os
 import sys
 
-sys.path.append(os.path.dirname(os.path.dirname(os.getcwd())))
-sys.path.append(os.getcwd())
-print(sys.path)
-from clover.core.message import Message
+# sys.path.append(os.getcwd())
+# print(sys.path)
+from clover.core.consumer import Consumer
 
 
 class myWorker(object):
@@ -30,7 +29,7 @@ class myWorker(object):
     #         print("用户中断，程序退出！")
 
     def __init__(self):
-        self.mq = Message()
+        self.mq = Consumer()
         super().__init__()
 
     def run(self):
