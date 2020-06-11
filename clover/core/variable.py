@@ -50,7 +50,7 @@ class Variable(object):
         if not data or not isinstance(data, (Text,)):
             return data
 
-        variables = re.findall(r'\$\{(.+?)\}', data)
+        variables = re.findall(r'\$\{(\w+?)\}', data)
         for variable in variables:
             if variable:
                 variable = variable.strip()

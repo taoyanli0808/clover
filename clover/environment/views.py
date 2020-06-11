@@ -4,10 +4,10 @@ import traceback
 from flask import request
 from flask import jsonify
 
+from clover.views import CloverView
 from clover.environment.service import TeamService
 from clover.environment.service import KeywordService
 from clover.environment.service import VariableService
-from clover.views import CloverView
 
 
 class TeamView(CloverView):
@@ -324,24 +324,17 @@ class KeywordView(CloverView):
         """
         data = request.get_json()
 
-        if 'name' not in data or not data['name']:
-            return jsonify({
-                'status': 400,
-                'message': '关键字需要定义名称!',
-                'data': data
-            })
-
-        if 'snippet' not in data or not data['snippet']:
+        if 'keyword' not in data or not data['keyword']:
             return jsonify({
                 'status': 400,
                 'message': '关键字缺少实现代码!',
                 'data': data
             })
 
-        if 'mock' not in data or not data['mock']:
+        if 'description' not in data or not data['description']:
             return jsonify({
                 'status': 400,
-                'message': '关键字缺少必要的测试数据!',
+                'message': '关键字缺少功能描述!',
                 'data': data
             })
 
@@ -404,7 +397,7 @@ class KeywordView(CloverView):
             id = self.service.update(data)
             return jsonify({
                 'status': 0,
-                'message': 'ok',
+                'message': '更新关键字成功！',
                 'data': id
             })
         except Exception as error:
@@ -419,7 +412,7 @@ class KeywordView(CloverView):
         """
         :return:
         """
-        data = request.values.to_dict()
+        data = request.get_json()
 
         try:
             total, result = self.service.search(data)
@@ -450,10 +443,10 @@ class KeywordView(CloverView):
                 'data': data
             })
 
-        if 'mock' not in data or not data['mock']:
+        if 'expression' not in data or not data['expression']:
             return jsonify({
                 'status': 400,
-                'message': '关键字缺少必要的测试数据!',
+                'message': '关键字缺少调用表达式!',
                 'data': data
             })
 
@@ -461,7 +454,7 @@ class KeywordView(CloverView):
             result = self.service.debug(data)
             return jsonify({
                 'status': 0,
-                'message': "创建关键字成功！",
+                'message': "关键字调试结束！",
                 'data': result
             })
         except Exception as error:
