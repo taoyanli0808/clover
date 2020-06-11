@@ -97,16 +97,20 @@ class Message(object):
             1. 增加独立日志
         """
         try:
-            print('start send msg into stream:')
-            stream_id = self.client.xadd('clover', data)
-            print(self.client.xinfo_stream('clover'))
-            print('异步任务id: {}'.format(stream_id))
+            # print('start send msg into stream:')
+            stream_id = self.client.xadd('clover', {'businessData': json.dumps(data, cls=CloverJSONEncoder)})
+            # print(self.client.xinfo_stream('clover'))
             self.client.xgroup_create('clover', 'group_clover', id=0)
+        except redis.exceptions.ResponseError as e:  # redis.exceptions.ResponseError
+            print('异步任务id: {}'.format(stream_id))
             print(self.client.xinfo_groups('clover'))
-        except Exception as e:  # redis.exceptions.ResponseError
+            return stream_id
+        except Exception as e:
             print(e)
             return None
         else:
+            print('异步任务id: {}'.format(stream_id))
+            print(self.client.xinfo_groups('clover'))
             return stream_id
 
     # def stream_consumer(self, *args, **kwargs):

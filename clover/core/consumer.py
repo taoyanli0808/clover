@@ -1,4 +1,7 @@
+import json
 import time
+
+import redis
 
 from clover.core.context import Context
 from clover.core.executor import Executor
@@ -49,20 +52,25 @@ class Consumer():
             print(len(items[0][1]))
             check_backlog = False if len(items[0][1]) == 0 else True
             for id, fields in items[0][1]:
-                print('Info: {0} {1} {2}'.format('consumer_name', id, fields))
+                print('Info: {0}, 异步任务ID: {1}'.format('consumer_name', id))
+                if not fields['businessData']:
+                    print(fields['businessData'])
+                    continue
                 try:
                     print('...开始执行业务任务...')
-                    self.context.build_context(fields)
+                    self.context.build_context(json.loads(fields['businessData']))
                     self.executor.execute(self.context)
                     print('...业务任务执行完毕...')
                 except Exception as e:
                     print(e)
+                    # 暂时无重试机制，但是下次重新启动worker时会再次运行pending中的任务
+                    # TODO: 1.重试；2.重试次数超过3后从pending中移除
                     continue
                 else:
                     flag = self.client.xack('clover', 'group_clover', id)
                     print(self.client.xpending('clover', 'group_clover'))
-                    if flag == 1:
-                        self.client.xdel('clover', id)
+                    # if flag == 1:  # 暂不做删除，TODO：配置队列最大长度，超过max后自动删除已消费键值
+                    #     self.client.xdel('clover', id)
                 finally:
                     last_id = id
 

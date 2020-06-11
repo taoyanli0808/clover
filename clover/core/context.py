@@ -12,11 +12,12 @@ class Context(object):
         self.case = []
         self.submit = Submit()
 
-    def build_context(self, data):
+    def build_context(self, data: dict):
         """
         :param data:
         :return:
         """
+        print(data)
         id = data.get('id')
         type = data.get('type')
         if type == 'interface':
