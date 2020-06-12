@@ -2,7 +2,7 @@
 from sqlalchemy.exc import ProgrammingError
 
 from clover.exts import db
-from clover.core.message import Message
+from clover.core.producer import Producer
 from clover.common import get_mysql_error
 
 from clover.models import soft_delete
@@ -81,14 +81,8 @@ class SuiteService():
         :return:
         """
 
-        message = Message()
-        # message.send({
-        #     'type': 'suite',
-        #     'sub_type': 'interface',
-        #     'id': data.get('id'),
-        #     'user': data,
-        # })
-        msg_id = message.send_stream({
+        producer = Producer()
+        producer.send_stream({
             'type': 'suite',
             'sub_type': 'interface',
             'id': data.get('id'),

@@ -2,14 +2,14 @@ import json
 import unittest
 import time
 
-from clover.core.message import Message
+from clover.core.producer import Producer
 from clover.core.consumer import Consumer
 
 
 class TestMessage(unittest.TestCase):
 
     def setUp(self) -> None:
-        self.mq = Message()
+        self.mq = Producer()
         self.work = Consumer()
 
     def test_send(self):
