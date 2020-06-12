@@ -1,8 +1,6 @@
 import json
 import time
 
-import redis
-
 from clover.core.context import Context
 from clover.core.executor import Executor
 from clover.exts import client
