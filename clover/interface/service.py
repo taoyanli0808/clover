@@ -1,8 +1,10 @@
 #coding=utf-8
 
+import copy
 import datetime
 
 from clover.exts import db
+from clover.core.context import Context
 from clover.core.producer import Producer
 from clover.core.executor import Executor
 
@@ -23,10 +25,16 @@ class InterfaceService(object):
         db.session.add(model)
         db.session.commit()
 
+        context = Context()
+        context.build_context({
+            'type': 'interface',
+            'id': model.id,
+            'user': data
+        })
         executor = Executor('debug')
-        executor.execute([data], data)
+        status, message, data = executor.execute(context)
 
-        return model.id, executor.status, executor.message, data
+        return model.id, status, message, data
 
     def delete(self, data):
         """

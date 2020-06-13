@@ -55,7 +55,10 @@ class Report():
                 interface['sikped'] += 1
             else:
                 interface['passed'] += 1
-        percent = 100 * interface['passed'] / interface['total']
+        try:
+            percent = 100 * interface['passed'] / interface['total']
+        except ZeroDivisionError:
+            percent = 0.0
         interface['percent'] = round(percent, 2)
         return interface
 

@@ -17,7 +17,6 @@ class Context(object):
         :param data:
         :return:
         """
-        print(data)
         id = data.get('id')
         type = data.get('type')
         if type == 'interface':

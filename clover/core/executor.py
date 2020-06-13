@@ -117,14 +117,8 @@ from clover.core.exception import ResponseException
 
 class Executor():
 
-    def __init__(self, type='trigger', log='default'):
-        self.variables = []
-        self.status = 0
-        self.message = 'ok'
+    def __init__(self, type='trigger'):
         self.type = type
-        self.start = 0
-        self.end = 0
-        self.report = Report()
 
     def execute(self, context):
         """
@@ -167,6 +161,11 @@ class Executor():
             detail.setdefault('result', validator.result)
             detail.setdefault('end', friendly_datetime(datetime.datetime.now()))
             details.append(detail)
+
+            # 这里是调试模式，需要返回数据给前端页面。
+            if self.type == 'debug':
+                return 0, "debug", response.json
+
         # print(Logger.logs)
 
         # 存储运行的测试报告到数据库。

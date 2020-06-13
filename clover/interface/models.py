@@ -22,6 +22,8 @@ class InterfaceModel(CloverModel):
     body = db.Column(db.JSON, comment="http请求体")
     verify = db.Column(db.JSON, comment="响应断言")
     extract = db.Column(db.JSON, comment="提取响应参数")
+    timeout = db.Column(db.Integer, default=120, comment="接口的超时时间")
+    retry = db.Column(db.Integer, default=1, comment="接口失败时重试次数")
     enable = db.Column(db.Integer, default=0, comment="0有效，1无效")
     created = db.Column(db.DateTime, default=datetime.datetime.now, comment="创建时间")
     updated = db.Column(db.DateTime, default=datetime.datetime.now, comment="修改时间")
