@@ -149,7 +149,7 @@ class Executor():
             variable.replace_variable(request)
             try:
                 response = request.send_request()
-                detail.setdefault('elapsed', response.elapsed.microseconds)
+                detail.setdefault('elapsed', response.elapsed)
             except ResponseException:
                 Logger.log("请求异常，状态码：{}".format(request.status), "发送请求", 'error')
                 Logger.log(request.message, "发送请求", 'error')
@@ -164,7 +164,7 @@ class Executor():
 
             # 这里是调试模式，需要返回数据给前端页面。
             if self.type == 'debug':
-                return 0, "debug", response.json
+                return 0, "debug", response.get_response()
 
         # print(Logger.logs)
 
