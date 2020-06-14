@@ -11,6 +11,7 @@ from clover.report.views import ReportView as Report
 from clover.index.views import IndexView as Index
 from clover.task.views import TaskView as Task
 from clover.plugin.views import PluginView as Plugin
+from clover.dashboard.views import DashboardView as Dashboard
 
 
 def map_urls(app):
@@ -253,6 +254,22 @@ def map_urls(app):
     app.add_url_rule(
         "/api/v1/plugin/create",
         view_func=plugin,
+        methods=['POST'],
+        strict_slashes=False,
+    )
+
+
+    # 看板相关路由与视图
+    dashboard = Dashboard.as_view("dashboard")
+    app.add_url_rule(
+        "/api/v1/dashboard/info",
+        view_func=dashboard,
+        methods=['POST'],
+        strict_slashes=False,
+    )
+    app.add_url_rule(
+        "/api/v1/dashboard/suite",
+        view_func=dashboard,
         methods=['POST'],
         strict_slashes=False,
     )
