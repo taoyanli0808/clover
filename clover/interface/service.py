@@ -64,10 +64,16 @@ class InterfaceService(object):
             old_model.updated = datetime.datetime.now()
             db.session.commit()
 
+        context = Context()
+        context.build_context({
+            'type': 'interface',
+            'id': data['id'],
+            'user': data
+        })
         executor = Executor('debug')
-        executor.execute([data], data)
+        status, message, data = executor.execute(context)
 
-        return old_model.id, executor.status, executor.message, data
+        return old_model.id, status, message, data
 
     def search(self, data):
         """
