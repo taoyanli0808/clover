@@ -258,18 +258,17 @@ def map_urls(app):
         strict_slashes=False,
     )
 
-
     # 看板相关路由与视图
     dashboard = Dashboard.as_view("dashboard")
     app.add_url_rule(
         "/api/v1/dashboard/info",
         view_func=dashboard,
-        methods=['POST'],
+        methods=['GET', 'POST'],
         strict_slashes=False,
     )
     app.add_url_rule(
         "/api/v1/dashboard/suite",
         view_func=dashboard,
-        methods=['POST'],
+        methods=['GET', 'POST'],
         strict_slashes=False,
     )

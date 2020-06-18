@@ -1,6 +1,6 @@
 # Clover全局配置
 DEBUG = True
-VERSION = '1.2.0'
+VERSION = '1.2.1'
 
 # MySQL数据库配置
 MYSQL = {

@@ -26,22 +26,7 @@ def create_app():
         bp = import_string(bp_name)
         app.register_blueprint(bp)
 
-    # create_stream()
-
     return app
-
-
-def create_stream():
-    """创建空stream"""
-    if client.xlen('clover') == 0:
-        try:
-            stream_id = client.xadd('clover', {'businessData': ''})
-            client.xgroup_create('clover', 'group_clover', id=0)
-        except redis.exceptions.ResponseError as e:  # redis.exceptions.ResponseError
-            pass  # print(e)
-        finally:
-            client.xack('clover', 'group_clover', stream_id)
-            client.xdel('clover', stream_id)
 
 
 app = create_app()
