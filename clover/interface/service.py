@@ -112,6 +112,10 @@ class InterfaceService(object):
             InterfaceModel.created.desc()
         ).offset(offset).limit(limit)
         results = query_to_dict(results)
+
+        for result in results:
+            if result['status'] ==None:
+                  result['status']= '0'
         count = InterfaceModel.query.filter_by(**filter).count()
         return count, results
 

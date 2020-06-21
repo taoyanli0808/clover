@@ -73,6 +73,11 @@ class SuiteService():
         ).offset(offset).limit(limit)
         results = query_to_dict(results)
         count = SuiteModel.query.filter_by(**filter).count()
+
+        for result in results:
+            if result['status']==None:
+                result['status']='0'
+
         return count, results
 
     def trigger(self, data):
