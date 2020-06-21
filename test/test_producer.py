@@ -28,9 +28,8 @@ class TestMessage(unittest.TestCase):
             time.sleep(1)
 
     def test_read(self):
-        while True:
-            self.cm.read()
-            time.sleep(1)
+        self.cm.read()
+        time.sleep(1)
 
     def tearDown(self) -> None:
         pass
