@@ -3,9 +3,7 @@
 """
 import json
 
-import redis
-
-from clover.common import CloverJSONEncoder, get_timestamp
+from clover.common import CloverJSONEncoder
 from clover.exts import client
 
 
@@ -13,31 +11,21 @@ class Producer(object):
 
     def __init__(self):
         self.client = client
-        self.ps = self.client.pubsub()
 
-    def send_stream(self, data, *args, **kwargs):
+    def send(self, data):
         """
-        stream 生产者
         data: 暂定业务数据
-        *args: 预留1.stream名称；2.group名称
-        **kwargs: Still not ready yet
         return: 消息队列id
         TODO:
             1. 增加独立日志
         """
         try:
-            # print('start send msg into stream:')
-            stream_id = self.client.xadd('clover', {'businessData': json.dumps(data, cls=CloverJSONEncoder)})
-            # print(self.client.xinfo_stream('clover'))
-            self.client.xgroup_create('clover', 'group_clover', id=0)
-        except redis.exceptions.ResponseError as e:  # redis.exceptions.ResponseError
-            print('异步任务id: {}'.format(stream_id))
-            print(self.client.xinfo_groups('clover'))
-            return stream_id
+            data = json.dumps(data, cls=CloverJSONEncoder)
+            stream_id = self.client.xadd('clover', {'businessData': data})
         except Exception as e:
+            print('消息发送失败, 请检查Redis版本是否为5.0以上,服务是否开启')
             print(e)
             return None
         else:
-            print('异步任务id: {}'.format(stream_id))
-            print(self.client.xinfo_groups('clover'))
+            print(f'{stream_id}消息发送成功')
             return stream_id
