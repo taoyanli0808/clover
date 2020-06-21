@@ -84,7 +84,7 @@ class SuiteService():
         """
 
         producer = Producer()
-        producer.send_stream({
+        producer.send({
             'type': 'suite',
             'sub_type': 'interface',
             'id': data.get('id'),

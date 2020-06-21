@@ -121,7 +121,7 @@ class InterfaceService(object):
         :return:
         """
         producer = Producer()
-        producer.send_stream({
+        producer.send({
             'type': 'interface',
             'sub_type': 'interface',
             'id': data.get('id'),
