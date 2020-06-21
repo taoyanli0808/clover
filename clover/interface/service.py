@@ -115,7 +115,7 @@ class InterfaceService(object):
 
         for result in results:
             if result['status'] == None:
-                result['status'] = '0'
+                result['status'] = True
 
         count = InterfaceModel.query.filter_by(**filter).count()
         return count, results
