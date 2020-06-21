@@ -22,7 +22,7 @@ class InterfaceModel(CloverModel):
     body = db.Column(db.JSON, comment="http请求体")
     verify = db.Column(db.JSON, comment="响应断言")
     extract = db.Column(db.JSON, comment="提取响应参数")
-    status = db.Column(db.String(64), default="1",comment="用例开关状态")
+    status = db.Column(db.Integer, default=0 ,comment="用例开关状态，0打开，1关闭")
     timeout = db.Column(db.Integer, default=120, comment="接口的超时时间")
     retry = db.Column(db.Integer, default=1, comment="接口失败时重试次数")
     enable = db.Column(db.Integer, default=0, comment="0有效，1无效")

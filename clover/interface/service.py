@@ -1,6 +1,5 @@
 #coding=utf-8
 
-import copy
 import datetime
 
 from clover.exts import db
@@ -111,7 +110,14 @@ class InterfaceService(object):
         ).order_by(
             InterfaceModel.created.desc()
         ).offset(offset).limit(limit)
+
         results = query_to_dict(results)
+
+        # 禁用功能兼容1.0版本，历史数据为null
+        for result in results:
+            if result['status'] == None:
+                result['status'] = '1'
+
         count = InterfaceModel.query.filter_by(**filter).count()
         return count, results
 
