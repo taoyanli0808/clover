@@ -166,7 +166,7 @@ class SuiteView(CloverView):
             result = self.service.switch(data)
             return jsonify({
                 'status': 0,
-                'message': '修改成功',
+                'message': '套件已开启' if data['status'] else '套件已禁用',
                 'data': result,
             })
         except Exception as error:

@@ -205,7 +205,7 @@ class InterfaceView(CloverView):
             result = self.service.switch(data)
             return jsonify({
                 'status': 0,
-                'message': '修改成功',
+                'message': '接口已开启' if data['status'] else '接口已禁用',
                 'data': result,
             })
         except Exception as error:
