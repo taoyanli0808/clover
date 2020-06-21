@@ -71,12 +71,15 @@ class SuiteService():
         ).order_by(
             SuiteModel.created.desc()
         ).offset(offset).limit(limit)
-        results = query_to_dict(results)
-        count = SuiteModel.query.filter_by(**filter).count()
 
+        results = query_to_dict(results)
+
+        # 禁用功能兼容1.0版本，历史数据为null
         for result in results:
-            if result['status']==None:
-                result['status']='0'
+            if result['status'] == None:
+                result['status'] = '0'
+
+        count = SuiteModel.query.filter_by(**filter).count()
 
         return count, results
 
@@ -89,7 +92,7 @@ class SuiteService():
         """
 
         producer = Producer()
-        producer.send_stream({
+        producer.send({
             'type': 'suite',
             'sub_type': 'interface',
             'id': data.get('id'),
