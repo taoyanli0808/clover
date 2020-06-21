@@ -161,6 +161,12 @@ def map_urls(app):
         methods=['GET', 'POST'],
         strict_slashes=False,
     )
+    app.add_url_rule(
+        "/api/v1/interface/switch",
+        view_func=interface,
+        methods=['POST'],
+        strict_slashes=False,
+    )
 
     # 测试套件相关路由与视图
     suite = Suite.as_view("suite")
@@ -190,6 +196,12 @@ def map_urls(app):
     )
     app.add_url_rule(
         "/api/v1/suite/trigger",
+        view_func=suite,
+        methods=['POST'],
+        strict_slashes=False,
+    )
+    app.add_url_rule(
+        "/api/v1/suite/switch",
         view_func=suite,
         methods=['POST'],
         strict_slashes=False,

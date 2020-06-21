@@ -128,3 +128,14 @@ class InterfaceService(object):
             'user': data,
         })
         return
+
+    def switch(self,data):
+        """
+        :param data:
+        :return:
+        """
+        old_model = InterfaceModel.query.get(data['id_list'])
+        {setattr(old_model, k, v) for k, v in data.items()}
+        old_model.updated = datetime.datetime.now()
+        db.session.commit()
+        return
