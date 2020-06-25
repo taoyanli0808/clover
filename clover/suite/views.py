@@ -125,7 +125,6 @@ class SuiteView(CloverView):
                 'message': '运行接口用例需要指定ID参数',
                 'data': data
             })
-
         result = self.service.trigger(data)
         return jsonify({
             'status': 0,

@@ -68,7 +68,6 @@ class ReportService():
             count = 1 if result else 0
             result = result.to_dict() if result else None
             result = friendly_datetime(result)
-
             return count, result
 
         # 普通查询配置查询参数
@@ -95,13 +94,18 @@ class ReportService():
         ).offset(offset).limit(limit)
         results = query_to_dict(results)
 
+        # 报告新增跳过兼容1.0版本，历史数据为null,兼容历史数据拼错的skiped字段
+        for result in results:
+            if result['skip'] == None:
+                result['skip'] = 0
+            if 'sikped' in result['interface']:
+                result['interface'].update({'skiped':result['interface'].pop("sikped")})
         count = ReportModel.query.filter_by(**filter).count()
 
         # 暂时用笨方法删除列表页不需要展示的大量数据。
         for result in results:
             if 'detail' in result:
                 result.pop('detail')
-
         return count, results
 
     def log(self, data):
@@ -136,7 +140,7 @@ class ReportService():
                 'passed': 0,
                 'failed': 0,
                 'error': 0,
-                'sikped': 0,
+                'skiped': data['skip'],
                 'total': 0,
                 'percent': 0.0,
             },

@@ -28,7 +28,7 @@ class Report():
             'logs': logger.to_dict(),
         }
 
-    def get_interface_statistics(self, details):
+    def get_interface_statistics(self, details,skip):
         """
         :param details:
         :return:
@@ -38,11 +38,11 @@ class Report():
             'passed': 0,
             'failed': 0,
             'error': 0,
-            'sikped': 0,
+            'skiped': 0,
             'total': 0,
             'percent': 0.0,
         }
-
+        interface['skiped'] = len(skip)
         interface['total'] = len(details)
         verify = [len(detail['result']) for detail in details if 'result' in detail]
         interface['verify'] = sum(verify)
@@ -51,8 +51,6 @@ class Report():
                 interface['error'] += 1
             elif detail['status'] == 'failed':
                 interface['failed'] += 1
-            elif detail['status'] == 'sikped':
-                interface['sikped'] += 1
             else:
                 interface['passed'] += 1
         try:
@@ -62,7 +60,7 @@ class Report():
         interface['percent'] = round(percent, 2)
         return interface
 
-    def save(self, context, details, logger):
+    def save(self, context, details, logger,skip):
         """
         :param context:
         :param detail:
@@ -85,9 +83,10 @@ class Report():
             'start': friendly_datetime(self.start),
             'end': friendly_datetime(end),
             'duration': (end - self.start).total_seconds(),
-            'interface': self.get_interface_statistics(details),
+            'interface': self.get_interface_statistics(details,skip),
             'detail': details,
             'log': self.get_log(context, logger),
+            'skip':len(skip)
         }
 
         service = ReportService()

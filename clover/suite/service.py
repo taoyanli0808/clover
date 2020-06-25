@@ -90,7 +90,6 @@ class SuiteService():
         :param data:
         :return:
         """
-
         producer = Producer()
         producer.send({
             'type': 'suite',
