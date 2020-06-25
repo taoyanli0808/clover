@@ -77,7 +77,7 @@ class SuiteService():
         # 禁用功能兼容1.0版本，历史数据为null
         for result in results:
             if result['status'] == None:
-                result['status'] = '0'
+                result['status'] = True
 
         count = SuiteModel.query.filter_by(**filter).count()
 

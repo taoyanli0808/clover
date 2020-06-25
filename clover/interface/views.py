@@ -1,4 +1,3 @@
-
 from flask import jsonify
 from flask import request
 
@@ -114,7 +113,7 @@ class InterfaceView(CloverView):
                 'message': '请选择您要更新的接口！',
                 'data': data
             })
-        
+
         try:
             id, status, message, result = self.service.update(data)
             return jsonify({
@@ -194,7 +193,7 @@ class InterfaceView(CloverView):
                 'data': data
             })
 
-        if 'status' not in data or not data['status']:
+        if 'status' not in data:
             return jsonify({
                 'status': 400,
                 'message': '请选择您要更改接口的状态！',

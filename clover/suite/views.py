@@ -148,7 +148,6 @@ class SuiteView(CloverView):
 
     def switch(self):
         data = request.get_json()
-
         if 'id_list' not in data or not data['id_list']:
             return jsonify({
                 'status': 400,
@@ -156,7 +155,7 @@ class SuiteView(CloverView):
                 'data': data
             })
 
-        if 'status' not in data or not data['status']:
+        if 'status' not in data:
             return jsonify({
                 'status': 400,
                 'message': '请选择您要更改接口的状态！',
