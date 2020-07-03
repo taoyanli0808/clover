@@ -23,4 +23,3 @@ class ReportModel(CloverModel):
     enable = db.Column(db.Integer, default=0, comment="0有效，1无效")
     created = db.Column(db.DateTime, default=datetime.datetime.now, comment="创建时间")
     updated = db.Column(db.DateTime, default=datetime.datetime.now, comment="修改时间")
-    skip = db.Column(db.Integer, default=0, comment="跳过用例个数")
