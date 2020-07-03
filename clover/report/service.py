@@ -96,8 +96,6 @@ class ReportService():
 
         # 报告新增跳过兼容1.0版本，历史数据为null,兼容历史数据拼错的skiped字段
         for result in results:
-            if result['skip'] == None:
-                result['skip'] = 0
             if 'sikped' in result['interface']:
                 result['interface'].update({'skiped':result['interface'].pop("sikped")})
         count = ReportModel.query.filter_by(**filter).count()
