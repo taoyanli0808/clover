@@ -5,6 +5,7 @@ import json
 
 from clover.common import CloverJSONEncoder
 from clover.exts import client
+from config import REDIS_STREAM_NAME
 
 
 class Producer(object):
@@ -21,11 +22,11 @@ class Producer(object):
         """
         try:
             data = json.dumps(data, cls=CloverJSONEncoder)
-            stream_id = self.client.xadd('clover', {'businessData': data})
+            stream_id = self.client.xadd(REDIS_STREAM_NAME, {'businessData': data}, maxlen=1000)
         except Exception as e:
-            print('消息发送失败, 请检查Redis版本是否为5.0以上,服务是否开启')
             print(e)
-            return None
+            print('消息发送失败, 请检查Redis版本是否为5.0以上,服务是否开启')
+            return
         else:
             print(f'{stream_id}消息发送成功')
             return stream_id
