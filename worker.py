@@ -4,16 +4,15 @@
 2. 启动python manage.py
 3. 启动worker
     python worker.py -h
-    python worker.py
+    python worker.py (PS: 默认不带参数运行，主机名hostname将作为消费组的名称，消费者名称随机uuid1)
     python worker.py -C 'consumer_name' -G 'group_name'
-
 目前：
-    支持多worker运行，支持slave模式运行
+    支持多worker运行，支持master-slave分布式模式运行
     一个worker 对应单个消费组并且只有一个消费者
 TODO
     一个worker 对应单个消费者并且对应多个消费者
     一个worker 对应多个消费者并且对应多个消费者
-    多队列+多worker模式
+    多队列+多worker模式(更完美的支持master-slave分布式)
 """
 import argparse
 import json
@@ -52,12 +51,7 @@ class Worker(object):
         self.consumer = Consumers()
         super().__init__()
 
-    # def run1(self):
-    #     """
-    #         TODO:
-    #             1. 线程
-    #             2. Click命令行传参
-    #     """
+    # def run(self):
     #     print('开始消费clover队列的消息......')
     #     print('redis队列模型为stream,消费模式为FIFO,消费方式XREAD \n')
     #     try:
@@ -185,7 +179,6 @@ class Consumers(object):
 
 
 def main():
-    obj = Worker()
     parser = argparse.ArgumentParser()  # 初始化命令行 自带 --help 参数 缩写为-h
     # 可选参数 和 必填参数区别为 是否加 -
     parser.add_argument('-v', '--version', action='store_true', help='显示版本信息')
@@ -204,6 +197,7 @@ def main():
     if args.version:
         print(VERSION)
         sys.exit()
+    obj = Worker()
     obj.run(args.group, args.consumer)
 
 
