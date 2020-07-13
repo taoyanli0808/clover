@@ -28,7 +28,7 @@ class Report():
             'logs': logger.to_dict(),
         }
 
-    def get_interface_statistics(self, details,skip):
+    def get_interface_statistics(self, details, skip):
         """
         :param details:
         :return:
@@ -60,7 +60,7 @@ class Report():
         interface['percent'] = round(percent, 2)
         return interface
 
-    def save(self, context, details, logger,skip):
+    def save(self, context, details, logger, skip):
         """
         :param context:
         :param detail:
@@ -83,10 +83,9 @@ class Report():
             'start': friendly_datetime(self.start),
             'end': friendly_datetime(end),
             'duration': (end - self.start).total_seconds(),
-            'interface': self.get_interface_statistics(details,skip),
+            'interface': self.get_interface_statistics(details, skip),
             'detail': details,
             'log': self.get_log(context, logger),
-            'skip':len(skip)
         }
 
         service = ReportService()

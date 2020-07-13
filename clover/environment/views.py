@@ -157,6 +157,27 @@ class TeamView(CloverView):
                 'data': data
             })
 
+    def navigation(self):
+        """
+        :return:
+        """
+        data = request.get_json()
+
+        try:
+            data = self.service.navigation(data)
+            return jsonify({
+                'status': 0,
+                'message': 'ok',
+                'data': data
+            })
+        except Exception as error:
+            return jsonify({
+                'status': 500,
+                'message': str(error),
+                'traceback': traceback.format_stack(),
+                'data': data
+            })
+
 
 class VariableView(CloverView):
 

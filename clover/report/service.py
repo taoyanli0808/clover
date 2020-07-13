@@ -1,5 +1,4 @@
 
-import os
 import datetime
 
 from sqlalchemy.exc import ProgrammingError

@@ -1,13 +1,13 @@
 
 from json import loads
-from datetime import timedelta
 
 from urllib3.response import HTTPResponse
+
 
 class Response(object):
 
     def __init__(self, response: HTTPResponse) -> None:
-        self.status = response.status_code if response is not None else -1
+        self.status = response.status_code if response is not None else None
         if response is not None:
             self.elapsed = float("{}.{}".format(response.elapsed.seconds, response.elapsed.microseconds))
         else:

@@ -1,6 +1,8 @@
+import config
 
 from requests import request
 from requests.exceptions import InvalidURL
+from requests.exceptions import ReadTimeout
 from requests.exceptions import MissingSchema
 from requests.exceptions import InvalidSchema
 from requests.exceptions import ConnectionError
@@ -22,6 +24,8 @@ class Request(object):
         self.header = self.set_header(case.header)
         self.body_mode, self.body = self.set_body(case.body)
         self.parameter = self.set_parameter(case.params)
+        self.set_timeout(case.timeout)
+        self.set_retry(case.retry)
 
     def set_method(self, method):
         """
@@ -73,7 +77,49 @@ class Request(object):
                     body = body['data']
         return mode, body
 
-    def send_request(self):
+    def set_timeout(self, timeout):
+        """
+        # 超时分为链接超时和读超时两部分组成
+        # 1、如果用户定义了接口超时时间则使用用户定义的超时时间
+        # 2、如果用户没有定义超时时间则使用全局超时时间定义
+        # 3、如果没有全局超时时间定义则不设置超时时间为零，永不超时
+        :param timeout:
+        :return:
+        """
+        if timeout:
+            self.timeout = (3, timeout)
+        elif 'timeout' in config.GLOBALS and not config.GLOBALS['timeout']:
+            try:
+                connect = float(config.GLOBALS['timeout'].get('connect', 3))
+            except ValueError:
+                connect = 0
+            try:
+                read = float(config.GLOBALS['timeout'].get('read', 60))
+            except ValueError:
+                read = 0
+            self.timeout = (connect, read)
+        else:
+            self.timeout = (3, 60)
+
+    def set_retry(self, retry):
+        """
+        # 1、如果用户定义了接口重试次数则使用用户定义的重试次数
+        # 2、如果用户没有定义重试次数则使用全局定义的重试次数
+        # 3、如果没有定义全局重试次数则设置重试次数为1，默认重试1次
+        :param retry:
+        :return:
+        """
+        if retry:
+            self.retry = retry
+        elif 'retry' in config.GLOBALS and not config.GLOBALS['retry']:
+            try:
+                self.retry = float(config.GLOBALS['retry'])
+            except ValueError:
+                self.retry = 1
+        else:
+            self.retry = 1
+
+    def _send_request(self):
         Logger.log("准备发送http请求，请求方法[{}]".format(self.method), "发送请求")
         Logger.log("准备发送http请求，请求域名[{}]".format(self.host), "发送请求")
         Logger.log("准备发送http请求，请求路径[{}]".format(self.path), "发送请求")
@@ -82,8 +128,17 @@ class Request(object):
         Logger.log("准备发送http请求，请求参数[{}]".format(self.parameter), "发送请求")
         Logger.log("准备发送http请求，请求体类型[{}]".format(self.body_mode), "发送请求")
         Logger.log("准备发送http请求，请求体[{}]".format(self.body), "发送请求")
+        Logger.log("准备发送http请求，超时设置[{}]".format(self.timeout), "发送请求")
+        Logger.log("准备发送http请求，重试设置[{}]".format(self.retry), "发送请求")
         try:
-            response = request(self.method, self.url, params=self.parameter, data=self.body, headers=self.header)
+            response = request(
+                self.method,
+                self.url,
+                params=self.parameter,
+                data=self.body,
+                headers=self.header,
+                timeout=self.timeout
+            )
             Logger.log("发送http请求成功，响应码[{}]".format(response.status_code), "发送请求")
             Logger.log("发送http请求成功，请求耗时[{}]".format(response.elapsed), "发送请求")
             Logger.log("发送http请求成功，请求响应[{}]".format(response.text), "发送请求", 'debeg')
@@ -113,3 +168,27 @@ class Request(object):
             self.message = "请求头包含非法字符！"
             Logger.log("发送http请求出错，原因[{}]".format(self.message), "发送请求", 'warn')
             raise ResponseException()
+        except ReadTimeout:
+            self.status = 606
+            self.message = "请求超时退出，请检查超时设置！"
+            Logger.log("发送http请求出错，原因[{}]".format(self.message), "发送请求", 'warn')
+            raise ResponseException()
+
+    def send_request(self):
+        """
+        # 封装一次为了处理重试请求，当响应返回的状态码为None或5xx时进行重试；
+        # 重试时先等待1分钟的时间，然后发起下一次接口请求，直到成功或重试次数
+        # 耗尽。
+        """
+        return self._send_request()
+        # while:
+        #     pass
+        # else:
+        #     pass
+        #
+        # while self.retry:
+        #     response = self._send_request()
+        #     if response.status is None or response.status >= 500:
+        #         pass
+        #     if response.status < 500:
+        #         return response

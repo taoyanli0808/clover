@@ -129,6 +129,26 @@ class TeamService(object):
             else:
                 return []
 
+    def navigation(self, data):
+        """
+        {
+            $team: [$project...],
+            $team: [$project...]
+        }
+        :param data:
+        :return: 所有数据
+        """
+        results = TeamModel.query.filter(TeamModel.enable == 0)
+
+        options = {}
+        for result in results:
+            if result.team not in options:
+                options.setdefault(result.team, [result.project])
+            else:
+                options[result.team].append(result.project)
+
+        return options
+
 
 class VariableService(object):
 
