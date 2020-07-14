@@ -120,6 +120,23 @@ class Executor():
     def __init__(self, type='trigger'):
         self.type = type
 
+    def _make_skip_result(self, detail):
+        """
+        :param detail:
+        :return:
+        """
+        now = friendly_datetime(datetime.datetime.now())
+        detail.setdefault('start', now)
+        detail.setdefault('elapsed', 0)
+        detail.setdefault('status', 'skiped')
+        detail.setdefault('result', [{
+            'status': False,
+            'actual': None,
+            'expect': None,
+            'operate': None,
+        }])
+        detail.setdefault('end', now)
+
     def execute(self, context):
         """
         :param context:
@@ -137,12 +154,12 @@ class Executor():
         # 因为是类属性存储日志，使用前先清理历史日志数据。
         Logger.clear()
         Logger.log("团队：{}，项目：{}".format(context.submit.team, context.submit.project), "开始执行")
-        skip=[]
         for case in context.case:
-            if case.status is False:
-                skip.append(case.name)
-                continue
             detail = {'name': case.name}
+            if case.status is False:
+                self._make_skip_result(detail)
+                details.append(detail)
+                continue
             detail.setdefault('start', friendly_datetime(datetime.datetime.now()))
 
             request = Request(case)
@@ -172,4 +189,4 @@ class Executor():
         # print(Logger.logs)
 
         # 存储运行的测试报告到数据库。
-        report.save(context, details, Logger,skip)
+        report.save(context, details, Logger)

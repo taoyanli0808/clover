@@ -28,22 +28,14 @@ class Report():
             'logs': logger.to_dict(),
         }
 
-    def get_interface_statistics(self, details, skip):
+    @staticmethod
+    def get_interface_statistics(details):
         """
         :param details:
         :return:
         """
-        interface = {
-            'verify': 0,
-            'passed': 0,
-            'failed': 0,
-            'error': 0,
-            'skiped': 0,
-            'total': 0,
-            'percent': 0.0,
-        }
-        interface['skiped'] = len(skip)
-        interface['total'] = len(details)
+        interface = {'verify': 0, 'passed': 0, 'failed': 0, 'error': 0,
+                     'skiped': 0, 'total': 0, 'percent': 0.0}
         verify = [len(detail['result']) for detail in details if 'result' in detail]
         interface['verify'] = sum(verify)
         for detail in details:
@@ -51,8 +43,11 @@ class Report():
                 interface['error'] += 1
             elif detail['status'] == 'failed':
                 interface['failed'] += 1
+            elif detail['status'] == 'skiped':
+                interface['skiped'] += 1
             else:
                 interface['passed'] += 1
+        interface['total'] = len(details)
         try:
             percent = 100 * interface['passed'] / interface['total']
         except ZeroDivisionError:
@@ -60,11 +55,11 @@ class Report():
         interface['percent'] = round(percent, 2)
         return interface
 
-    def save(self, context, details, logger, skip):
+    def save(self, context, details, logger):
         """
         :param context:
-        :param detail:
-        :param log:
+        :param details:
+        :param logger:
         """
         if hasattr(context.submit, 'report') and context.submit.report:
             name = context.submit.report
@@ -83,7 +78,7 @@ class Report():
             'start': friendly_datetime(self.start),
             'end': friendly_datetime(end),
             'duration': (end - self.start).total_seconds(),
-            'interface': self.get_interface_statistics(details, skip),
+            'interface': self.get_interface_statistics(details),
             'detail': details,
             'log': self.get_log(context, logger),
         }

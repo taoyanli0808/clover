@@ -1,3 +1,5 @@
+import time
+
 import config
 
 from requests import request
@@ -24,8 +26,8 @@ class Request(object):
         self.header = self.set_header(case.header)
         self.body_mode, self.body = self.set_body(case.body)
         self.parameter = self.set_parameter(case.params)
-        self.set_timeout(case.timeout)
-        self.set_retry(case.retry)
+        self.timeout = self.set_timeout(case.timeout)
+        self.retry = self.set_retry(case.retry)
 
     def set_method(self, method):
         """
@@ -87,7 +89,7 @@ class Request(object):
         :return:
         """
         if timeout:
-            self.timeout = (3, timeout)
+            return 3, timeout
         elif 'timeout' in config.GLOBALS and not config.GLOBALS['timeout']:
             try:
                 connect = float(config.GLOBALS['timeout'].get('connect', 3))
@@ -97,9 +99,9 @@ class Request(object):
                 read = float(config.GLOBALS['timeout'].get('read', 60))
             except ValueError:
                 read = 0
-            self.timeout = (connect, read)
+            return connect, read
         else:
-            self.timeout = (3, 60)
+            return 0, 0
 
     def set_retry(self, retry):
         """
@@ -110,14 +112,14 @@ class Request(object):
         :return:
         """
         if retry:
-            self.retry = retry
+            return retry
         elif 'retry' in config.GLOBALS and not config.GLOBALS['retry']:
             try:
-                self.retry = float(config.GLOBALS['retry'])
+                return float(config.GLOBALS['retry'])
             except ValueError:
-                self.retry = 1
+                return 1
         else:
-            self.retry = 1
+            return 1
 
     def _send_request(self):
         Logger.log("准备发送http请求，请求方法[{}]".format(self.method), "发送请求")
@@ -180,15 +182,15 @@ class Request(object):
         # 重试时先等待1分钟的时间，然后发起下一次接口请求，直到成功或重试次数
         # 耗尽。
         """
-        return self._send_request()
-        # while:
-        #     pass
-        # else:
-        #     pass
-        #
-        # while self.retry:
-        #     response = self._send_request()
-        #     if response.status is None or response.status >= 500:
-        #         pass
-        #     if response.status < 500:
-        #         return response
+        # 第一次正常请求不应该计入retry，代码统一处理，因此retry+1
+        self.retry += 1
+        while self.retry:
+            response = self._send_request()
+            Logger.log("发送http请求，返回响应码[{}]".format(response.status), "发送请求", 'info')
+            if response is not None and response.status < 500:
+                return response
+            self.retry -= 1
+            Logger.log("发送http请求出错，等待60秒后第[{}]次重试".format(self.retry), "发送请求", 'error')
+            time.sleep(60.0)
+
+        return response

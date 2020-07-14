@@ -1,6 +1,6 @@
 # Clover全局配置
 DEBUG = True
-VERSION = '1.2.4'
+VERSION = '1.3.0'
 
 # 全局功能配置
 GLOBALS = {
