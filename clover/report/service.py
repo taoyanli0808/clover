@@ -86,23 +86,35 @@ class ReportService():
         except TypeError:
             limit = 10
 
-        results = ReportModel.query.filter_by(
+        results = ReportModel.query.with_entities(
+            ReportModel.id, ReportModel.team, ReportModel.project,
+            ReportModel.name, ReportModel.type, ReportModel.interface,
+            ReportModel.duration, ReportModel.start, ReportModel.end
+        ).filter_by(
             **filter
         ).order_by(
             ReportModel.created.desc()
         ).offset(offset).limit(limit)
-        results = query_to_dict(results)
+
+        results = [{
+            'id': result.id,
+            'team': result.team,
+            'project': result.project,
+            'name': result.name,
+            'type': result.type,
+            'duration': result.duration,
+            'interface': result.interface,
+            'start': result.start,
+            'end': result.end,
+        } for result in results]
 
         # 报告新增跳过兼容1.0版本，历史数据为null,兼容历史数据拼错的skiped字段
         for result in results:
             if 'sikped' in result['interface']:
-                result['interface'].update({'skiped':result['interface'].pop("sikped")})
+                result['interface'].update({'skiped': result['interface'].pop("sikped")})
+
         count = ReportModel.query.filter_by(**filter).count()
 
-        # 暂时用笨方法删除列表页不需要展示的大量数据。
-        for result in results:
-            if 'detail' in result:
-                result.pop('detail')
         return count, results
 
     def log(self, data):
