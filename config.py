@@ -1,6 +1,6 @@
 # Clover全局配置
 DEBUG = True
-VERSION = '1.3.0'
+VERSION = '1.3.1'
 
 # 全局功能配置
 GLOBALS = {
@@ -9,6 +9,7 @@ GLOBALS = {
         'read': 60,
     },  # 全局接口超时配置，默认链接超时3秒，读超时60秒。
     'retry': 2,     # 全局接口重试配置，默认2次。
+    'performance': 1000,       # 接口性能要求，1000ms以内。
 }
 
 # MySQL数据库配置
@@ -18,7 +19,7 @@ MYSQL = {
     'host': '127.0.0.1',
     'port': '3306',
 }
-SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{pswd}@{host}:{port}/clover?charset=utf8'.format(**MYSQL)
+SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{pswd}@{host}:{port}/clover?charset=UTF8MB4'.format(**MYSQL)
 SQLALCHEMY_TRACK_MODIFICATIONS=True
 
 # 使用redis作为消息队列

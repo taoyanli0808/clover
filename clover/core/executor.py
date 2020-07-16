@@ -120,23 +120,6 @@ class Executor():
     def __init__(self, type='trigger'):
         self.type = type
 
-    def _make_skip_result(self, detail):
-        """
-        :param detail:
-        :return:
-        """
-        now = friendly_datetime(datetime.datetime.now())
-        detail.setdefault('start', now)
-        detail.setdefault('elapsed', 0)
-        detail.setdefault('status', 'skiped')
-        detail.setdefault('result', [{
-            'status': False,
-            'actual': None,
-            'expect': None,
-            'operate': None,
-        }])
-        detail.setdefault('end', now)
-
     def execute(self, context):
         """
         :param context:
@@ -156,10 +139,6 @@ class Executor():
         Logger.log("团队：{}，项目：{}".format(context.submit.team, context.submit.project), "开始执行")
         for case in context.case:
             detail = {'name': case.name}
-            if case.status is False:
-                self._make_skip_result(detail)
-                details.append(detail)
-                continue
             detail.setdefault('start', friendly_datetime(datetime.datetime.now()))
 
             request = Request(case)
@@ -168,18 +147,28 @@ class Executor():
 
             variable.replace_variable(request)
             try:
-                response = request.send_request()
-                detail.setdefault('elapsed', response.elapsed)
+                # 当用例设置跳过时不进行接口请求。
+                if case.status:
+                    response = request.send_request()
+
+                # 当用例跳过或接口请求异常时，response是None，此时设置elapsed为0
+                elapsed = response.elapsed if response is not None else 0
+                detail.setdefault('elapsed', elapsed)
             except ResponseException:
                 Logger.log("请求异常，状态码：{}".format(request.status), "发送请求", 'error')
                 Logger.log(request.message, "发送请求", 'error')
 
             validator.verify(case, response)
-            variable.extract_variable_from_response(case, response)
-
             detail.setdefault('status', validator.status)
             detail.setdefault('result', validator.result)
+
+            validator.performance(response)
+            detail.setdefault('threshold', validator.threshold)
+            detail.setdefault('performance', validator.level)
+
+            variable.extract_variable_from_response(case, response)
             detail.setdefault('end', friendly_datetime(datetime.datetime.now()))
+
             details.append(detail)
 
             # 这里是调试模式，需要返回数据给前端页面。

@@ -14,16 +14,16 @@ TODO
     一个worker 对应多个消费者并且对应多个消费者
     多队列+多worker模式(更完美的支持master-slave分布式)
 """
-import argparse
-import json
-import socket
+
 import sys
+import json
 import time
 import uuid
+import socket
+import argparse
 
 from redis import Redis
 
-# from clover.core.consumer import Consumer
 from clover.core.context import Context
 from clover.core.executor import Executor
 from config import REDIS_HOST, REDIS_PORT, REDIS_DATABASE, VERSION, REDIS_STREAM_NAME
@@ -46,19 +46,9 @@ hostname = socket.gethostname()  # 默认的消费组名称设置为主机名
 class Worker(object):
 
     def __init__(self):
-        # self.mq = Consumer()
         self.group = Groups()
         self.consumer = Consumers()
         super().__init__()
-
-    # def run(self):
-    #     print('开始消费clover队列的消息......')
-    #     print('redis队列模型为stream,消费模式为FIFO,消费方式XREAD \n')
-    #     try:
-    #         self.mq.read()
-    #     except KeyboardInterrupt:
-    #         print('主动退出 (Crtl+C)')
-    #         sys.exit()
 
     def run(self, group_name, consumer_name):
         if not group_name:

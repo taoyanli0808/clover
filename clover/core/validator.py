@@ -1,6 +1,7 @@
 
+import config
+
 from clover.core.logger import Logger
-from clover.core.response import Response
 from clover.core.extractor import Extractor
 
 
@@ -10,6 +11,8 @@ class Validator():
         self.data = data
         self.status = 'failed'
         self.result = []
+        self.threshold = 1.0
+        self.level = 0
         self.extractor = Extractor()
 
     def _assert(self): pass
@@ -34,9 +37,28 @@ class Validator():
         except TypeError:
             return data
 
-    def verify(self, case, response: Response):
+    def performance(self, response):
         """
-        :param data:
+        # 这里对接口性能进行统计，先获取全局配置的性能门限值，默认全局配置为1000耗秒；
+        # 注意需要转换全局门限值为秒，因为response.elapsed为秒。
+        # 将响应中的时间数据与response.elapsed做比值，然后转化为百分比；
+        # 如果level小于100%则说明符合预期，如果level大于100%则性能不达标。
+        :param response:
+        """
+        if 'performance' in config.GLOBALS:
+            try:
+                self.threshold = float(config.GLOBALS.get('performance', 1000) / 1000)
+            except ValueError:
+                self.threshold = 1.0
+
+        if response is not None:
+            self.level = round(100 * response.elapsed / self.threshold, 2)
+        else:
+            self.level = 0.0
+
+    def verify(self, case, response):
+        """
+        :param case:
         :param response:
         :return:
         """
