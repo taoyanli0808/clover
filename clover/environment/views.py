@@ -9,6 +9,8 @@ from clover.environment.service import TeamService
 from clover.environment.service import KeywordService
 from clover.environment.service import VariableService
 
+RESERVED = ['exception', 'extractor', 'keyword', 'request', 'response', 'validator', 'variable']
+
 
 class TeamView(CloverView):
 
@@ -219,13 +221,19 @@ class VariableView(CloverView):
                 'data': data
             })
 
+        if data['name'] in RESERVED:
+            return jsonify({
+                'status': 400,
+                'message': "请修改变量名，[{0}]是平台内置变量！".format(data['name']),
+                'data': data
+            })
+
         if 'value' not in data or not data['value']:
             return jsonify({
                 'status': 400,
                 'message': "无效的value[{0}]参数！".format(data['value']),
                 'data': data
             })
-
 
         try:
             status = self.service.create(data)
