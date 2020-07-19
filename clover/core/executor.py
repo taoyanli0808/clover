@@ -158,7 +158,7 @@ class Executor():
                 Logger.log("请求异常，状态码：{}".format(request.status), "发送请求", 'error')
                 Logger.log(request.message, "发送请求", 'error')
 
-            validator.verify(case, response)
+            validator.verify(case, response, variable)
             detail.setdefault('status', validator.status)
             detail.setdefault('result', validator.result)
 
