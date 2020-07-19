@@ -76,10 +76,25 @@ class Validator():
 
                 expression = verify.get('expression', None)
                 # 表达式可能包含变量，使用值对变量进行替换。
-                _expression = variable.derivation(expression)
-                Logger.log("断言，表达式处理前[{}]，表达式处理后[{}]".format(expression, _expression), "执行断言")
+                flag, reserved = variable.is_reserved_variable(expression)
+                if flag:
+                    if reserved == 'response':
+                        index = expression.index('.')
+                        _expression = expression[index+1:]
+                        if _expression == 'status':
+                            _variable = response.status
+                        elif _expression == 'elapsed':
+                            _variable = response.elapsed
+                        elif 'header' in _expression:
+                            expr = _expression.split('.')[-1]
+                            _variable = response.header.get(expr)
+                        else:
+                            _variable = extractor.extract(response.response, _expression, '.')
+                else:
+                    _expression = variable.derivation(expression)
+                    _variable = extractor.extract(response.response, _expression, '.')
 
-                _variable = extractor.extract(response.response, _expression, '.')
+                Logger.log("断言，表达式处理前[{}]，表达式处理后[{}]".format(expression, _expression), "执行断言")
 
                 expected = verify.get('expected', None)
                 # 预期结果可能包含变量，使用值对变量进行替换。

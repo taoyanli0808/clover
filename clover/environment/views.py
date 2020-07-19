@@ -4,12 +4,11 @@ import traceback
 from flask import request
 from flask import jsonify
 
+from clover.core import RESERVED
 from clover.views import CloverView
 from clover.environment.service import TeamService
 from clover.environment.service import KeywordService
 from clover.environment.service import VariableService
-
-RESERVED = ['exception', 'extractor', 'keyword', 'request', 'response', 'validator', 'variable']
 
 
 class TeamView(CloverView):

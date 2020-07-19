@@ -1,7 +1,34 @@
+"""
+# Clover平台变量机制实现。
+# author : taoyanli0808
+# date   : 2020-05-27
+# version: 1.2
+# -------------------- Clover平台变量机制 --------------------
+# clover平台变量分为4种类型，平台内置变量、自定义变量、触发变量与运行时变量
+# 1、平台内置变量
+# clover平台内置变量目前有response、request、keyword、variable、exception、
+# validator、extractor共7个，详见各模块说明文档。
+# 2、自定义变量
+# 自定义变量（default）通过平台“配置管理-变量配置”页面进行添加，每个自定义
+# 变量关联到团队与项目，同一团队下相同项目不能存在同名变量。自定义变量可以采用
+# 字母、数字和下划线进行命名，但不可与平台内置变量重复。
+# 3、触发变量
+# 触发变量为通过页面或接口（包含Jenkins等插件）运行平台用例时用户提交的变量。
+# 触发变量的优先级高于自定义变量，低于运行时变量。通常可以将域名设置为变量形
+# 式，例如调试时使用自定义变量host指向测试环境http://test.52clover.cn，
+# 当运行时采用触发变量重新指定host为http://www.52clover.cn覆盖自定义变量。
+# 4、运行时变量
+# 运行时变量通常为提取器提取的接口上下文变量，在用例执行生命周期内有效。
+# 最常见的运行时变量使用场景为提取接口响应数据传递给下一个接口，使用提取器提取
+# 接口响应数据保存为变量形式，下一个接口直接使用变量提取值。
+# 5、变量优先级
+# 平台内置变量 > 运行时变量 > 触发变量 > 自定义变量
+"""
 
 import re
 from typing import Text
 
+from clover.core import RESERVED
 from clover.core.logger import Logger
 from clover.core.request import Request
 from clover.core.response import Response
@@ -40,10 +67,34 @@ class Variable(object):
         default = VariableModel.query.filter_by(**filter).all()
         return query_to_dict(default)
 
+    @staticmethod
+    def is_reserved_variable(data):
+        """
+        # 内置变量使用时一般为：
+        # ${response}.status
+        # ${response}.header.contenttype
+        # ${request}.path
+        # 等，可见内置变量在被引用时在第一个位置
+        :param data:
+        :return:
+        """
+        # 这里如果data是空值则不处理。
+        if not data or not isinstance(data, (Text,)):
+            return False, None
+
+        data = data.split('.')[0]
+
+        match = re.search(r'\$\{(\w+?)\}', data)
+        if match:
+            variable = match.group(1).strip()
+            if variable in RESERVED:
+                return True, variable
+        else:
+            return False, None
+
     def derivation(self, data: Text):
         """
         :param data:
-        :param variables:
         :return:
         """
         # 这里如果data是空值则不处理。
