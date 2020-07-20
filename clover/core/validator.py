@@ -56,6 +56,23 @@ class Validator():
         else:
             self.level = 0.0
 
+    @staticmethod
+    def set_default_verify(case):
+        """
+        :param case:
+        :return:
+        """
+        # 这里先对用例的所有提取表达式进行检索，看是否存在状态码验证，不存在则添加。
+        expressions = [verify.get('expression') for verify in case.verify]
+        if '${response}.status' not in expressions:
+            case.verify.append({
+                'expected': 200,
+                'convertor': "int",
+                'extractor': "delimiter",
+                'comparator': "equal",
+                'expression': "${response}.status"
+            })
+
     def verify(self, case, response, variable):
         """
         :param case:
@@ -63,8 +80,9 @@ class Validator():
         :param variable:
         :return:
         """
+        self.set_default_verify(case)
         for verify in case.verify:
-            _extractor, expression, _variable, expected, comparator = None, None, None, None, None
+            _extractor, _expression, _variable, _expected, comparator = None, None, None, None, None
             try:
                 # 判断提取器是否合法，只支持三种提取器
                 _extractor = verify.get('extractor', 'delimiter')
@@ -83,6 +101,7 @@ class Validator():
                         _expression = expression[index+1:]
                         if _expression == 'status':
                             _variable = response.status
+                            status_verify = True
                         elif _expression == 'elapsed':
                             _variable = response.elapsed
                         elif 'header' in _expression:
@@ -114,7 +133,7 @@ class Validator():
                 self.result.append({
                     'status': result,
                     'actual': _variable,
-                    'expect': _expression,
+                    'expect': _expected,
                     'operate': comparator,
                 })
                 Logger.log("断言，执行通过！", "执行断言")

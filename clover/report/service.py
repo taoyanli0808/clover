@@ -104,8 +104,8 @@ class ReportService():
             'type': result.type,
             'duration': result.duration,
             'interface': result.interface,
-            'start': result.start,
-            'end': result.end,
+            'start': result.start.strftime('%Y-%m-%d %H:%M:%S'),
+            'end': result.end.strftime('%Y-%m-%d %H:%M:%S'),
         } for result in results]
 
         # 报告新增跳过兼容1.0版本，历史数据为null,兼容历史数据拼错的skiped字段
