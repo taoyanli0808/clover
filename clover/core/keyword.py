@@ -7,6 +7,9 @@
 
 import re
 
+from clover.models import query_to_dict
+from clover.environment.models import KeywordModel
+
 from clover.core.logger import Logger
 from clover.core.exception import KeywordException
 
@@ -21,6 +24,15 @@ class Keyword(object):
         self.function = None
         self.parameters = []
         self.function_name = None
+
+    def _load_keywords(self, classify):
+        """
+        :param classify:
+        :return:
+        """
+        filter = {'enable': 0, 'classify': classify}
+        keywords = KeywordModel.query.filter_by(**filter).all()
+        return query_to_dict(keywords)
 
     def get_function_name_from_source(self):
         """
@@ -99,6 +111,69 @@ class Keyword(object):
             return self.function(*parameters)
         except Exception as error:
             Logger.log("执行关键字时发生异常{}".format(error), "关键字执行", level="error")
+
+    def derivation(self, data):
+        """
+        :param data:
+        :return:
+        """
+        # 这里如果data是空值则不处理。
+        if not data or not isinstance(data, (str,)):
+            return data
+
+        flag = self.is_keyword(data)
+        if not flag:
+            return data
+        Logger.log("发现关键字[{}]！".format(self.function_name), "关键字执行")
+
+        # 查找关键字并执行
+        for keyword in self.keywords:
+            if keyword['name'] == self.function_name:
+                Logger.log("关键字[{}]存在！".format(self.function_name), "关键字执行")
+                self.source = keyword['keyword']
+                return self.execute()
+            return data
+
+        return data
+
+    def call_keyword(self, request, classify=None):
+        """
+        :param request:
+        :return:
+        """
+        self.keywords = self._load_keywords(classify)
+
+        if request.header:
+            Logger.log("请求头替换前[{}]".format(request.header), "关键字调用")
+            for key, value in request.header.items():
+                request.header[key] = self.derivation(value)
+            Logger.log("请求头替换后[{}]".format(request.header), "关键字调用")
+        if request.parameter:
+            Logger.log("请求参数替换前[{}]".format(request.parameter), "关键字调用")
+            for key, value in request.parameter.items():
+                request.parameter[key] = self.derivation(value)
+            Logger.log("请求参数替换后[{}]".format(request.parameter), "关键字调用")
+
+        if request.body:
+            Logger.log("请求体替换前[{}]".format(request.body), "关键字调用")
+            if request.body_mode in ['formdata', 'urlencoded']:
+                for key, value in request.body.items():
+                    request.body[key] = self.derivation(value)
+            elif request.body_mode in ['file']:
+                pass
+            else:
+                """
+                # 这是"expected string or bytes-like object"问题的一个临时解决方案。
+                # 原因是当body数据类型为raw，数据为json时，view层接收数据时自动将其转为
+                # python对象，因此这里进行derivation会报错。
+                """
+                if isinstance(request.body, (list,)):
+                    for key, value in request.body.items():
+                        request.body[key] = self.derivation(value)
+                else:
+                    request.body = self.derivation(request.body)
+            Logger.log("请求体替换前[{}]".format(request.body), "关键字调用")
+        return request
 
 
 if __name__ == '__main__':

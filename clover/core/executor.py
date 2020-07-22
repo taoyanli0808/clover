@@ -110,6 +110,7 @@ from clover.common import friendly_datetime
 from clover.core.logger import Logger
 from clover.core.report import Report
 from clover.core.request import Request
+from clover.core.keyword import Keyword
 from clover.core.variable import Variable
 from clover.core.validator import Validator
 from clover.core.exception import ResponseException
@@ -132,6 +133,7 @@ class Executor():
         # 使用团队和项目属性查询平台预置的自定义变量，通过触发时传递。
         # trigger参数为触发时用户添加的变量，优先级高于平台预置变量。
         """
+        keyword = Keyword('')
         variable = Variable(context)
 
         # 因为是类属性存储日志，使用前先清理历史日志数据。
@@ -146,6 +148,7 @@ class Executor():
             validator = Validator()
 
             variable.replace_variable(request)
+            keyword.call_keyword(request, 'before_request')
             try:
                 # 当用例设置跳过时不进行接口请求。
                 if case.status:
