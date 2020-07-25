@@ -1,112 +1,12 @@
 """
-Chapter 1
-The cases may be an interface or a suite.The suite is a collection of multiple interfaces.
-Host, path, header, parameter and body support parameterized variables, you can use ${var}
-to represent the value of the variable var.The parameters passed between interfaces extracted
-by extract are also considered as variables, and the value of extract['varibale'] is the variable name.
-    cases: [
-        {
-            'id': 25,
-            'team': 'qa',
-            'project': 'testing platform',
-            'name': 'alibaba map',
-            'method': 'get',
-            'host': '${ditu}',
-            'path': '/service/regeo',
-            'header': [
-                {
-                    'key': 'clover',
-                    'value': '0.3.4'
-                }
-            ],
-            'params': [
-                {
-                    'key': 'longitude',
-                    'value': '121.04925573429551'
-                },
-                {
-                    'key': 'latitude',
-                    'value': '31.315590522490712'
-                }
-            ],
-            'body': {
-                'data': '',
-                'mode': 'raw'
-            },
-            'verify': [
-                {
-                    'expected': '1',
-                    'convertor': 'int',
-                    'extractor': 'delimiter',
-                    'comparator': 'equal',
-                    'expression': 'status'
-                },
-                {
-                    'expected': '苏州市',
-                    'convertor': 'str',
-                    'extractor': 'delimiter',
-                    'comparator': 'equal',
-                    'expression': 'data.city'
-                },
-                {
-                    'expected': '512',
-                    'convertor': 'int',
-                    'extractor': 'regular',
-                    'comparator': 'equal',
-                    'expression': '\\"areacode\\":\\"(.+?)\\",'
-                }
-            ],
-            'extract': [
-                {
-                    'selector': 'delimiter',
-                    'variable': 'data',
-                    'varibale': '',
-                    'expression': 'status'
-                }
-            ],
-            'enable': 0,
-            'created': '2020-02-07T13:52:23',
-            'updated': '2020-04-19T14:15:19'
-        },
-        ...
-    ]
-------------------------------------------- It's a gorgeous divider -------------------------------------------
-Chapter 2
-Executor uses the result property to record the result of execution.
-The structure of the result property is used for data presentation of the report detail page, as follows:
-    result: {
-        'name1': {
-            'status': 'passed',                     # ['passed', 'failed', 'error', 'skiped']
-            'start': '2020-04-24 14:59:56',
-            'end': '2020-04-24 14:59:57',
-            'elapsed': 238568,
-            'result': [
-                {
-                    "actual": 1,
-                    "expect": 1,
-                    "status": "passed",
-                    "operate": "equal"
-                }, {
-                    "actual": "苏州市",
-                    "expect": "苏州市",
-                    "status": "passed",
-                    "operate": "equal"
-                }, {
-                    "actual": 512,
-                    "expect": 512,
-                    "status": "passed",
-                    "operate": "equal"
-                }
-            ]
-        },
-        'name2': {}
-    }
+执行任务
 """
 
 import datetime
 
 from clover.common import friendly_datetime
 
+from clover.core.notify import Notify
 from clover.core.logger import Logger
 from clover.core.report import Report
 from clover.core.request import Request
@@ -120,6 +20,31 @@ class Executor():
 
     def __init__(self, type='trigger'):
         self.type = type
+        # 这个status值为error、failed、skipped或passed，
+        # 传递给notify用于判断是否需要发送运行结果的通知。
+        self.status = 'passed'
+
+    def _set_status(self, status):
+        """
+        # 考虑到套件内有多个接口和接口有多个断言，程序执行时会动态
+        # 覆盖掉状态。次函数放置状态被覆盖。
+        # 状态优先级：error > failed > skipped > passed
+        # 如果当前状态为failed，传递skipped则状态不被修改。
+        :param context:
+        :return:
+        """
+        if self.status == 'error':
+            return
+        elif self.status == 'failed':
+            if status != 'error':
+                return
+            self.status = status
+        elif self.status == 'skipped':
+            if status not in ['error', 'failed']:
+                return
+            self.status = status
+        else:
+            self.status = status
 
     def execute(self, context):
         """
@@ -160,10 +85,13 @@ class Executor():
             except ResponseException:
                 Logger.log("请求异常，状态码：{}".format(request.status), "发送请求", 'error')
                 Logger.log(request.message, "发送请求", 'error')
+                self._set_status('error')
 
             validator.verify(case, response, variable)
             detail.setdefault('status', validator.status)
             detail.setdefault('result', validator.result)
+
+            self._set_status(validator.status)
 
             validator.performance(response)
             detail.setdefault('threshold', validator.threshold)
@@ -181,4 +109,7 @@ class Executor():
         # print(Logger.logs)
 
         # 存储运行的测试报告到数据库。
-        report.save(context, details, Logger)
+        data = report.save(context, details, Logger)
+
+        notify = Notify()
+        notify.send_message(data, self.status)

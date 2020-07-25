@@ -23,6 +23,7 @@ class ReportService():
         model = ReportModel(**data)
         db.session.add(model)
         db.session.commit()
+        return model.to_dict()
 
     def update(self, data):
         """

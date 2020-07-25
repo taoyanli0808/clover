@@ -84,4 +84,5 @@ class Report():
         }
 
         service = ReportService()
-        service.create(report)
+        result = service.create(report)
+        return result

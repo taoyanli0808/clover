@@ -1,7 +1,7 @@
 
 from flask import jsonify
 
-import config
+from clover import config
 
 from clover.views import CloverView
 from clover.common import get_system_info

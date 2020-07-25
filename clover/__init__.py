@@ -1,7 +1,7 @@
 from flask import Flask
 from werkzeug.utils import import_string
 
-import config
+from clover import config
 from clover.exts import db, client
 from clover.urls import map_urls
 

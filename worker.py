@@ -26,8 +26,7 @@ from redis import Redis
 
 from clover.core.context import Context
 from clover.core.executor import Executor
-from dingtalk import Dingtalk
-from config import REDIS_HOST, REDIS_PORT, REDIS_DATABASE, VERSION, REDIS_STREAM_NAME
+from clover.config import REDIS_HOST, REDIS_PORT, REDIS_DATABASE, VERSION, REDIS_STREAM_NAME
 
 try:
     redis = Redis(
@@ -148,8 +147,6 @@ class Consumers(object):
                     print('...开始执行异步任务...')
                     self.context.build_context(json.loads(fields['businessData']))
                     self.executor.execute(self.context)
-                    id = Dingtalk().searchid()  # 获取报告的id
-                    Dingtalk().SendMessage(id)  # 发送这个文件
                     print('...异步任务执行完成...')
                 except Exception as e:
                     print(e)

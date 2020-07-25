@@ -1,5 +1,4 @@
-
-import config
+from clover import config
 
 from clover.core.logger import Logger
 from clover.core.extractor import Extractor

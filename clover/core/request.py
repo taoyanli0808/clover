@@ -1,6 +1,6 @@
 import time
 
-import config
+from clover import config
 
 from requests import request
 from requests.exceptions import InvalidURL

@@ -5,7 +5,7 @@ import json
 import platform
 import datetime
 
-from config import VERSION
+from clover.config import VERSION
 
 
 def get_timestamp(data=None, format="%Y-%m-%d %H:%M:%S"):

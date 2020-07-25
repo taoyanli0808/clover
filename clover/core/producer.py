@@ -5,7 +5,7 @@ import json
 
 from clover.common import CloverJSONEncoder
 from clover.exts import client
-from config import REDIS_STREAM_NAME
+from clover.config import REDIS_STREAM_NAME
 
 
 class Producer(object):

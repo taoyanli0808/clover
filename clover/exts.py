@@ -1,7 +1,7 @@
 import redis
 from flask_sqlalchemy import SQLAlchemy
 
-import config
+from clover import config
 
 db = SQLAlchemy()
 engine = db.create_engine(
