@@ -3,12 +3,13 @@ import time
 from clover import config
 
 from requests import request
+from requests.utils import dict_from_cookiejar
 from requests.exceptions import InvalidURL
 from requests.exceptions import ReadTimeout
 from requests.exceptions import MissingSchema
 from requests.exceptions import InvalidSchema
-from requests.exceptions import ConnectionError
 from requests.exceptions import InvalidHeader
+from requests.exceptions import ConnectionError
 
 from clover.core.logger import Logger
 from clover.core.response import Response
@@ -21,6 +22,7 @@ class Request(object):
         """
         :param case:
         """
+        self.cookies = None
         self.method = self.set_method(case.method)
         self.host, self.path, self.url = case.host, case.path, case.host + case.path
         self.header = self.set_header(case.header)
@@ -133,14 +135,18 @@ class Request(object):
         Logger.log("准备发送http请求，超时设置[{}]".format(self.timeout), "发送请求")
         Logger.log("准备发送http请求，重试设置[{}]".format(self.retry), "发送请求")
         try:
+            print(self.header)
             response = request(
                 self.method,
                 self.url,
                 params=self.parameter,
                 data=self.body,
                 headers=self.header,
+                cookies=self.cookies,
                 timeout=self.timeout
             )
+            self.cookies = dict_from_cookiejar(response.cookies)
+            print(self.cookies)
             Logger.log("发送http请求成功，响应码[{}]".format(response.status_code), "发送请求")
             Logger.log("发送http请求成功，请求耗时[{}]".format(response.elapsed), "发送请求")
             Logger.log("发送http请求成功，请求响应[{}]".format(response.text), "发送请求", 'debeg')
