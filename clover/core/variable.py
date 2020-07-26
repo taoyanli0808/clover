@@ -160,28 +160,47 @@ class Variable(object):
             Logger.log("请求体替换前[{}]".format(request.body), "变量替换")
         return request
 
-    def extract_variable_from_response(self, case, response: Response):
+    def extract_variable_from_response(self, case, response):
         """
         :param case:
         :param response:
         :return:
         """
-        Logger.log("提取接口间变量", "变量替换")
+        Logger.log("提取接口间变量", "提取变量")
         # 这里是临时加的，这里要详细看下如何处理。
         if response is None or not hasattr(response, 'response'):
+            Logger.log("响应为None或响应无数据。", "提取变量", level='warn')
             return
 
         if not hasattr(case, 'extract') or not case.extract:
+            Logger.log("用例不需要提取变量。", "提取变量", level='warn')
             return case
 
-        Logger.log("提取接口间变量开始[{}]".format(self.extract), "变量替换")
+        Logger.log("提取接口间变量开始[{}]".format(self.extract), "提取变量")
         for extract in case.extract:
             # 提取需要进行断言的数据
             selector = extract.get('selector', 'delimiter')
             extractor = Extractor(selector)
             expression = extract.get('expression', None)
             variable = extract.get('variable', None)
-            result = extractor.extract(response.response, expression, '.')
+
+            # 表达式可能包含变量，使用值对变量进行替换。
+            flag, reserved = self.is_reserved_variable(expression)
+            if flag:
+                if reserved == 'response':
+                    index = expression.index('.')
+                    _expression = expression[index + 1:]
+                    if _expression == 'status':
+                        result = response.status
+                    elif _expression == 'elapsed':
+                        result = response.elapsed
+                    elif 'header' in _expression:
+                        expr = _expression.split('.')[-1]
+                        result = response.header.get(expr)
+                    else:
+                        result = extractor.extract(response.response, _expression, '.')
+            else:
+                result = extractor.extract(response.response, expression, '.')
             """
             # 这里不要简单的append，如果两个变量name相同，value不一样，
             # 后面被追加进来的数据不会生效，因此变量在这里要保证唯一性。
@@ -192,4 +211,4 @@ class Variable(object):
                     break
             else:
                 self.extract.append({'name': variable, 'value': result})
-        Logger.log("提取接口间变量完成[{}]".format(self.extract), "变量替换")
+        Logger.log("提取接口间变量完成[{}]".format(self.extract), "提取变量")
