@@ -173,6 +173,7 @@ class Consumers(object):
                     redis.xdel(stream_name, item_id)
                     redis.xadd(stream_name + '_fail', {'id': item_id, 'businessData': fields['businessData']},
                                maxlen=100)
+                    logger.exception(e)
                     # 如果不删除消息，下次重新启动worker时会再次运行pending中的任务（有重复执行的问题）
                     # TODO: 增加错误消息、死消息的监控处理（单独线程）。存在时间和统计次数两个维度判断死消息
                 else:
