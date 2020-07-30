@@ -49,14 +49,6 @@ class Worker(object):
     def __init__(self):
         self.group = Groups()
         self.consumer = Consumers()
-        logger.add(
-            sink='worker.log',
-            level='DEBUG',
-            rotation='500 MB',  # Automatically rotate too big file
-            retention='10 days',  # Cleanup after some time
-            compression='zip',  # Save some loved space
-            enqueue=True
-        )
         super().__init__()
 
     def run(self, group_name, consumer_name):
@@ -73,7 +65,7 @@ class Worker(object):
                 else:
                     break
         except KeyboardInterrupt:
-            logger.info('主动退出 (Crtl+C)')
+            logger.warning('主动退出 (Crtl+C)')
             sys.exit()
         try:
             self.group.name = group_name
@@ -86,7 +78,7 @@ class Worker(object):
             self.consumer.delete(self.group.name, consumer_name)
             # 释放消费组
             # redis.xgroup_destroy(stream_name, group_name)
-            logger.info('主动退出 (Crtl+C)')
+            logger.warning('主动退出 (Crtl+C)')
             sys.exit()
 
 
@@ -195,6 +187,14 @@ class Consumers(object):
 
 
 def main():
+    logger.add(
+        sink='logs/worker.log',
+        level='DEBUG',
+        rotation='500 MB',  # Automatically rotate too big file
+        retention='10 days',  # Cleanup after some time
+        compression='zip',  # Save some loved space
+        enqueue=True
+    )
     parser = argparse.ArgumentParser()  # 初始化命令行 自带 --help 参数 缩写为-h
     # 可选参数 和 必填参数区别为 是否加 -
     parser.add_argument('-v', '--version', action='store_true', help='显示版本信息')
@@ -211,7 +211,7 @@ def main():
     # 获取命令行参数
     args = parser.parse_args()
     if args.version:
-        logger.info(VERSION)
+        print(VERSION)
         sys.exit()
     obj = Worker()
     obj.run(args.group, args.consumer)
