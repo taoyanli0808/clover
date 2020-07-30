@@ -15,18 +15,19 @@ TODO
     多队列+多worker模式(更完美的支持master-slave分布式)
 """
 
-import sys
+import argparse
 import json
+import socket
+import sys
 import time
 import uuid
-import socket
-import argparse
 
+from loguru import logger
 from redis import Redis
 
+from clover.config import REDIS_HOST, REDIS_PORT, REDIS_DATABASE, VERSION, REDIS_STREAM_NAME
 from clover.core.context import Context
 from clover.core.executor import Executor
-from clover.config import REDIS_HOST, REDIS_PORT, REDIS_DATABASE, VERSION, REDIS_STREAM_NAME
 
 try:
     redis = Redis(
@@ -36,7 +37,7 @@ try:
         decode_responses=True,
     )
 except Exception as error:
-    print(error)
+    logger.error(error)
 
 stream_name = REDIS_STREAM_NAME
 
@@ -48,6 +49,14 @@ class Worker(object):
     def __init__(self):
         self.group = Groups()
         self.consumer = Consumers()
+        logger.add(
+            sink='worker.log',
+            level='DEBUG',
+            rotation='500 MB',  # Automatically rotate too big file
+            retention='10 days',  # Cleanup after some time
+            compression='zip',  # Save some loved space
+            enqueue=True
+        )
         super().__init__()
 
     def run(self, group_name, consumer_name):
@@ -58,23 +67,26 @@ class Worker(object):
         try:
             while True:  # stream队列不存在则5s轮询检查是否存在
                 if redis.exists(stream_name) == 0:  # 0不存在，1存在
-                    print(f'消息队列 {stream_name} 不存在...')
-                    time.sleep(3)  # 轮询间隔5秒
+                    logger.info(f'消息队列 {stream_name} 不存在...')
+                    logger.info(f'轮询间隔5s')
+                    time.sleep(5)  # 轮询间隔5秒
                 else:
                     break
         except KeyboardInterrupt:
-            print('主动退出 (Crtl+C)')
+            logger.info('主动退出 (Crtl+C)')
             sys.exit()
         try:
             self.group.name = group_name
-            print(f'消费者组名: {self.group.name}; 消费者名: {consumer_name}; 消息队列: {stream_name}')
+            # logger.info(f'消费者组名: {self.group.name}')
+            # logger.info(f'消费者名: {consumer_name}')
+            # logger.info(f'消息队列: {stream_name}')
             self.consumer.start_run(self.group.name, consumer_name)
         except KeyboardInterrupt:
             # 释放消费者
             self.consumer.delete(self.group.name, consumer_name)
             # 释放消费组
             # redis.xgroup_destroy(stream_name, group_name)
-            print('主动退出 (Crtl+C)')
+            logger.info('主动退出 (Crtl+C)')
             sys.exit()
 
 
@@ -116,9 +128,6 @@ class Consumers(object):
         last_id = '0-0'  # 从0-0开始遍历stream，保证第一次遍历到所有消息
         check_backlog = True  # 判断消息遍历起点
         while True:
-            # Pick the ID based on the iteration: the first time we want to
-            # read our pending messages, in case we crashed and are recovering.
-            # Once we consumer our history, we can start getting new messages.
             if check_backlog:
                 stream_id = last_id
             else:
@@ -127,29 +136,48 @@ class Consumers(object):
                 group_name,
                 consumer_name,
                 {stream_name: stream_id},
-                block=0,
-                count=1  # 后续跟进程、线程数配合使用
+                count=1,  # 一次取1个消息
+                block=2000  # 设置为0则为阻塞式消费
             )
             if not items:  # 处理空消息
-                print('Timeout')
-                print('Info Stream: {} \n'.format(redis.xinfo_stream(stream_name)))
-                print('Info Group: {} \n'.format(redis.xinfo_groups(group_name)))
-                print('Info consumer: {} \n'.format(redis.xinfo_consumers(stream_name, group_name)))
+                logger.info('异步任务全部处理完毕,正在轮询等待...5s...')
+                time.sleep(5)
                 continue
+                # try:
+                #     logger.info('Info Stream: {} \n'.format(redis.xinfo_stream(stream_name)))
+                #     # logger.info('Info Group: {} \n'.format(redis.xinfo_groups(group_name)))
+                #     logger.info('Info consumer: {} \n'.format(redis.xinfo_consumers(stream_name, group_name)))
+                #     logger.info('Info pending: {} \n'.format(redis.xpending(stream_name, group_name)))
+                # except exceptions.ResponseError as e:
+                #     logger.error(e)
+                #     continue
+                # else:
+                #     continue
+                # finally:
+                #     time.sleep(5)  # 轮询间隔 5s
 
             check_backlog = False if len(items[0][1]) == 0 else True
             for item_id, fields in items[0][1]:
-                print(f'异步任务ID: {item_id}; 消息队列: {stream_name}; 消费者组名: {group_name}; 消费者名: {consumer_name}')
-                if not fields['businessData']:
-                    print(f'没有业务数据businessData: {fields}')
-                    continue
+                logger.info(f'异步任务ID: {item_id}')
+                logger.info(f'消息队列: {stream_name}')
+                logger.info(f'消费者组名: {group_name}')
+                logger.info(f'消费者名: {consumer_name}')
+                # if not fields.get('businessData'):
+                #     logger.debug(f'没有业务数据businessData: {fields}')
+                #     redis.xdel(stream_name, item_id)
+                #     redis.xadd(stream_name + '_fail',
+                #                {'id': item_id, 'businessData': {'error': '缺少businessData'}},
+                #                maxlen=100)
+                #     # time.sleep(5)
+                #     continue
                 try:
-                    print('...开始执行异步任务...')
+                    logger.info('...开始执行异步任务...')
+                    logger.debug(json.loads(fields['businessData']))
                     self.context.build_context(json.loads(fields['businessData']))
                     self.executor.execute(self.context)
-                    print('...异步任务执行完成...')
+                    logger.info('...异步任务执行完成...')
                 except Exception as e:
-                    print(e)
+                    logger.error(e)
                     redis.xdel(stream_name, item_id)
                     redis.xadd(stream_name + '_fail', {'id': item_id, 'businessData': fields['businessData']},
                                maxlen=100)
@@ -161,8 +189,6 @@ class Consumers(object):
                     #     self.client.xdel('clover', item_id)
                 finally:
                     last_id = item_id
-
-            time.sleep(1)  # 轮询间隔
 
     def delete(self, group_name, consumer_name):
         redis.xgroup_delconsumer(stream_name, group_name, consumer_name)
@@ -185,7 +211,7 @@ def main():
     # 获取命令行参数
     args = parser.parse_args()
     if args.version:
-        print(VERSION)
+        logger.info(VERSION)
         sys.exit()
     obj = Worker()
     obj.run(args.group, args.consumer)
