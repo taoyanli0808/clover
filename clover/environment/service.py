@@ -17,9 +17,20 @@ class TeamService(object):
         :param data:
         :return:
         """
-        model = TeamModel(**data)
-        db.session.add(model)
-        db.session.commit()
+        status=0
+        filter = {
+            "enable": 0,
+            "team": data["team"],
+            "project": data["project"]
+        }
+        count = TeamModel.query.filter_by(**filter).count()
+        if count == 0:
+            model = TeamModel(**data)
+            db.session.add(model)
+            db.session.commit()
+            return status
+        status = 1
+        return status
 
     def detele(self, data):
         """
@@ -31,21 +42,33 @@ class TeamService(object):
             soft_delete(model)
 
     def update(self, data):
-        """
-        # 使用id作为条件，更新数据库重的数据记录。
-        # 通过id查不到数据时增作为一条新的记录存入。
+       """
+        # 判断传的团队名和项目名是否存在，不存在则更新
+        #存在直接返回
         :param data:
         :return:
         """
+        status = 0
+        filter = {"team": data["team"], "project": data["project"], "enable": 0}
+        result = TeamModel.query.filter_by(**filter).first()  # 查询前端传来的参数在数据库里的数据
+        print(result)
+        count = TeamModel.query.filter_by(**filter).count()  # 查询查询到的总数
         old_model = TeamModel.query.get(data['id'])
-        if old_model is None:
-            model = TeamModel(**data)
-            db.session.add(model)
-            db.session.commit()
+        if count >= 1 and result.id != data['id']:  # 数据已在库中并且不是本次修改的本条数据
+            status = 1
+            return status
         else:
-            {setattr(old_model, k, v) for k, v in data.items()}
-            old_model.updated = datetime.datetime.now()
-            db.session.commit()
+            if old_model is None:
+                model = TeamModel(**data)
+                db.session.add(model)
+                db.session.commit()
+            else:
+                old_model.team = data['team']
+                old_model.project = data['project']
+                old_model.owner = data['owner']
+                old_model.updated = datetime.datetime.now()
+                db.session.commit()
+                return status
 
     def search(self, data):
         """
@@ -188,21 +211,26 @@ class VariableService(object):
         """
         status = 0
         filter = {"name": data["name"], "project": data["project"], "enable": 0}
-        count = VariableModel.query.filter_by(**filter).count()
-        if count >= 1:
+        result = VariableModel.query.filter_by(**filter).first() #查询前端传来的参数在数据库里的数据
+        count = VariableModel.query.filter_by(**filter).count() #查询查询到的总数
+        old_model = VariableModel.query.get(data['id'])
+        if count >= 1 and result.id != data['id']: #数据已在库中并且不是本次修改的本条数据
             status = 1
             return status
         else:
-            old_model = VariableModel.query.get(data['id'])
             if old_model is None:
                 model = VariableModel(**data)
                 db.session.add(model)
                 db.session.commit()
             else:
-                {setattr(old_model, k, v) for k, v in data.items()}
+                old_model.team = data['team']
+                old_model.project = data['project']
+                old_model.owner = data['owner']
+                old_model.name = data['name']
+                old_model.value = data['value']
                 old_model.updated = datetime.datetime.now()
                 db.session.commit()
-            return status
+                return status
 
     def search(self, data):
         """
