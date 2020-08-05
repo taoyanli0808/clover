@@ -45,12 +45,17 @@ class TeamView(CloverView):
             })
 
         try:
-            id = self.service.create(data)
-            return jsonify({
-                'status': 0,
-                'message': '成功创建团队与项目！',
-                'data': id
-            })
+            status = self.service.create(data)
+            if status == 1:
+                return jsonify({
+                    'status': 400,
+                    'message': '该团队与项目已存在，请更换',
+                })
+            else:
+                return jsonify({
+                    'status': 0,
+                    'message': '创建团队项目成功',
+                })
         except Exception as error:
             return jsonify({
                 'status': 500,
@@ -100,8 +105,19 @@ class TeamView(CloverView):
                 'data': data
             })
 
-        try:
-            id = self.service.update(data)
+       try:
+            status = self.service.update(data)
+            if status == 1:
+                return jsonify({
+                    'status': 400,
+                    'message': '该团队与项目已存在，请更换',
+
+                })
+            else:
+                return jsonify({
+                    'status': 0,
+                    'message': 'ok',
+                })
             return jsonify({
                 'status': 0,
                 'message': 'ok',
