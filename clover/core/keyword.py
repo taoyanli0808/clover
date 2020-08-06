@@ -34,12 +34,32 @@ class Keyword(object):
         keywords = KeywordModel.query.filter_by(**filter).all()
         return query_to_dict(keywords)
 
+    def _guess_parameter_type(self, data):
+        """
+        :param data:
+        :return:
+        """
+        if not isinstance(data, (str,)):
+            return data
+
+        pattern = re.compile('\d+')
+        if re.match(pattern, data):
+            return int(data)
+
+        pattern = re.compile('\d+\.\d+')
+        if re.match(pattern, data):
+            return float(data)
+
+        # 这里增加下列表类型
+        # 这里增加下字典类型
+        # 这里增加下集合类型
+        # 这里增加下元祖类型
+
     def get_function_name_from_source(self):
         """
         :return:
         """
         function = re.findall(r'def\s+(.+?)\(', self.source)
-        print(function)
         if not function:
             Logger.log("不能提取关键字名称，执行失败！", "获取关键字名")
             return False
@@ -68,10 +88,9 @@ class Keyword(object):
             Logger.log("不能提取关键字参数，执行失败！", "关键字判定")
             return False
         parameters = parameters[0]
-        print("参数为：", parameters)
         for param in parameters.split(','):
-            print("添加参数：", param.strip())
-            self.parameters.append(param.strip())
+            param = self._guess_parameter_type(param.strip())
+            self.parameters.append(param)
 
         return self.function_name is not None and self.parameters
 
@@ -87,7 +106,6 @@ class Keyword(object):
 
             # 从locals获取执行关键字。
             if self.function_name not in locals():
-                print("获取关键字失败！")
                 Logger.log("获取关键字失败！", "关键字执行")
                 raise KeywordException
             self.function = locals()[self.function_name]
@@ -95,7 +113,6 @@ class Keyword(object):
             # 判断正则提取的参数与函数实际参数是否一致。
             parameter_count = locals()[self.function_name].__code__.co_argcount
             if len(self.parameters) != parameter_count:
-                print("执行关键字时实际参数与所需参数不匹配！")
                 Logger.log("执行关键字时实际参数与所需参数不匹配！", "关键字执行")
                 raise KeywordException
 
@@ -113,14 +130,15 @@ class Keyword(object):
             #     else:
             #         parameters.append(locals()[parameter])
             #         continue
-            print("执行关键字并返回结果。")
-            print(self.function)
-            print(*self.parameters)
-            print(self.function(*self.parameters))
+            exec(self.source)
             # 执行关键字并返回结果。
-            return self.function(*self.parameters)
+            result = None
+            try:
+                result = self.function(*self.parameters)
+            except Exception as error:
+                print(error)
+            return result
         except Exception as error:
-            print("卧槽，不会吧！", str(error))
             Logger.log("执行关键字时发生异常{}".format(error), "关键字执行", level="error")
 
     def derivation(self, data):
@@ -132,26 +150,19 @@ class Keyword(object):
         if not data or not isinstance(data, (str, bytes, )):
             return data
 
-        print(50 * "*")
-        print("处理数据：", data)
         if isinstance(data, (bytes, )):
             data = str(data, encoding="utf-8")
 
         flag = self.is_keyword(data)
-        print("发现关键字：", self.function_name, flag)
         if not flag:
             return data
         Logger.log("发现关键字[{}]！".format(self.function_name), "关键字执行")
 
         # 查找关键字并执行
-        print(self.keywords)
         for keyword in self.keywords:
-            print(keyword)
             if keyword['name'] == self.function_name:
                 Logger.log("关键字[{}]存在！".format(self.function_name), "关键字执行")
-                print("匹配到关键字：", self.function_name)
                 self.source = keyword['keyword']
-                print("关键字源代码：", self.source)
                 return self.execute()
             return data
 

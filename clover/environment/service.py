@@ -1,5 +1,4 @@
-import re
-import json
+
 import datetime
 
 from clover.exts import db
@@ -40,9 +39,10 @@ class TeamService(object):
         model = TeamModel.query.get(data['id'])
         if model is not None:
             soft_delete(model)
+        return model.id
 
     def update(self, data):
-       """
+        """
         # 判断传的团队名和项目名是否存在，不存在则更新
         #存在直接返回
         :param data:

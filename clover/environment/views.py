@@ -1,6 +1,4 @@
 
-import traceback
-
 from flask import request
 from flask import jsonify
 
@@ -9,6 +7,9 @@ from clover.views import CloverView
 from clover.environment.service import TeamService
 from clover.environment.service import KeywordService
 from clover.environment.service import VariableService
+from clover.core.exception import catch_exception
+from clover.core.exception import CloverException
+from clover.core.exception import DatabaseException
 
 
 class TeamView(CloverView):
@@ -17,6 +18,7 @@ class TeamView(CloverView):
         super(TeamView, self).__init__()
         self.service = TeamService()
 
+    @catch_exception(DatabaseException)
     def create(self):
         """
         :return:
@@ -44,26 +46,19 @@ class TeamView(CloverView):
                 'data': data
             })
 
-        try:
-            status = self.service.create(data)
-            if status == 1:
-                return jsonify({
-                    'status': 400,
-                    'message': '该团队与项目已存在，请更换',
-                })
-            else:
-                return jsonify({
-                    'status': 0,
-                    'message': '创建团队项目成功',
-                })
-        except Exception as error:
+        status = self.service.create(data)
+        if status == 1:
             return jsonify({
-                'status': 500,
-                'message': str(error),
-                'traceback': traceback.format_stack(),
-                'data': data
+                'status': 400,
+                'message': '该团队与项目已存在，请更换',
+            })
+        else:
+            return jsonify({
+                'status': 0,
+                'message': '创建团队项目成功',
             })
 
+    @catch_exception(DatabaseException)
     def delete(self):
         """
         :return:
@@ -77,21 +72,16 @@ class TeamView(CloverView):
                 'data': data
             })
 
-        try:
-            id = self.service.detele(data)
-            return jsonify({
-                'status': 0,
-                'message': '成功删除数据！',
-                'data': id
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': str(error),
-                'traceback': traceback.format_stack(),
-                'data': data
-            })
+        id = self.service.detele(data)
+        print(id)
+        1/0
+        return jsonify({
+            'status': 0,
+            'message': '成功删除数据！',
+            'data': id
+        })
 
+    @catch_exception(DatabaseException)
     def update(self):
         """
         :return:
@@ -105,95 +95,61 @@ class TeamView(CloverView):
                 'data': data
             })
 
-       try:
-            status = self.service.update(data)
-            if status == 1:
-                return jsonify({
-                    'status': 400,
-                    'message': '该团队与项目已存在，请更换',
+        status = self.service.update(data)
+        if status == 1:
+            return jsonify({
+                'status': 400,
+                'message': '该团队与项目已存在，请更换',
 
-                })
-            else:
-                return jsonify({
-                    'status': 0,
-                    'message': 'ok',
-                })
+            })
+        else:
             return jsonify({
                 'status': 0,
                 'message': 'ok',
-                'data': id
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': str(error),
-                'traceback': traceback.format_stack(),
-                'data': data
             })
 
+    @catch_exception(DatabaseException)
     def search(self):
         """
         :return:
         """
         data = request.values.to_dict()
 
-        try:
-            total, result = self.service.search(data)
-            return jsonify({
-                'status': 0,
-                'message': 'ok',
-                'data': result,
-                'total': total,
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': str(error),
-                'traceback': traceback.format_stack(),
-                'data': data
-            })
+        total, result = self.service.search(data)
+        return jsonify({
+            'status': 0,
+            'message': 'ok',
+            'data': result,
+            'total': total,
+        })
 
+    @catch_exception(DatabaseException)
     def aggregate(self):
         """
         :return:
         """
         data = request.get_json()
 
-        try:
-            data = self.service.aggregate(data)
-            return jsonify({
-                'status': 0,
-                'message': 'ok',
-                'data': data
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': str(error),
-                'traceback': traceback.format_stack(),
-                'data': data
-            })
+        data = self.service.aggregate(data)
+        return jsonify({
+            'status': 0,
+            'message': 'ok',
+            'data': data
+        })
 
+    @catch_exception(DatabaseException)
     def navigation(self):
         """
         :return:
         """
         data = request.get_json()
 
-        try:
-            data = self.service.navigation(data)
-            return jsonify({
-                'status': 0,
-                'message': 'ok',
-                'data': data
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': str(error),
-                'traceback': traceback.format_stack(),
-                'data': data
-            })
+        data = self.service.navigation(data)
+        return jsonify({
+            'status': 0,
+            'message': 'ok',
+            'data': data
+        })
 
 
 class VariableView(CloverView):
@@ -202,6 +158,7 @@ class VariableView(CloverView):
         super(VariableView, self).__init__()
         self.service = VariableService()
 
+    @catch_exception(DatabaseException)
     def create(self):
         """
         :return:
@@ -250,27 +207,20 @@ class VariableView(CloverView):
                 'data': data
             })
 
-        try:
-            status = self.service.create(data)
-            if not status:
-                return jsonify({
-                    'status': 0,
-                    'message': '成功创建变量！',
-                })
-            else:
-                return jsonify({
-                    'status': 400,
-                    'message': '此项目已有相同的变量名，请更换！',
-
-                })
-        except Exception as error:
+        status = self.service.create(data)
+        if not status:
             return jsonify({
-                'status': 500,
-                'message': str(error),
-                'traceback': traceback.format_stack(),
-                'data': data
+                'status': 0,
+                'message': '成功创建变量！',
+            })
+        else:
+            return jsonify({
+                'status': 400,
+                'message': '此项目已有相同的变量名，请更换！',
+
             })
 
+    @catch_exception(DatabaseException)
     def delete(self):
         """
         :return:
@@ -284,21 +234,14 @@ class VariableView(CloverView):
                 'data': data
             })
 
-        try:
-            id = self.service.detele(data)
-            return jsonify({
-                'status': 0,
-                'message': 'ok',
-                'data': id
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': str(error),
-                'traceback': traceback.format_stack(),
-                'data': data
-            })
+        id = self.service.detele(data)
+        return jsonify({
+            'status': 0,
+            'message': 'ok',
+            'data': id
+        })
 
+    @catch_exception(DatabaseException)
     def update(self):
         """
         :return:
@@ -312,48 +255,33 @@ class VariableView(CloverView):
                 'data': data
             })
 
-        try:
-            status = self.service.update(data)
-            if status == 1:
-                return jsonify({
-                    'status': 400,
-                    'message': '此项目已有相同的变量名，请更换',
-
-                })
-            else:
-                return jsonify({
-                    'status': 0,
-                    'message': 'ok',
-            })
-        except Exception as error:
+        status = self.service.update(data)
+        if status == 1:
             return jsonify({
-                'status': 500,
-                'message': str(error),
-                'traceback': traceback.format_stack(),
-                'data': data
+                'status': 400,
+                'message': '此项目已有相同的变量名，请更换',
+
+            })
+        else:
+            return jsonify({
+                'status': 0,
+                'message': 'ok',
             })
 
+    @catch_exception(DatabaseException)
     def search(self):
         """
         :return:
         """
         data = request.values.to_dict()
 
-        try:
-            total, result = self.service.search(data)
-            return jsonify({
-                'status': 0,
-                'message': 'ok',
-                'data': result,
-                'total': total,
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': str(error),
-                'traceback': traceback.format_stack(),
-                'data': data
-            })
+        total, result = self.service.search(data)
+        return jsonify({
+            'status': 0,
+            'message': 'ok',
+            'data': result,
+            'total': total,
+        })
 
 
 class KeywordView(CloverView):
@@ -362,6 +290,7 @@ class KeywordView(CloverView):
         super(KeywordView, self).__init__()
         self.service = KeywordService()
 
+    @catch_exception(DatabaseException)
     def create(self):
         """
         :return:
@@ -382,20 +311,14 @@ class KeywordView(CloverView):
                 'data': data
             })
 
-        try:
-            result = self.service.create(data)
-            return jsonify({
-                'status': 0,
-                'message': "创建关键字成功！",
-                'data': result
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': str(error),
-                'data': data
-            })
+        result = self.service.create(data)
+        return jsonify({
+            'status': 0,
+            'message': "创建关键字成功！",
+            'data': result
+        })
 
+    @catch_exception(DatabaseException)
     def delete(self):
         """
         :return:
@@ -409,21 +332,14 @@ class KeywordView(CloverView):
                 'data': data
             })
 
-        try:
-            id = self.service.delete(data)
-            return jsonify({
-                'status': 0,
-                'message': 'ok',
-                'data': id
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': str(error),
-                'traceback': traceback.format_stack(),
-                'data': data
-            })
+        id = self.service.delete(data)
+        return jsonify({
+            'status': 0,
+            'message': 'ok',
+            'data': id
+        })
 
+    @catch_exception(DatabaseException)
     def update(self):
         """
         :return:
@@ -437,43 +353,29 @@ class KeywordView(CloverView):
                 'data': data
             })
 
-        try:
-            id = self.service.update(data)
-            return jsonify({
-                'status': 0,
-                'message': '更新关键字成功！',
-                'data': id
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': str(error),
-                'traceback': traceback.format_stack(),
-                'data': data
-            })
+        id = self.service.update(data)
+        return jsonify({
+            'status': 0,
+            'message': '更新关键字成功！',
+            'data': id
+        })
 
+    @catch_exception(DatabaseException)
     def search(self):
         """
         :return:
         """
         data = request.get_json()
 
-        try:
-            total, result = self.service.search(data)
-            return jsonify({
-                'status': 0,
-                'message': 'ok',
-                'data': result,
-                'total': total,
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': str(error),
-                'traceback': traceback.format_stack(),
-                'data': data
-            })
+        total, result = self.service.search(data)
+        return jsonify({
+            'status': 0,
+            'message': 'ok',
+            'data': result,
+            'total': total,
+        })
 
+    @catch_exception(DatabaseException)
     def debug(self):
         """
         :return:
@@ -494,16 +396,9 @@ class KeywordView(CloverView):
                 'data': data
             })
 
-        try:
-            result = self.service.debug(data)
-            return jsonify({
-                'status': 0,
-                'message': "关键字调试结束！",
-                'data': result
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': str(error),
-                'data': data
-            })
+        result = self.service.debug(data)
+        return jsonify({
+            'status': 0,
+            'message': "关键字调试结束！",
+            'data': result
+        })

@@ -3,6 +3,8 @@ from flask import request
 
 from clover.views import CloverView
 from clover.interface.service import InterfaceService
+from clover.core.exception import catch_exception
+from clover.core.exception import DatabaseException
 
 
 class InterfaceView(CloverView):
@@ -11,6 +13,7 @@ class InterfaceView(CloverView):
         super(InterfaceView, self).__init__()
         self.service = InterfaceService()
 
+    @catch_exception(DatabaseException)
     def create(self):
         data = request.get_json()
 
@@ -62,24 +65,18 @@ class InterfaceView(CloverView):
                 'data': data,
             })
 
-        try:
-            id, status, message, result = self.service.create(data)
-            return jsonify({
-                'status': status,
-                'message': message,
-                'data': {
-                    'id': id,
-                    'response': result,
-                    **data,
-                },
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': str(error),
-                'data': data
-            })
+        id, status, message, result = self.service.create(data)
+        return jsonify({
+            'status': status,
+            'message': message,
+            'data': {
+                'id': id,
+                'response': result,
+                **data,
+            },
+        })
 
+    @catch_exception(DatabaseException)
     def delete(self):
         data = request.get_json()
 
@@ -90,20 +87,14 @@ class InterfaceView(CloverView):
                 'data': data
             })
 
-        try:
-            count = self.service.delete(data)
-            return jsonify({
-                'status': 0,
-                'message': 'ok',
-                'data': count,
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': '服务器出错，请联系管理员！',
-                'data': data
-            })
+        count = self.service.delete(data)
+        return jsonify({
+            'status': 0,
+            'message': 'ok',
+            'data': count,
+        })
 
+    @catch_exception(DatabaseException)
     def update(self):
         data = request.get_json()
 
@@ -114,24 +105,18 @@ class InterfaceView(CloverView):
                 'data': data
             })
 
-        try:
-            id, status, message, result = self.service.update(data)
-            return jsonify({
-                'status': status,
-                'message': message,
-                'data': {
-                    'id': id,
-                    'response': result,
-                    **data,
-                },
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': str(error),
-                'data': data
-            })
+        id, status, message, result = self.service.update(data)
+        return jsonify({
+            'status': status,
+            'message': message,
+            'data': {
+                'id': id,
+                'response': result,
+                **data,
+            },
+        })
 
+    @catch_exception(DatabaseException)
     def search(self):
 
         if request.method == 'GET':
@@ -139,21 +124,15 @@ class InterfaceView(CloverView):
         else:
             data = request.get_json()
 
-        try:
-            count, result = self.service.search(data)
-            return jsonify({
-                'status': 0,
-                'message': 'ok',
-                'data': result,
-                'total': count,
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': str(error),
-                'data': data
-            })
+        count, result = self.service.search(data)
+        return jsonify({
+            'status': 0,
+            'message': 'ok',
+            'data': result,
+            'total': count,
+        })
 
+    @catch_exception(DatabaseException)
     def trigger(self):
         # 这里支持GET与POST请求，获取参数方法不同。
         if request.method == 'GET':
@@ -169,20 +148,14 @@ class InterfaceView(CloverView):
                 'data': data,
             })
 
-        try:
-            result = self.service.trigger(data)
-            return jsonify({
-                'status': 0,
-                'message': 'ok',
-                'data': result,
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': str(error),
-                'data': data
-            })
+        result = self.service.trigger(data)
+        return jsonify({
+            'status': 0,
+            'message': 'ok',
+            'data': result,
+        })
 
+    @catch_exception(DatabaseException)
     def switch(self):
         data = request.get_json()
 
@@ -200,16 +173,9 @@ class InterfaceView(CloverView):
                 'data': data
             })
 
-        try:
-            result = self.service.switch(data)
-            return jsonify({
-                'status': 0,
-                'message': '接口已开启' if data['status'] else '接口已禁用',
-                'data': result,
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': str(error),
-                'data': data
-            })
+        result = self.service.switch(data)
+        return jsonify({
+            'status': 0,
+            'message': '接口已开启' if data['status'] else '接口已禁用',
+            'data': result,
+        })

@@ -1,6 +1,6 @@
 # Clover全局配置
 DEBUG = True
-VERSION = '1.3.4'
+VERSION = '1.3.5'
 DOMAIN = 'http://demo.52clover.cn'
 
 # 全局功能配置
@@ -42,12 +42,13 @@ NOTIFY = {
     # 通知的方式，企业微信还是email，或则配置的其它方式
     'channel': {
         'email': {
-            'sender': '1234567@qq.com',
-            'receiver': ['1234567@qq.com'],
-            'password': 'xxxxxxxxxxxxxxxx',
-            'smtp_host': 'smtp.qq.com',
+            'sender': 'zwx_towatt@126.com',
+            'receiver': ['273518152@qq.com','zhouwenxi@towatt.com'],
+            'password': 'BFADJBLHHEXYWVMI',
+            'smtp_host': 'smtp.126.com',
+
         },
-        'wechat': 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',    #这里是企微机器人的KEY配置
-        'dingtalk': 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',    #这里是钉钉机器人的access_token配置
+        'wechat': 'b16f15f9-fda5-4894-9e3f-ae87542958c8',    #这里是企微机器人的KEY配置
+        'dingtalk': '4dd0b68415aabe0c6f36bb6a529a6fda6d128ae72ba8b69970f90398c69b36dd',    #这里是钉钉机器人的access_token配置
     },
 }

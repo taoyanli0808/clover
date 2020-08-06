@@ -4,9 +4,11 @@ import traceback
 from flask import request
 from flask import jsonify
 
-from clover.common import allowed_file
-from clover.plugin.service import PluginService
 from clover.views import CloverView
+from clover.common import allowed_file
+from clover.core.exception import catch_exception
+from clover.core.exception import DatabaseException
+from clover.plugin.service import PluginService
 
 
 class PluginView(CloverView):
@@ -15,6 +17,7 @@ class PluginView(CloverView):
         super(PluginView, self).__init__()
         self.service = PluginService()
 
+    @catch_exception(DatabaseException)
     def create(self):
         """
         :return:
@@ -57,17 +60,9 @@ class PluginView(CloverView):
                 'data': data
             })
 
-        try:
-            result = self.service.create(data, file)
-            return jsonify({
-                'status': 0,
-                'message': '使用插件创建接口完成！',
-                'data': result
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': str(error),
-                'traceback': traceback.format_stack(),
-                'data': data
-            })
+        result = self.service.create(data, file)
+        return jsonify({
+            'status': 0,
+            'message': '使用插件创建接口完成！',
+            'data': result
+        })
