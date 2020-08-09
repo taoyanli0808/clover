@@ -8,7 +8,7 @@
 import re
 
 from clover.models import query_to_dict
-from clover.environment.models import KeywordModel
+from clover.keyword.models import KeywordModel
 
 from clover.core.logger import Logger
 from clover.core.exception import KeywordException

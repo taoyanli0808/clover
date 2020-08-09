@@ -3,7 +3,7 @@
 # /api/version/module/function
 """
 from clover.environment.views import TeamView as Team
-from clover.environment.views import KeywordView as Keyword
+from clover.keyword.views import KeywordView as Keyword
 from clover.environment.views import VariableView as Variable
 from clover.interface.views import InterfaceView as Interface
 from clover.suite.views import SuiteView as Suite
