@@ -4,7 +4,7 @@ from flask import request
 
 from clover.views import CloverView
 from clover.suite.service import SuiteService
-from clover.core.exception import catch_view_exception
+from clover.core.exception import catch_exception
 
 
 class SuiteView(CloverView):
@@ -13,7 +13,7 @@ class SuiteView(CloverView):
         super(SuiteView, self).__init__()
         self.service = SuiteService()
 
-    @catch_view_exception
+    @catch_exception
     def create(self):
         data = request.get_json()
 
@@ -59,7 +59,7 @@ class SuiteView(CloverView):
             'data': id
         })
 
-    @catch_view_exception
+    @catch_exception
     def delete(self):
         data = request.get_json()
 
@@ -77,11 +77,11 @@ class SuiteView(CloverView):
             'data': count,
         })
 
-    @catch_view_exception
+    @catch_exception
     def update(self):
         pass
 
-    @catch_view_exception
+    @catch_exception
     def search(self):
         if request.method == 'GET':
             data = request.values.to_dict()
@@ -96,7 +96,7 @@ class SuiteView(CloverView):
             'total': count
         })
 
-    @catch_view_exception
+    @catch_exception
     def trigger(self):
         """
         :param data:
@@ -118,7 +118,7 @@ class SuiteView(CloverView):
             'data': result
         })
 
-    @catch_view_exception
+    @catch_exception
     def switch(self):
         data = request.get_json()
         if 'id_list' not in data or not data['id_list']:

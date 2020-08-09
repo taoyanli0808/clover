@@ -19,43 +19,7 @@ from clover.exts import db
 class ResponseException(Exception): pass
 
 
-def catch_exception(cls=Exception):
-    """
-    # 捕获异常的装饰器，传入需要捕获的异常类型。
-    #
-    :param cls: 异常类型
-    :return:
-    """
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            try:
-                return func(*args, **kwargs)
-            except cls as error:
-                print(cls)
-                response = make_response(
-                    jsonify(error.__dict__), 500
-                )
-                return response
-        return wrapper
-    return decorator
-
-
-def catch_database_exception(func):
-    """
-    # 捕获数据库异常的装饰器
-    :return:
-    """
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except SQLAlchemyError:
-            db.session.rollback()
-    return wrapper
-
-
-def catch_view_exception(func):
+def catch_exception(func):
     """
     # 捕获视图异常的装饰器
     :return:

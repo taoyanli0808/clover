@@ -10,7 +10,6 @@ from clover.common import get_mysql_error
 from clover.models import soft_delete
 from clover.models import query_to_dict
 from clover.suite.models import SuiteModel
-from clover.core.exception import catch_database_exception
 
 
 class SuiteService():
@@ -18,7 +17,6 @@ class SuiteService():
     def __init__(self):
         pass
 
-    @catch_database_exception
     def create(self, data):
         """
         :param data:
@@ -26,15 +24,9 @@ class SuiteService():
         """
         model = SuiteModel(**data)
         db.session.add(model)
-        # 这是一个处理数据库异常的例子，后面最好有统一的处理方案。
-        try:
-            db.session.commit()
-        except ProgrammingError as error:
-            code, msg = get_mysql_error(error)
-            return (code, msg)
+        db.session.commit()
         return model.id
 
-    @catch_database_exception
     def delete(self, data):
         """
         :param data:
@@ -45,7 +37,6 @@ class SuiteService():
             result = SuiteModel.query.get(id)
             soft_delete(result)
 
-    @catch_database_exception
     def search(self, data):
         """
         :param data:
@@ -86,7 +77,6 @@ class SuiteService():
 
         return count, results
 
-    @catch_database_exception
     def trigger(self, data):
         """
         # 这里创建一个空report，然后使用celery异步运行任务，
@@ -103,7 +93,6 @@ class SuiteService():
         })
         return
 
-    @catch_database_exception
     def switch(self,data):
         """
         :param data:

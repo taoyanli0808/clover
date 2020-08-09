@@ -10,12 +10,10 @@ from clover.core.executor import Executor
 from clover.models import soft_delete
 from clover.models import query_to_dict
 from clover.interface.models import InterfaceModel
-from clover.core.exception import catch_database_exception
 
 
 class InterfaceService(object):
 
-    @catch_database_exception
     def create(self, data):
         """
         # 将页面数据保存到数据库。
@@ -37,7 +35,6 @@ class InterfaceService(object):
 
         return model.id, status, message, data
 
-    @catch_database_exception
     def delete(self, data):
         """
         :param data:
@@ -48,7 +45,6 @@ class InterfaceService(object):
             result = InterfaceModel.query.get(id)
             soft_delete(result)
 
-    @catch_database_exception
     def update(self, data):
         """
         # 使用id作为条件，更新数据库重的数据记录。
@@ -78,7 +74,6 @@ class InterfaceService(object):
 
         return old_model.id, status, message, data
 
-    @catch_database_exception
     def search(self, data):
         """
         :param data:
@@ -125,7 +120,6 @@ class InterfaceService(object):
         count = InterfaceModel.query.filter_by(**filter).count()
         return count, results
 
-    @catch_database_exception
     def trigger(self, data):
         """
         :param data:
@@ -140,7 +134,6 @@ class InterfaceService(object):
         })
         return
 
-    @catch_database_exception
     def switch(self, data):
         """
         :param data:

@@ -3,7 +3,7 @@ from flask import request
 
 from clover.views import CloverView
 from clover.dashboard.service import DashboardService
-from clover.core.exception import catch_view_exception
+from clover.core.exception import catch_exception
 
 
 class DashboardView(CloverView):
@@ -12,7 +12,7 @@ class DashboardView(CloverView):
         super(DashboardView, self).__init__()
         self.service = DashboardService()
 
-    @catch_view_exception
+    @catch_exception
     def info(self):
         data = self.service.get_info()
         return jsonify({
@@ -21,7 +21,7 @@ class DashboardView(CloverView):
             'data': data
         })
 
-    @catch_view_exception
+    @catch_exception
     def suite(self):
         data = request.get_json()
         return jsonify({

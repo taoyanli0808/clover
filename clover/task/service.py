@@ -9,7 +9,6 @@ from clover.common import get_mysql_error
 from clover.models import soft_delete
 from clover.models import query_to_dict
 from clover.task.models import TaskModel
-from clover.core.exception import catch_database_exception
 
 
 class TaskService():
@@ -17,7 +16,6 @@ class TaskService():
     def __init__(self):
         pass
 
-    @catch_database_exception
     def create(self, data):
         """
         :param data:
@@ -33,7 +31,6 @@ class TaskService():
             return (code, msg)
         return model.id
 
-    @catch_database_exception
     def delete(self, data):
         """
         :param data:
@@ -47,7 +44,6 @@ class TaskService():
             result = TaskModel.query.get(id)
             soft_delete(result)
 
-    @catch_database_exception
     def update(self, data):
         """
         # 使用id作为条件，更新数据库重的数据记录。
@@ -65,7 +61,6 @@ class TaskService():
             old_model.updated = datetime.datetime.now()
             db.session.commit()
 
-    @catch_database_exception
     def search(self, data):
         """
         :param data:

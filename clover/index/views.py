@@ -7,7 +7,7 @@ from clover.views import CloverView
 from clover.common import get_system_info
 from clover.common import get_python_dependency
 from clover.index.service import Service
-from clover.core.exception import catch_view_exception
+from clover.core.exception import catch_exception
 
 
 class IndexView(CloverView):
@@ -16,7 +16,7 @@ class IndexView(CloverView):
         super(IndexView, self).__init__()
         self.service = Service()
 
-    @catch_view_exception
+    @catch_exception
     def info(self):
         """
         :param data:
@@ -32,7 +32,7 @@ class IndexView(CloverView):
             'data': info
         })
 
-    @catch_view_exception
+    @catch_exception
     def count(self):
         """
         :param data:
@@ -45,7 +45,7 @@ class IndexView(CloverView):
             'data': count
         })
 
-    @catch_view_exception
+    @catch_exception
     def config(self):
         return jsonify({
             'status': 0,

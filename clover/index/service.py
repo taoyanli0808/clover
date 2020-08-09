@@ -4,12 +4,10 @@ from clover.interface.models import InterfaceModel
 from clover.environment.models import TeamModel
 from clover.environment.models import VariableModel
 from clover.keyword.models import KeywordModel
-from clover.core.exception import catch_database_exception
 
 
 class Service():
 
-    @catch_database_exception
     def count(self):
         """
         :return:

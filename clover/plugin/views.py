@@ -7,7 +7,7 @@ from flask import jsonify
 from clover.views import CloverView
 from clover.common import allowed_file
 from clover.plugin.service import PluginService
-from clover.core.exception import catch_view_exception
+from clover.core.exception import catch_exception
 
 
 class PluginView(CloverView):
@@ -16,7 +16,7 @@ class PluginView(CloverView):
         super(PluginView, self).__init__()
         self.service = PluginService()
 
-    @catch_view_exception
+    @catch_exception
     def create(self):
         """
         :return:

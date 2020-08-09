@@ -5,12 +5,10 @@ from clover.exts import db
 from clover.models import query_to_dict, soft_delete
 from clover.environment.models import TeamModel
 from clover.environment.models import VariableModel
-from clover.core.exception import catch_database_exception
 
 
 class TeamService(object):
 
-    @catch_database_exception
     def create(self, data):
         """
         :param data:
@@ -31,7 +29,6 @@ class TeamService(object):
         status = 1
         return status
 
-    @catch_database_exception
     def detele(self, data):
         """
         :param data:
@@ -42,7 +39,6 @@ class TeamService(object):
             soft_delete(model)
         return model.id
 
-    @catch_database_exception
     def update(self, data):
         """
         # 判断传的团队名和项目名是否存在，不存在则更新
@@ -72,7 +68,6 @@ class TeamService(object):
                 db.session.commit()
                 return status
 
-    @catch_database_exception
     def search(self, data):
         """
         type=team&team=team1
@@ -108,7 +103,6 @@ class TeamService(object):
         count = TeamModel.query.filter_by(**filter).count()
         return count, results
 
-    @catch_database_exception
     def aggregate(self, data):
         """
         {'type': 'team', 'key': 'team'}
@@ -156,7 +150,6 @@ class TeamService(object):
             else:
                 return []
 
-    @catch_database_exception
     def navigation(self, data):
         """
         {
@@ -180,7 +173,6 @@ class TeamService(object):
 
 class VariableService(object):
 
-    @catch_database_exception
     def create(self, data):
         """
         :param data:
@@ -199,7 +191,6 @@ class VariableService(object):
             db.session.commit()
         return count
 
-    @catch_database_exception
     def detele(self, data):
         """
         :param data:
@@ -209,7 +200,6 @@ class VariableService(object):
         if model is not None:
             soft_delete(model)
 
-    @catch_database_exception
     def update(self, data):
         """
         # 使用id作为条件，更新数据库重的数据记录。
@@ -240,7 +230,6 @@ class VariableService(object):
                 db.session.commit()
                 return status
 
-    @catch_database_exception
     def search(self, data):
         """
         type=team&team=team1
