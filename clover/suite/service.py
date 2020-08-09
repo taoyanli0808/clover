@@ -10,7 +10,7 @@ from clover.common import get_mysql_error
 from clover.models import soft_delete
 from clover.models import query_to_dict
 from clover.suite.models import SuiteModel
-from clover.interface.models import InterfaceModel
+from clover.core.exception import catch_database_exception
 
 
 class SuiteService():
@@ -18,6 +18,7 @@ class SuiteService():
     def __init__(self):
         pass
 
+    @catch_database_exception
     def create(self, data):
         """
         :param data:
@@ -33,6 +34,7 @@ class SuiteService():
             return (code, msg)
         return model.id
 
+    @catch_database_exception
     def delete(self, data):
         """
         :param data:
@@ -43,6 +45,7 @@ class SuiteService():
             result = SuiteModel.query.get(id)
             soft_delete(result)
 
+    @catch_database_exception
     def search(self, data):
         """
         :param data:
@@ -83,6 +86,7 @@ class SuiteService():
 
         return count, results
 
+    @catch_database_exception
     def trigger(self, data):
         """
         # 这里创建一个空report，然后使用celery异步运行任务，
@@ -99,6 +103,7 @@ class SuiteService():
         })
         return
 
+    @catch_database_exception
     def switch(self,data):
         """
         :param data:

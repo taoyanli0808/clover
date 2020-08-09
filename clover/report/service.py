@@ -5,9 +5,9 @@ from sqlalchemy.exc import ProgrammingError
 
 from clover.exts import db
 from clover.models import soft_delete
-from clover.models import query_to_dict
 from clover.common import friendly_datetime
 from clover.report.models import ReportModel
+from clover.core.exception import catch_database_exception
 
 
 class ReportService():
@@ -15,6 +15,7 @@ class ReportService():
     def __init__(self):
         pass
 
+    @catch_database_exception
     def create(self, data):
         """
         :param data:
@@ -25,6 +26,7 @@ class ReportService():
         db.session.commit()
         return model.to_dict()
 
+    @catch_database_exception
     def update(self, data):
         """
         # 使用id作为条件，更新数据库重的数据记录。
@@ -45,6 +47,7 @@ class ReportService():
 
         return old_model
 
+    @catch_database_exception
     def delete(self, data):
         """
         :param data:
@@ -54,6 +57,7 @@ class ReportService():
         result = ReportModel.query.get(id)
         soft_delete(result)
 
+    @catch_database_exception
     def search(self, data):
         """
         :param data:
@@ -127,6 +131,7 @@ class ReportService():
         report = ReportModel.query.get(id)
         return report.log
 
+    @catch_database_exception
     def empty_report(self, data):
         """
         :param data:

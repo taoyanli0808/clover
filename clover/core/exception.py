@@ -13,6 +13,8 @@ from flask import make_response
 from sqlalchemy.exc import SQLAlchemyError as _SQLAlchemyError
 from requests.exceptions import RequestException as _RequestException
 
+from clover.exts import db
+
 
 class CloverException(Exception):
 
@@ -69,6 +71,44 @@ def catch_exception(cls=CloverException):
                 return response
         return wrapper
     return decorator
+
+
+def catch_view_exception(func):
+    """
+    # 捕获视图异常的装饰器
+    :return:
+    """
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as error:
+            response = make_response(
+                jsonify({
+                    'status': 500,
+                    'message': str(error),
+                    'data': {
+                        'function': func.__name__
+                    }
+                }), 500
+            )
+            return response
+    return wrapper
+
+
+def catch_database_exception(func):
+    """
+    # 捕获数据库异常的装饰器
+    :return:
+    """
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except _SQLAlchemyError:
+            db.rollback()
+            return DatabaseException()
+    return wrapper
 
 
 if __name__ == '__main__':

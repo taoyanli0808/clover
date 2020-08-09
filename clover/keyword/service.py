@@ -5,10 +5,12 @@ from clover.exts import db
 from clover.core.keyword import Keyword
 from clover.models import query_to_dict, soft_delete
 from clover.keyword.models import KeywordModel
+from clover.core.exception import catch_database_exception
 
 
 class KeywordService(object):
 
+    @catch_database_exception
     def create(self, data):
         """
         # 暂时没有前端页面 -- SQL暂时不更换
@@ -35,6 +37,7 @@ class KeywordService(object):
         db.session.commit()
         return model.id
 
+    @catch_database_exception
     def delete(self, data):
         """
         :param data:
@@ -45,6 +48,7 @@ class KeywordService(object):
         if model is not None:
             soft_delete(model)
 
+    @catch_database_exception
     def update(self, data):
         """
         :param data:
@@ -61,6 +65,7 @@ class KeywordService(object):
             old_model.updated = datetime.datetime.now()
             db.session.commit()
 
+    @catch_database_exception
     def search(self, data):
         """
         :param data:
@@ -92,6 +97,7 @@ class KeywordService(object):
         count = KeywordModel.query.filter_by(**filter).count()
         return count, results
 
+    @catch_database_exception
     def debug(self, data):
         """
         # 自定义关键字中提取函数名和参数，在后面拼接出调用请求，
