@@ -5,53 +5,21 @@
 # version：1.0.0
 """
 
+import traceback
 from functools import wraps
 
 from flask import jsonify
 from flask import make_response
 
-from sqlalchemy.exc import SQLAlchemyError as _SQLAlchemyError
-from requests.exceptions import RequestException as _RequestException
+from sqlalchemy.exc import SQLAlchemyError
 
 from clover.exts import db
 
 
-class CloverException(Exception):
-
-    def __init__(self):
-        self.status = 100
-        self.message = "Clover平台内部错误！"
+class ResponseException(Exception): pass
 
 
-class DatabaseException(_SQLAlchemyError):
-
-    def __init__(self):
-        self.status = 200
-        self.message = "数据库错误，请联系管理员！"
-
-
-class RequestException(_RequestException):
-
-    def __init__(self):
-        self.status = 300
-        self.message = "被测试的接口HTTP(S)请求出错误！"
-
-
-class ResponseException(CloverException):
-
-    def __init__(self):
-        self.status = 400
-        self.message = "被测试的接口返回错误的响应！"
-
-
-class KeywordException(CloverException):
-
-    def __init__(self):
-        self.status = 500
-        self.message = "平台执行关键字发生错误！"
-
-
-def catch_exception(cls=CloverException):
+def catch_exception(cls=Exception):
     """
     # 捕获异常的装饰器，传入需要捕获的异常类型。
     #
@@ -73,29 +41,6 @@ def catch_exception(cls=CloverException):
     return decorator
 
 
-def catch_view_exception(func):
-    """
-    # 捕获视图异常的装饰器
-    :return:
-    """
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except Exception as error:
-            response = make_response(
-                jsonify({
-                    'status': 500,
-                    'message': str(error),
-                    'data': {
-                        'function': func.__name__
-                    }
-                }), 500
-            )
-            return response
-    return wrapper
-
-
 def catch_database_exception(func):
     """
     # 捕获数据库异常的装饰器
@@ -105,12 +50,46 @@ def catch_database_exception(func):
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except _SQLAlchemyError:
-            db.rollback()
-            return DatabaseException()
+        except SQLAlchemyError:
+            db.session.rollback()
     return wrapper
 
 
-if __name__ == '__main__':
-    e = CloverException()
-    print(e.__dict__)
+def catch_view_exception(func):
+    """
+    # 捕获视图异常的装饰器
+    :return:
+    """
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except SQLAlchemyError:
+            print("捕获异常")
+            db.session.rollback()
+            response = make_response(
+                jsonify({
+                    'status': 500,
+                    'message': '运行时数据库出错，请联系管理员！',
+                    'data': {
+                        'error': 'SQLAlchemyError',
+                        'function': func.__name__,
+                        'traceback': traceback.format_exc()
+                    }
+                }), 500
+            )
+            return response
+        except Exception as error:
+            response = make_response(
+                jsonify({
+                    'status': 500,
+                    'message': '运行时代码出错，请联系管理员！',
+                    'data': {
+                        'error': str(error),
+                        'function': func.__name__,
+                        'traceback': traceback.format_exc()
+                    }
+                }), 500
+            )
+            return response
+    return wrapper

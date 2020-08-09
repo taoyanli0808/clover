@@ -11,7 +11,6 @@ from clover.models import query_to_dict
 from clover.keyword.models import KeywordModel
 
 from clover.core.logger import Logger
-from clover.core.exception import KeywordException
 
 
 class Keyword(object):
@@ -107,14 +106,14 @@ class Keyword(object):
             # 从locals获取执行关键字。
             if self.function_name not in locals():
                 Logger.log("获取关键字失败！", "关键字执行")
-                raise KeywordException
+                return
             self.function = locals()[self.function_name]
 
             # 判断正则提取的参数与函数实际参数是否一致。
             parameter_count = locals()[self.function_name].__code__.co_argcount
             if len(self.parameters) != parameter_count:
                 Logger.log("执行关键字时实际参数与所需参数不匹配！", "关键字执行")
-                raise KeywordException
+                return
 
             # 从locals获取执行关键字所需参数列表。
             # parameters = []

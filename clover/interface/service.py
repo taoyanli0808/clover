@@ -141,7 +141,7 @@ class InterfaceService(object):
         return
 
     @catch_database_exception
-    def switch(self,data):
+    def switch(self, data):
         """
         :param data:
         :return:
