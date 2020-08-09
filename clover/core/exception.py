@@ -1,3 +1,9 @@
+"""
+# cloverè§†å›¾å¼‚å¸¸è£…é¥°å™¨ï¼Œå½“æ•è·è§†å›¾å¼‚å¸¸æ—¶å°†è¿”å›çŠ¶æ€ç 500å’Œå¼‚å¸¸ä¿¡æ¯ã€‚
+# author ï¼štaoyanli0808
+# date   ï¼š2020å¹´8æœˆ6æ—¥22:03:10
+# versionï¼š1.0.0
+"""
 
 from functools import wraps
 
@@ -12,42 +18,42 @@ class CloverException(Exception):
 
     def __init__(self):
         self.status = 100
-        self.message = "CloverÆ½Ì¨ÄÚ²¿´íÎó£¡"
+        self.message = "Cloverå¹³å°å†…éƒ¨é”™è¯¯ï¼"
 
 
 class DatabaseException(_SQLAlchemyError):
 
     def __init__(self):
         self.status = 200
-        self.message = "Êı¾İ¿â´íÎó£¬ÇëÁªÏµ¹ÜÀíÔ±£¡"
+        self.message = "æ•°æ®åº“é”™è¯¯ï¼Œè¯·è”ç³»ç®¡ç†å‘˜ï¼"
 
 
 class RequestException(_RequestException):
 
     def __init__(self):
         self.status = 300
-        self.message = "±»²âÊÔµÄ½Ó¿ÚHTTP(S)ÇëÇó³ö´íÎó£¡"
+        self.message = "è¢«æµ‹è¯•çš„æ¥å£HTTP(S)è¯·æ±‚å‡ºé”™è¯¯ï¼"
 
 
 class ResponseException(CloverException):
 
     def __init__(self):
         self.status = 400
-        self.message = "±»²âÊÔµÄ½Ó¿Ú·µ»Ø´íÎóµÄÏìÓ¦£¡"
+        self.message = "è¢«æµ‹è¯•çš„æ¥å£è¿”å›é”™è¯¯çš„å“åº”ï¼"
 
 
 class KeywordException(CloverException):
 
     def __init__(self):
         self.status = 500
-        self.message = "Æ½Ì¨Ö´ĞĞ¹Ø¼ü×Ö·¢Éú´íÎó£¡"
+        self.message = "å¹³å°æ‰§è¡Œå…³é”®å­—å‘ç”Ÿé”™è¯¯ï¼"
 
 
 def catch_exception(cls=CloverException):
     """
-    # ²¶»ñÒì³£µÄ×°ÊÎÆ÷£¬´«ÈëĞèÒª²¶»ñµÄÒì³£ÀàĞÍ¡£
+    # æ•è·å¼‚å¸¸çš„è£…é¥°å™¨ï¼Œä¼ å…¥éœ€è¦æ•è·çš„å¼‚å¸¸ç±»å‹ã€‚
     #
-    :param cls: Òì³£ÀàĞÍ
+    :param cls: å¼‚å¸¸ç±»å‹
     :return:
     """
     def decorator(func):
