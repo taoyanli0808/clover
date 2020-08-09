@@ -6,8 +6,7 @@ from clover.core import RESERVED
 from clover.views import CloverView
 from clover.environment.service import TeamService
 from clover.environment.service import VariableService
-from clover.core.exception import catch_exception
-from clover.core.exception import DatabaseException
+from clover.core.exception import catch_view_exception
 
 
 class TeamView(CloverView):
@@ -16,7 +15,7 @@ class TeamView(CloverView):
         super(TeamView, self).__init__()
         self.service = TeamService()
 
-    @catch_exception(DatabaseException)
+    @catch_view_exception
     def create(self):
         """
         :return:
@@ -56,7 +55,7 @@ class TeamView(CloverView):
                 'message': '创建团队项目成功',
             })
 
-    @catch_exception(DatabaseException)
+    @catch_view_exception
     def delete(self):
         """
         :return:
@@ -79,7 +78,7 @@ class TeamView(CloverView):
             'data': id
         })
 
-    @catch_exception(DatabaseException)
+    @catch_view_exception
     def update(self):
         """
         :return:
@@ -106,7 +105,7 @@ class TeamView(CloverView):
                 'message': 'ok',
             })
 
-    @catch_exception(DatabaseException)
+    @catch_view_exception
     def search(self):
         """
         :return:
@@ -121,7 +120,7 @@ class TeamView(CloverView):
             'total': total,
         })
 
-    @catch_exception(DatabaseException)
+    @catch_view_exception
     def aggregate(self):
         """
         :return:
@@ -135,7 +134,7 @@ class TeamView(CloverView):
             'data': data
         })
 
-    @catch_exception(DatabaseException)
+    @catch_view_exception
     def navigation(self):
         """
         :return:
@@ -156,7 +155,7 @@ class VariableView(CloverView):
         super(VariableView, self).__init__()
         self.service = VariableService()
 
-    @catch_exception(DatabaseException)
+    @catch_view_exception
     def create(self):
         """
         :return:
@@ -218,7 +217,7 @@ class VariableView(CloverView):
 
             })
 
-    @catch_exception(DatabaseException)
+    @catch_view_exception
     def delete(self):
         """
         :return:
@@ -239,7 +238,7 @@ class VariableView(CloverView):
             'data': id
         })
 
-    @catch_exception(DatabaseException)
+    @catch_view_exception
     def update(self):
         """
         :return:
@@ -266,7 +265,7 @@ class VariableView(CloverView):
                 'message': 'ok',
             })
 
-    @catch_exception(DatabaseException)
+    @catch_view_exception
     def search(self):
         """
         :return:

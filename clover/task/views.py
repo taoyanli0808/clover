@@ -4,6 +4,7 @@ from flask import request
 
 from clover.views import CloverView
 from clover.task.service import TaskService
+from clover.core.exception import catch_view_exception
 
 
 class TaskView(CloverView):
@@ -12,6 +13,7 @@ class TaskView(CloverView):
         super(TaskView, self).__init__()
         self.service = TaskService()
 
+    @catch_view_exception
     def create(self):
         data = request.get_json()
 
@@ -57,6 +59,7 @@ class TaskView(CloverView):
                 'data': str(error)
             })
 
+    @catch_view_exception
     def delete(self):
         data = request.get_json()
 
@@ -81,6 +84,7 @@ class TaskView(CloverView):
                 'data': data
             })
 
+    @catch_view_exception
     def update(self):
         data = request.get_json()
 
@@ -105,6 +109,7 @@ class TaskView(CloverView):
                 'data': str(error)
             })
 
+    @catch_view_exception
     def search(self):
         if request.method == 'GET':
             data = request.values.to_dict()
@@ -126,6 +131,7 @@ class TaskView(CloverView):
                 'data': str(error)
             })
 
+    @catch_view_exception
     def trigger(self):
         """
         :param data:

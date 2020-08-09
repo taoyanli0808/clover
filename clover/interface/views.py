@@ -3,8 +3,7 @@ from flask import request
 
 from clover.views import CloverView
 from clover.interface.service import InterfaceService
-from clover.core.exception import catch_exception
-from clover.core.exception import DatabaseException
+from clover.core.exception import catch_view_exception
 
 
 class InterfaceView(CloverView):
@@ -13,7 +12,7 @@ class InterfaceView(CloverView):
         super(InterfaceView, self).__init__()
         self.service = InterfaceService()
 
-    @catch_exception(DatabaseException)
+    @catch_view_exception
     def create(self):
         data = request.get_json()
 
@@ -76,7 +75,7 @@ class InterfaceView(CloverView):
             },
         })
 
-    @catch_exception(DatabaseException)
+    @catch_view_exception
     def delete(self):
         data = request.get_json()
 
@@ -94,7 +93,7 @@ class InterfaceView(CloverView):
             'data': count,
         })
 
-    @catch_exception(DatabaseException)
+    @catch_view_exception
     def update(self):
         data = request.get_json()
 
@@ -116,7 +115,7 @@ class InterfaceView(CloverView):
             },
         })
 
-    @catch_exception(DatabaseException)
+    @catch_view_exception
     def search(self):
 
         if request.method == 'GET':
@@ -132,7 +131,7 @@ class InterfaceView(CloverView):
             'total': count,
         })
 
-    @catch_exception(DatabaseException)
+    @catch_view_exception
     def trigger(self):
         # 这里支持GET与POST请求，获取参数方法不同。
         if request.method == 'GET':
@@ -155,7 +154,7 @@ class InterfaceView(CloverView):
             'data': result,
         })
 
-    @catch_exception(DatabaseException)
+    @catch_view_exception
     def switch(self):
         data = request.get_json()
 

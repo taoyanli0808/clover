@@ -2,9 +2,8 @@ from flask import jsonify
 from flask import request
 
 from clover.views import CloverView
-from clover.core.exception import catch_exception
-from clover.core.exception import DatabaseException
 from clover.report.service import ReportService
+from clover.core.exception import catch_view_exception
 
 
 class ReportView(CloverView):
@@ -13,14 +12,14 @@ class ReportView(CloverView):
         super(ReportView, self).__init__()
         self.service = ReportService()
 
-    @catch_exception(DatabaseException)
+    @catch_view_exception
     def create(self):
         """
         :return:
         """
         pass
 
-    @catch_exception(DatabaseException)
+    @catch_view_exception
     def delete(self):
         """
         :return:
@@ -52,11 +51,11 @@ class ReportView(CloverView):
                 'data': str(error)
             })
 
-    @catch_exception(DatabaseException)
+    @catch_view_exception
     def update(self):
         pass
 
-    @catch_exception(DatabaseException)
+    @catch_view_exception
     def search(self):
         """
         :return:
@@ -81,7 +80,7 @@ class ReportView(CloverView):
                 'data': str(error)
             })
 
-    @catch_exception(DatabaseException)
+    @catch_view_exception
     def log(self):
         """
         :return:

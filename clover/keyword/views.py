@@ -4,8 +4,7 @@ from flask import jsonify
 
 from clover.views import CloverView
 from clover.keyword.service import KeywordService
-from clover.core.exception import catch_exception
-from clover.core.exception import DatabaseException
+from clover.core.exception import catch_view_exception
 
 
 class KeywordView(CloverView):
@@ -14,7 +13,7 @@ class KeywordView(CloverView):
         super(KeywordView, self).__init__()
         self.service = KeywordService()
 
-    @catch_exception(DatabaseException)
+    @catch_view_exception
     def create(self):
         """
         :return:
@@ -42,7 +41,7 @@ class KeywordView(CloverView):
             'data': result
         })
 
-    @catch_exception(DatabaseException)
+    @catch_view_exception
     def delete(self):
         """
         :return:
@@ -63,7 +62,7 @@ class KeywordView(CloverView):
             'data': id
         })
 
-    @catch_exception(DatabaseException)
+    @catch_view_exception
     def update(self):
         """
         :return:
@@ -84,7 +83,7 @@ class KeywordView(CloverView):
             'data': id
         })
 
-    @catch_exception(DatabaseException)
+    @catch_view_exception
     def search(self):
         """
         :return:
@@ -99,7 +98,7 @@ class KeywordView(CloverView):
             'total': total,
         })
 
-    @catch_exception(DatabaseException)
+    @catch_view_exception
     def debug(self):
         """
         :return:
