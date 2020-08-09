@@ -97,32 +97,3 @@ class TaskService():
         results = query_to_dict(results)
         count = TaskModel.query.filter_by(**filter).count()
         return count, results
-
-    @catch_database_exception
-    def trigger(self, data):
-        """
-        # 这里创建一个空report，然后使用celery异步运行任务，
-        # 当celery执行完毕后使用空report的id更新报告。
-        :param data:
-        :return:
-        """
-        # 创建空的report并提交
-        # report_service = ReportService()
-        # report = report_service.empty_report(data)
-        # report = report.to_dict()
-        #
-        # # 通过接口传递过来的suite id来查询需要运行的接口。
-        # id = data.get('id')
-        # suite = SuiteModel.query.get(id)
-        # cases = db.session.query(
-        #     InterfaceModel
-        # ).filter(
-        #     InterfaceModel.id.in_(suite.cases)
-        # ).all()
-        # cases = query_to_dict(cases)
-        #
-        # # 使用celery异步运行的接口任务。
-        # interface_task.delay(cases, data, report)
-        #
-        # return report
-        pass
