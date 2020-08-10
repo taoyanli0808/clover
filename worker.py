@@ -112,9 +112,8 @@ class Groups(object):
 class Consumers(object):
 
     def __init__(self):
-        self.executor = Executor()
-        self.context = Context()
         super().__init__()
+        self.obj = Run()
 
     def start_run(self, group_name, consumer_name):
         last_id = '0-0'  # 从0-0开始遍历stream，保证第一次遍历到所有消息
@@ -135,18 +134,6 @@ class Consumers(object):
                 logger.info('异步任务全部处理完毕,正在轮询等待...5s...')
                 time.sleep(5)
                 continue
-                # try:
-                #     logger.info('Info Stream: {} \n'.format(redis.xinfo_stream(stream_name)))
-                #     # logger.info('Info Group: {} \n'.format(redis.xinfo_groups(group_name)))
-                #     logger.info('Info consumer: {} \n'.format(redis.xinfo_consumers(stream_name, group_name)))
-                #     logger.info('Info pending: {} \n'.format(redis.xpending(stream_name, group_name)))
-                # except exceptions.ResponseError as e:
-                #     logger.error(e)
-                #     continue
-                # else:
-                #     continue
-                # finally:
-                #     time.sleep(5)  # 轮询间隔 5s
 
             check_backlog = False if len(items[0][1]) == 0 else True
             for item_id, fields in items[0][1]:
@@ -154,26 +141,16 @@ class Consumers(object):
                 logger.info(f'消息队列: {stream_name}')
                 logger.info(f'消费者组名: {group_name}')
                 logger.info(f'消费者名: {consumer_name}')
-                # if not fields.get('businessData'):
-                #     logger.debug(f'没有业务数据businessData: {fields}')
-                #     redis.xdel(stream_name, item_id)
-                #     redis.xadd(stream_name + '_fail',
-                #                {'id': item_id, 'businessData': {'error': '缺少businessData'}},
-                #                maxlen=100)
-                #     # time.sleep(5)
-                #     continue
                 try:
                     logger.info('...开始执行异步任务...')
                     logger.debug(json.loads(fields['businessData']))
-                    self.context.build_context(json.loads(fields['businessData']))
-                    self.executor.execute(self.context)
+                    self.obj.executor_run(json.loads(fields['businessData']))
                     logger.info('...异步任务执行完成...')
                 except Exception as e:
-                    logger.error(e)
+                    logger.exception(e)
                     redis.xdel(stream_name, item_id)
                     redis.xadd(stream_name + '_fail', {'id': item_id, 'businessData': fields['businessData']},
                                maxlen=100)
-                    logger.exception(e)
                     # 如果不删除消息，下次重新启动worker时会再次运行pending中的任务（有重复执行的问题）
                     # TODO: 增加错误消息、死消息的监控处理（单独线程）。存在时间和统计次数两个维度判断死消息
                 else:
@@ -185,6 +162,18 @@ class Consumers(object):
 
     def delete(self, group_name, consumer_name):
         redis.xgroup_delconsumer(stream_name, group_name, consumer_name)
+
+
+class Run(object):
+
+    def __init__(self):
+        super(Run, self).__init__()
+        self.executor = Executor()
+        self.context = Context()
+
+    def executor_run(self, data):
+        self.context.build_context(data)
+        self.executor.execute(self.context)
 
 
 def main():

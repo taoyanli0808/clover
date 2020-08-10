@@ -1,6 +1,6 @@
 # Clover全局配置
 DEBUG = True
-VERSION = '1.4.0'
+VERSION = '1.4.1'
 DOMAIN = 'http://demo.52clover.cn'
 
 # 全局功能配置
@@ -9,8 +9,8 @@ GLOBALS = {
         'connect': 3,
         'read': 60,
     },  # 全局接口超时配置，默认链接超时3秒，读超时60秒。
-    'retry': 2,     # 全局接口重试配置，默认2次。
-    'performance': 1000,       # 接口性能要求，1000ms以内。
+    'retry': 2,  # 全局接口重试配置，默认2次。
+    'performance': 1000,  # 接口性能要求，1000ms以内。
 }
 
 # MySQL数据库配置
@@ -20,8 +20,9 @@ MYSQL = {
     'host': '127.0.0.1',
     'port': '3306',
 }
-SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{pswd}@{host}:{port}/clover?charset=UTF8MB4'.format(**MYSQL)
-SQLALCHEMY_TRACK_MODIFICATIONS=True
+SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{pswd}@{host}:{port}/clover?charset=UTF8MB4&autocommit=true'.format(**MYSQL)
+SQLALCHEMY_TRACK_MODIFICATIONS = True
+SQLALCHEMY_ECHO = True
 
 # 使用redis作为消息队列
 REDIS_HOST = '127.0.0.1'
@@ -31,9 +32,9 @@ REDIS_STREAM_NAME = 'clover'
 
 # 功能控制，True则生效，False则无效
 MODULE = {
-    'join': True,   # 展示加入我们
+    'join': True,  # 展示加入我们
     'task': False,  # 开发中的定时任务
-    'keyword': True, # 开发中的关键字配置
+    'keyword': True,  # 开发中的关键字配置
 }
 
 NOTIFY = {
@@ -43,12 +44,12 @@ NOTIFY = {
     'channel': {
         'email': {
             'sender': 'zwx_towatt@126.com',
-            'receiver': ['273518152@qq.com','zhouwenxi@towatt.com'],
+            'receiver': ['273518152@qq.com', 'zhouwenxi@towatt.com'],
             'password': 'BFADJBLHHEXYWVMI',
             'smtp_host': 'smtp.126.com',
 
         },
-        'wechat': 'b16f15f9-fda5-4894-9e3f-ae87542958c8',    #这里是企微机器人的KEY配置
-        'dingtalk': '4dd0b68415aabe0c6f36bb6a529a6fda6d128ae72ba8b69970f90398c69b36dd',    #这里是钉钉机器人的access_token配置
+        'wechat': 'b16f15f9-fda5-4894-9e3f-ae87542958c8',  # 这里是企微机器人的KEY配置
+        'dingtalk': '4dd0b68415aabe0c6f36bb6a529a6fda6d128ae72ba8b69970f90398c69b36dd',  # 这里是钉钉机器人的access_token配置
     },
 }
