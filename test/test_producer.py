@@ -3,6 +3,7 @@ import time
 
 from clover.core.producer import Producer
 from clover.core.consumer import Consumer
+from clover.interface.service import a
 
 
 class TestMessage(unittest.TestCase):
@@ -23,9 +24,10 @@ class TestMessage(unittest.TestCase):
                 'params': [{'key': 'ip', 'value': '63.223.108.42'}], 'path': '/service/getIpInfo.php',
                 'project': '人脸识别', 'sub_type': 'None', 'team': '计算机视觉', 'type': 'None', 'updated': '2020-01-11 14:58:32',
                 'verify': [{'comparator': '', 'convertor': '', 'expected': '', 'expression': '', 'extractor': ''}]}
-        for i in range(5):
+        for i in range(10):
             self.mq.send(data)
             time.sleep(0.1)
+            a(i)
 
     def test_read(self):
         self.cm.read()
