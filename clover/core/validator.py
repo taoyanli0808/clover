@@ -202,7 +202,7 @@ class Validator():
         :param expected:
         :return:
         """
-        return value in expected
+        return expected in value
 
     def not_contain(self, value, expected):
         """
@@ -210,7 +210,7 @@ class Validator():
         :param expected:
         :return:
         """
-        return value not in expected
+        return expected not in value
 
     def greater(self, value, expected):
         """
