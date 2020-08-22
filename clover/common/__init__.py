@@ -4,6 +4,11 @@ import time
 import json
 import platform
 import datetime
+import functools
+
+from flask import request
+from flask import jsonify
+from flask import make_response
 
 from clover.config import VERSION
 
@@ -105,3 +110,23 @@ class CloverJSONEncoder(json.JSONEncoder):
             return data.strftime('%Y-%m-%d %H:%M:%S')
         else:
             return json.JSONEncoder.default(self, data)
+
+
+def invalid_request_method(func):
+    """
+    # 捕获视图异常的装饰器
+    :return:
+    """
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if request.method != 'POST':
+            response = make_response(
+                jsonify({
+                    'status': 400,
+                    'message': '请使用POST请求代替{}请求！'.format(request.method),
+                    'data': {}
+                }), 400
+            )
+            return response
+        return func(*args, **kwargs)
+    return wrapper
