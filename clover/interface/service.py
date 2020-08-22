@@ -144,3 +144,78 @@ class InterfaceService(object):
         old_model.updated = datetime.datetime.now()
         db.session.commit()
         return
+
+    def tree(self, data):
+        """
+        # 使用element ui的tree控件展示团队，项目与接口的关系，
+        # 数据结构文档详见：https://element.eleme.cn/#/zh-CN/component/tree
+        [
+            {
+                label: ${team name},
+                team: ${team name},
+                children: [
+                    {
+                        label: ${project name},
+                        project: ${project name},
+                        children: [
+                            {
+                                id: ${case id},
+                                label: ${case name}
+                            },
+                            {
+                                id: ${case id},
+                                label: ${case name}
+                            },
+                        ]
+                    }
+                ]
+            }
+        ]
+        :param data:
+        :return: 所有数据
+        """
+        results = db.session.query(
+            InterfaceModel.id,
+            InterfaceModel.team,
+            InterfaceModel.project,
+            InterfaceModel.name
+        ).filter(
+            InterfaceModel.enable == 0
+        )
+
+        # 将数据转化为字典形式
+        results = [dict(zip(result.keys(), result)) for result in results]
+
+        # 第一次组合数据，使用字典层级嵌套
+        trees = {}
+        for result in results:
+            if result['team'] not in trees:
+                trees.setdefault(result['team'], {})
+
+            if result['project'] not in trees[result['team']]:
+                trees[result['team']].setdefault(result['project'], [])
+
+            trees[result['team']][result['project']].append({
+                'id': result['id'],
+                'name': result['name'],
+                'label': result['name'],
+            })
+
+        # data为符合element ui的tree控件要求的数据格式
+        data = []
+        for t, v in trees.items():
+            team = {
+                'label': t,
+                'team': t,
+                'children': []
+            }
+            for p, v in v.items():
+                project = {
+                    'label': p,
+                    'project': p,
+                    'children': v
+                }
+                team['children'].append(project)
+            data.append(team)
+
+        return data

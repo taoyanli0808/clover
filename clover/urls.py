@@ -173,6 +173,12 @@ def map_urls(app):
         methods=['POST'],
         strict_slashes=False,
     )
+    app.add_url_rule(
+        "/api/v1/interface/tree",
+        view_func=interface,
+        methods=['POST'],
+        strict_slashes=False,
+    )
 
     # 测试套件相关路由与视图
     suite = Suite.as_view("suite")

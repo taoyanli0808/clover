@@ -29,7 +29,6 @@ def catch_exception(func):
         try:
             return func(*args, **kwargs)
         except SQLAlchemyError:
-            print("捕获异常")
             db.session.rollback()
             response = make_response(
                 jsonify({
