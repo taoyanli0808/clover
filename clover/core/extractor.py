@@ -2,10 +2,12 @@
 import re
 import json
 
+import jmespath
+
 
 class Extractor():
 
-    VALID_TYPE = ['delimiter', 'regular', 'keyword']
+    VALID_TYPE = ['delimiter', 'jemspath', 'regular', 'keyword']
 
     def __init__(self, type=''):
         """
@@ -22,6 +24,11 @@ class Extractor():
         """
         if self.type == 'delimiter':
             return self.extract_by_delimiter(data, expression, separator)
+        elif self.type == 'jemspath':
+            try:
+                return jmespath.search(expression, json.loads(data))
+            except Exception:
+                return data
         elif self.type == 'regular':
             return self.extract_by_re(data, expression)
         elif self.type == 'keyword':
@@ -88,7 +95,9 @@ class Extractor():
 
 
 if __name__ == '__main__':
-    extract = Extractor()
+    extract = Extractor('jemspath')
     data = '{"status": 0, "message": "ok", "data": [{"price": "13"}, {"price": "15"}]}'
-    print(extract.extract_by_delimiter(data, "data.-1.price"))
-    print(extract.extract_by_re(data, r'\"status\": (.*?),'))
+    # print(extract.extract_by_delimiter(data, "data.-1.price"))
+    # print(extract.extract_by_re(data, r'\"status\": (.*?),'))
+    print(extract.extract(data, 'data[-1].price'))
+    print(extract.extract(data, 'status'))

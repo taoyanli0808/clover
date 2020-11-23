@@ -85,7 +85,7 @@ class Validator():
             try:
                 # 判断提取器是否合法，只支持三种提取器
                 _extractor = verify.get('extractor', 'delimiter')
-                if _extractor not in ['delimiter', 'regular', 'keyword']:
+                if _extractor not in Extractor.VALID_TYPE:
                     # 这里最好给一个报错
                     continue
                 # 提取需要进行断言的数据
@@ -100,7 +100,6 @@ class Validator():
                         _expression = expression[index+1:]
                         if _expression == 'status':
                             _variable = response.status
-                            status_verify = True
                         elif _expression == 'elapsed':
                             _variable = response.elapsed
                         elif 'header' in _expression:
