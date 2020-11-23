@@ -9,3 +9,4 @@ gunicorn>=19.0.0
 gevent==1.4.0
 redis==3.4.1
 loguru==0.5.1
+jemspath>=0.9.0
