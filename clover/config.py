@@ -1,6 +1,6 @@
 # Clover全局配置
 DEBUG = True
-VERSION = '1.4.1'
+VERSION = '1.5.0'
 DOMAIN = 'http://demo.52clover.cn'
 
 # 全局功能配置
@@ -22,7 +22,7 @@ MYSQL = {
 }
 SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{pswd}@{host}:{port}/clover?charset=UTF8MB4&autocommit=true'.format(**MYSQL)
 SQLALCHEMY_TRACK_MODIFICATIONS = True
-SQLALCHEMY_ECHO = True
+# SQLALCHEMY_ECHO = True
 
 # 使用redis作为消息队列
 REDIS_HOST = '127.0.0.1'
@@ -39,12 +39,12 @@ MODULE = {
 
 NOTIFY = {
     # 通知的触发事件，成功时通知还是失败时通知
-    'event': ['success', 'failed'],
+    'event': ['success', 'skipped', 'failed', 'error'],
     # 通知的方式，企业微信还是email，或则配置的其它方式
     'channel': {
         'email': {
             'sender': 'zwx_towatt@126.com',
-            'receiver': ['273518152@qq.com', 'zhouwenxi@towatt.com'],
+            'receiver': ['273518152@qq.com', 'zhouwenxi@towatt.com', '3317434061@qq.com'],
             'password': 'BFADJBLHHEXYWVMI',
             'smtp_host': 'smtp.126.com',
 
