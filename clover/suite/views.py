@@ -79,7 +79,38 @@ class SuiteView(CloverView):
 
     @catch_exception
     def update(self):
-        pass
+        if request.method == 'GET':
+            data = request.values.to_dict()
+        else:
+            data = request.get_json()
+
+        if 'id' not in data or not data['id']:
+            return jsonify({
+                'status': 400,
+                'message': '请填写套件ID！',
+                'data': data
+            })
+
+        if 'name' not in data or not data['name']:
+            return jsonify({
+                'status': 400,
+                'message': '请填写套件名称！',
+                'data': data
+            })
+
+        if 'cases' not in data or not data['cases']:
+            return jsonify({
+                'status': 400,
+                'message': '请选择要更新套件的用例！',
+                'data': data
+            })
+
+        result = self.service.update(data)
+        return jsonify({
+            'status': 0,
+            'message': 'success',
+            'data': result,
+        })
 
     @catch_exception
     def search(self):

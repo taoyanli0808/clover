@@ -37,12 +37,40 @@ class SuiteService():
             result = SuiteModel.query.get(id)
             soft_delete(result)
 
+    def update(self, data):
+        """
+        # 使用id作为条件，更新数据库重的数据记录。
+        # 通过id查不到数据时增作为一条新的记录存入。
+        :param data:
+        :return:
+        """
+        old_model = SuiteModel.query.get(data['id'])
+        if old_model is None:
+            model = SuiteModel(**data)
+            db.session.add(model)
+            db.session.commit()
+            old_model = model
+        else:
+            {setattr(old_model, k, v) for k, v in data.items()}
+            old_model.updated = datetime.datetime.now()
+            db.session.commit()
+
+        return old_model.id
+
     def search(self, data):
         """
         :param data:
         :return:
         """
         filter = {'enable': 0}
+
+        # 如果按照id查询则返回唯一的数据或None
+        if 'id' in data and data['id']:
+            filter.setdefault('id', data.get('id'))
+            result = SuiteModel.query.get(data['id'])
+            count = 1 if result else 0
+            result = result.to_dict() if result else None
+            return count, result
 
         if 'team' in data and data['team']:
             filter.setdefault('team', data.get('team'))
@@ -60,11 +88,20 @@ class SuiteService():
         except TypeError:
             limit = 10
 
-        results = SuiteModel.query.filter_by(
-            **filter
-        ).order_by(
-            SuiteModel.created.desc()
-        ).offset(offset).limit(limit)
+        if 'caseName' in data and data['caseName']:
+            results = SuiteModel.query.filter_by(
+                **filter
+            ).filter(
+                SuiteModel.name.like('%' + data['caseName'] + '%')
+            ).order_by(
+                SuiteModel.created.desc()
+            ).offset(offset).limit(limit)
+        else:
+            results = SuiteModel.query.filter_by(
+                **filter
+            ).order_by(
+                SuiteModel.created.desc()
+            ).offset(offset).limit(limit)
 
         results = query_to_dict(results)
 
