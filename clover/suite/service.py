@@ -55,7 +55,7 @@ class SuiteService():
             old_model.updated = datetime.datetime.now()
             db.session.commit()
 
-        return old_model.id
+        return old_model.to_dict()
 
     def search(self, data):
         """
