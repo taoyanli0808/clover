@@ -110,7 +110,12 @@ class SuiteService():
             if result['status'] == None:
                 result['status'] = True
 
-        count = SuiteModel.query.filter_by(**filter).count()
+        if 'caseName' in data and data['caseName']:
+            count = SuiteModel.query.filter_by(**filter).filter(
+                SuiteModel.name.like('%' + data['caseName'] + '%')
+            ).count()
+        else:
+            count = SuiteModel.query.filter_by(**filter).count()
 
         return count, results
 
