@@ -34,7 +34,7 @@ REDIS_STREAM_NAME = 'clover'
 MODULE = {
     'join': True,  # 展示加入我们
     'task': False,  # 开发中的定时任务
-    'keyword': True,  # 开发中的关键字配置
+    'keyword': False,  # 开发中的关键字配置
 }
 
 NOTIFY = {
