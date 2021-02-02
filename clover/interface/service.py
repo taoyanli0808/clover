@@ -105,11 +105,20 @@ class InterfaceService(object):
         except TypeError:
             limit = 10
 
-        results = InterfaceModel.query.filter_by(
-            **filter
-        ).order_by(
-            InterfaceModel.created.desc()
-        ).offset(offset).limit(limit)
+        if 'caseName' in data and data['caseName']:
+            results = InterfaceModel.query.filter_by(
+                **filter
+            ).filter(
+                InterfaceModel.name.like('%' + data['caseName'] + '%')
+            ).order_by(
+                InterfaceModel.created.desc()
+            ).offset(offset).limit(limit)
+        else:
+            results = InterfaceModel.query.filter_by(
+                **filter
+            ).order_by(
+                InterfaceModel.created.desc()
+            ).offset(offset).limit(limit)
 
         results = query_to_dict(results)
 
@@ -117,7 +126,13 @@ class InterfaceService(object):
             if result['status'] == None:
                 result['status'] = True
 
-        count = InterfaceModel.query.filter_by(**filter).count()
+        if 'caseName' in data and data['caseName']:
+            count = InterfaceModel.query.filter_by(**filter).filter(
+                InterfaceModel.name.like('%' + data['caseName'] + '%')
+            ).count()
+        else:
+            count = InterfaceModel.query.filter_by(**filter).count()
+
         return count, results
 
     def trigger(self, data):
