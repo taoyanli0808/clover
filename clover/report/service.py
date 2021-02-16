@@ -84,15 +84,28 @@ class ReportService():
         except TypeError:
             limit = 10
 
-        results = ReportModel.query.with_entities(
-            ReportModel.id, ReportModel.team, ReportModel.project,
-            ReportModel.name, ReportModel.type, ReportModel.interface,
-            ReportModel.duration, ReportModel.start, ReportModel.end
-        ).filter_by(
-            **filter
-        ).order_by(
-            ReportModel.created.desc()
-        ).offset(offset).limit(limit)
+        if 'name' in data and data['name']:
+            results = ReportModel.query.with_entities(
+                ReportModel.id, ReportModel.team, ReportModel.project,
+                ReportModel.name, ReportModel.type, ReportModel.interface,
+                ReportModel.duration, ReportModel.start, ReportModel.end
+            ).filter_by(
+                **filter
+            ).filter(
+                ReportModel.name.like('%' + data['name'] + '%')
+            ).order_by(
+                ReportModel.created.desc()
+            ).offset(offset).limit(limit)
+        else:
+            results = ReportModel.query.with_entities(
+                ReportModel.id, ReportModel.team, ReportModel.project,
+                ReportModel.name, ReportModel.type, ReportModel.interface,
+                ReportModel.duration, ReportModel.start, ReportModel.end
+            ).filter_by(
+                **filter
+            ).order_by(
+                ReportModel.created.desc()
+            ).offset(offset).limit(limit)
 
         results = [{
             'id': result.id,
@@ -111,7 +124,12 @@ class ReportService():
             if 'sikped' in result['interface']:
                 result['interface'].update({'skiped': result['interface'].pop("sikped")})
 
-        count = ReportModel.query.filter_by(**filter).count()
+        if 'name' in data and data['name']:
+            count = ReportModel.query.filter_by(**filter).filter(
+                ReportModel.name.like('%' + data['name'] + '%')
+            ).count()
+        else:
+            count = ReportModel.query.filter_by(**filter).count()
 
         return count, results
 
