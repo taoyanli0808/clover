@@ -1,7 +1,9 @@
 # Clover全局配置
 DEBUG = True
-VERSION = '1.8.0'
+VERSION = '1.8.2'
 DOMAIN = 'http://demo.52clover.cn'
+
+SECRET_KEY = '52.Clover'
 
 # 全局功能配置
 GLOBALS = {
