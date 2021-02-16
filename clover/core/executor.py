@@ -52,7 +52,7 @@ class Executor():
         :return:
         """
         # 注意需要在执行最前端实例化report，report初始化时会记录开始时间点。
-        report, details = Report(), []
+        cookies, report, details = None, Report(), []
         """
         # 注意，变量对象必须在循环外被实例化，变量声明周期与执行器相同。
         # 使用团队和项目属性查询平台预置的自定义变量，通过触发时传递。
@@ -68,7 +68,7 @@ class Executor():
             detail = {'name': case.name}
             detail.setdefault('start', friendly_datetime(datetime.datetime.now()))
 
-            request = Request(case)
+            request = Request(case, cookies)
             response = None
             validator = Validator()
 
@@ -78,6 +78,7 @@ class Executor():
                 # 当用例设置跳过时不进行接口请求。
                 if case.status:
                     response = request.send_request()
+                    cookies = response.cookies
 
                 # 当用例跳过或接口请求异常时，response是None，此时设置elapsed为0
                 elapsed = response.elapsed if response is not None else 0

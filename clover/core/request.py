@@ -3,7 +3,6 @@ import time
 from clover import config
 
 from requests import request
-from requests.utils import dict_from_cookiejar
 from requests.exceptions import InvalidURL
 from requests.exceptions import ReadTimeout
 from requests.exceptions import MissingSchema
@@ -18,11 +17,12 @@ from clover.core.exception import ResponseException
 
 class Request(object):
 
-    def __init__(self, case):
+    def __init__(self, case, cookies=None):
         """
         :param case:
+        :param cookies:
         """
-        self.cookies = None
+        self.cookies = cookies
         self.method = self.set_method(case.method)
         self.host, self.path, self.url = case.host, case.path, case.host + case.path
         self.header = self.set_header(case.header)
@@ -145,8 +145,6 @@ class Request(object):
                 cookies=self.cookies,
                 timeout=self.timeout
             )
-            self.cookies = dict_from_cookiejar(response.cookies)
-            print(self.cookies)
             Logger.log("发送http请求成功，响应码[{}]".format(response.status_code), "发送请求")
             Logger.log("发送http请求成功，请求耗时[{}]".format(response.elapsed), "发送请求")
             Logger.log("发送http请求成功，请求响应[{}]".format(response.text), "发送请求", 'debeg')
