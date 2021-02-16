@@ -1,6 +1,6 @@
 # Clover全局配置
 DEBUG = True
-VERSION = '1.5.0'
+VERSION = '1.8.0'
 DOMAIN = 'http://demo.52clover.cn'
 
 # 全局功能配置
