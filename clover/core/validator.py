@@ -79,6 +79,15 @@ class Validator():
         :param variable:
         :return:
         """
+        if not case.status:
+            self.status = 'skiped'
+            Logger.log("断言，执行退出[{}]".format('用例状态为跳过执行'), "执行断言", level='warn')
+            return
+
+        if self.status == 'error':
+            Logger.log("断言，执行退出[{}]".format('用例状态为执行异常'), "执行断言", level='warn')
+            return
+
         self.set_default_verify(case)
         for verify in case.verify:
             _extractor, _expression, _variable, _expected, comparator = None, None, None, None, None

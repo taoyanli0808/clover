@@ -18,9 +18,9 @@ class Report():
         :param logger:
         :return:
         """
-        case = context.case[0].id
-        type = context.case[0].type
-        sub_type = context.case[0].sub_type
+        case = context.cases[0].id
+        type = context.cases[0].type
+        sub_type = context.cases[0].sub_type
         return {
             'type': type,
             'sub_type': sub_type,

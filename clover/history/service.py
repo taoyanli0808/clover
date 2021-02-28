@@ -2,6 +2,8 @@
 
 import datetime
 
+from sqlalchemy import and_
+
 from clover.exts import db
 
 from clover.models import soft_delete
@@ -20,7 +22,7 @@ class HistoryService(object):
         model = HistoryModel(**data)
         db.session.add(model)
         db.session.commit()
-        return model.id
+        return model.sid, model.cid
 
     def delete(self, data):
         """
@@ -38,18 +40,13 @@ class HistoryService(object):
         :param data:
         :return:
         """
-        old_model = HistoryModel.query.get(data['id'])
-        if old_model is None:
-            model = HistoryModel(**data)
-            db.session.add(model)
-            db.session.commit()
-            old_model = model
-        else:
-            {setattr(old_model, k, v) for k, v in data.items()}
-            old_model.updated = datetime.datetime.now()
-            db.session.commit()
-
-        return old_model.id
+        model = HistoryModel.query.filter(
+            and_(HistoryModel.sid == data['sid'], HistoryModel.cid == data['cid'])
+        ).first()
+        {setattr(model, k, v) for k, v in data.items()}
+        model.updated = datetime.datetime.now()
+        db.session.commit()
+        return model.sid, model.cid
 
     def search(self, data):
         """
@@ -59,9 +56,12 @@ class HistoryService(object):
         filter = {'enable': 0}
 
         # 如果按照id查询则返回唯一的数据或None
-        if 'id' in data and data['id']:
-            filter.setdefault('id', data.get('id'))
-            result = HistoryModel.query.get(data['id'])
+        if ('sid' in data and data['sid']) and ('cid' in data and data['cid']):
+            filter.setdefault('sid', data.get('sid'))
+            filter.setdefault('cid', data.get('cid'))
+            result = HistoryModel.query.filter(
+                and_(HistoryModel.sid == data['sid'], HistoryModel.cid == data['cid'])
+            ).first()
             count = 1 if result else 0
             result = result.to_dict() if result else None
             return count, result

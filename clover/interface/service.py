@@ -145,6 +145,7 @@ class InterfaceService(object):
             'type': 'interface',
             'sub_type': 'interface',
             'id': data.get('id'),
+            'name': data.get('name'),
             'user': data,
         })
         return
