@@ -5,6 +5,7 @@
 from clover.environment.views import TeamView as Team
 from clover.keyword.views import KeywordView as Keyword
 from clover.environment.views import VariableView as Variable
+from clover.history.views import HistoryView as History
 from clover.interface.views import InterfaceView as Interface
 from clover.suite.views import SuiteView as Suite
 from clover.report.views import ReportView as Report
@@ -12,6 +13,7 @@ from clover.index.views import IndexView as Index
 from clover.task.views import TaskView as Task
 from clover.plugin.views import PluginView as Plugin
 from clover.dashboard.views import DashboardView as Dashboard
+from clover.mock.views import MockView as Mock
 
 
 def map_urls(app):
@@ -294,5 +296,63 @@ def map_urls(app):
         "/api/v1/dashboard/suite",
         view_func=dashboard,
         methods=['GET', 'POST'],
+        strict_slashes=False,
+    )
+
+    mock = Mock.as_view("mock")
+    app.add_url_rule(
+        "/api/v1/mock/login",
+        view_func=mock,
+        methods=['GET'],
+        strict_slashes=False,
+    )
+    app.add_url_rule(
+        "/api/v1/mock/create",
+        view_func=mock,
+        methods=['GET'],
+        strict_slashes=False,
+    )
+    app.add_url_rule(
+        "/api/v1/mock/delete",
+        view_func=mock,
+        methods=['GET'],
+        strict_slashes=False,
+    )
+    app.add_url_rule(
+        "/api/v1/mock/update",
+        view_func=mock,
+        methods=['GET'],
+        strict_slashes=False,
+    )
+    app.add_url_rule(
+        "/api/v1/mock/search",
+        view_func=mock,
+        methods=['GET'],
+        strict_slashes=False,
+    )
+
+    history = History.as_view("history")
+    app.add_url_rule(
+        "/api/v1/mock/create",
+        view_func=history,
+        methods=['GET'],
+        strict_slashes=False,
+    )
+    app.add_url_rule(
+        "/api/v1/mock/delete",
+        view_func=history,
+        methods=['GET'],
+        strict_slashes=False,
+    )
+    app.add_url_rule(
+        "/api/v1/mock/update",
+        view_func=history,
+        methods=['GET'],
+        strict_slashes=False,
+    )
+    app.add_url_rule(
+        "/api/v1/mock/search",
+        view_func=history,
+        methods=['GET'],
         strict_slashes=False,
     )

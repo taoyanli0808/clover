@@ -65,20 +65,13 @@ class ReportView(CloverView):
         else:
             data = request.get_json()
 
-        try:
-            count, results = self.service.search(data)
-            return jsonify({
-                'status': 0,
-                'message': '成功检索到{}条数据'.format(count),
-                'data': results,
-                'total': count
-            })
-        except Exception as error:
-            return jsonify({
-                'status': 500,
-                'message': '检索异常，请联系管理员！',
-                'data': str(error)
-            })
+        count, results = self.service.search(data)
+        return jsonify({
+            'status': 0,
+            'message': '成功检索到{}条数据'.format(count),
+            'data': results,
+            'total': count
+        })
 
     @catch_exception
     def log(self):
