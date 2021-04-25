@@ -20,6 +20,7 @@ class ReportModel(CloverModel):
     platform = db.Column(db.JSON, comment="clover，python和平台信息")
     detail = db.Column(db.JSON, comment="用例执行细节信息")
     log = db.Column(db.JSON, comment="用例执行日志信息")
-    enable = db.Column(db.Integer, default=0, comment="0有效，1无效")
+    valid = db.Column(db.Integer, default=0, comment="报告是否有效|0有效，1无效")
+    enable = db.Column(db.Integer, default=0, comment="记录是否有效|0有效，1无效")
     created = db.Column(db.DateTime, default=datetime.datetime.now, comment="创建时间")
     updated = db.Column(db.DateTime, default=datetime.datetime.now, comment="修改时间")

@@ -76,6 +76,7 @@ class Executor():
                 'skiped': 0,
                 'total': 0,
                 'average': 0.0,
+                'valid': context.trigger != 'clover'
             }
             if validator.status == 'passed':
                 history['average'] = (int(history['total']) * float(history['average']) + response.elapsed) / (int(history['total']) + 1)
@@ -90,6 +91,7 @@ class Executor():
             history['total'] += 1
             return service.create(history)
         else:
+            history['valid'] = context.trigger != 'clover'
             if validator.status == 'passed':
                 history['average'] = (int(history['total']) * float(history['average']) + response.elapsed) / (int(history['total']) + 1)
             if validator.status == 'error':

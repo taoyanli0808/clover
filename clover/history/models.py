@@ -22,6 +22,7 @@ class HistoryModel(CloverModel):
     skiped = db.Column(db.Integer, default=0, comment="用例的跳过运行次数")
     total = db.Column(db.Integer, default=0, comment="用例的全部运行次数")
     average = db.Column(db.Float, default=0.0, comment="用例的平均运行时间")
-    enable = db.Column(db.Integer, default=0, comment="0有效，1无效")
+    valid = db.Column(db.Integer, default=0, comment="报告是否有效|0有效，1无效")
+    enable = db.Column(db.Integer, default=0, comment="记录是否有效|0有效，1无效")
     created = db.Column(db.DateTime, default=datetime.datetime.now, comment="创建时间")
     updated = db.Column(db.DateTime, default=datetime.datetime.now, comment="修改时间")

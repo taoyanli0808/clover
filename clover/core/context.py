@@ -23,6 +23,7 @@ class Context(object):
         self.id = data.get('id')
         self.name = data.get('name')
         self.type = data.get('type')
+        self.trigger = data.get('trigger')
         if self.type == 'interface':
             self.cases = [InterfaceModel.query.get(self.id)]
         elif self.type == 'suite':

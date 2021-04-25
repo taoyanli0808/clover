@@ -79,6 +79,7 @@ class Report():
             'end': friendly_datetime(end),
             'duration': (end - self.start).total_seconds(),
             'interface': self.get_interface_statistics(details),
+            'valid': context.trigger != 'clover',
             'detail': details,
             'log': self.get_log(context, logger),
         }

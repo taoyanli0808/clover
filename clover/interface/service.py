@@ -147,6 +147,7 @@ class InterfaceService(object):
             'id': data.get('id'),
             'name': data.get('name'),
             'user': data,
+            'trigger': data.get('trigger', 'clover'),
         })
         return
 
