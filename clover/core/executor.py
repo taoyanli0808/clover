@@ -15,6 +15,8 @@ from clover.core.variable import Variable
 from clover.core.validator import Validator
 from clover.core.exception import ResponseException
 
+from clover.history.service import HistoryService
+
 
 class Executor():
 
@@ -46,6 +48,63 @@ class Executor():
         else:
             self.status = status
 
+    def save_interface_run_history(self, context, case, response, validator):
+        """
+        :param context:
+        :param case:
+        :param validator:
+        :return:
+        """
+        # 先通过联合主键sid和cid查找接口运行历史，找到则更新
+        service = HistoryService()
+        _, history = service.search({'sid': context.id, 'cid': case.id})
+
+        # 如果接口运行历史不存在则应该创建历史，否则走更新逻辑。
+        if not history:
+            history = {
+                'sid': context.id,
+                'cid': case.id,
+                'sname': context.name,
+                'cname': case.name,
+                'team': case.team,
+                'project': case.project,
+                'type': case.type,
+                'sub_type': case.sub_type,
+                'success': 0,
+                'error': 0,
+                'failed': 0,
+                'skiped': 0,
+                'total': 0,
+                'average': 0.0,
+                'valid': context.trigger != 'clover'
+            }
+            if validator.status == 'passed':
+                history['average'] = (int(history['total']) * float(history['average']) + response.elapsed) / (int(history['total']) + 1)
+            if validator.status == 'error':
+                history['error'] += 1
+            elif validator.status == 'failed':
+                history['failed'] += 1
+            elif validator.status == 'skiped':
+                history['skiped'] += 1
+            else:
+                history['success'] += 1
+            history['total'] += 1
+            return service.create(history)
+        else:
+            history['valid'] = context.trigger != 'clover'
+            if validator.status == 'passed':
+                history['average'] = (int(history['total']) * float(history['average']) + response.elapsed) / (int(history['total']) + 1)
+            if validator.status == 'error':
+                history['error'] += 1
+            elif validator.status == 'failed':
+                history['failed'] += 1
+            elif validator.status == 'skiped':
+                history['skiped'] += 1
+            else:
+                history['success'] += 1
+            history['total'] += 1
+            return service.update(history)
+
     def execute(self, context):
         """
         :param context:
@@ -64,7 +123,7 @@ class Executor():
         # 因为是类属性存储日志，使用前先清理历史日志数据。
         Logger.clear()
         Logger.log("团队：{}，项目：{}".format(context.submit.team, context.submit.project), "开始执行")
-        for case in context.case:
+        for case in context.cases:
             detail = {'name': case.name}
             detail.setdefault('start', friendly_datetime(datetime.datetime.now()))
 
@@ -87,6 +146,7 @@ class Executor():
                 Logger.log("请求异常，状态码：{}".format(request.status), "发送请求", 'error')
                 Logger.log(request.message, "发送请求", 'error')
                 self._set_status('error')
+                validator.status = 'error'
 
             validator.verify(case, response, variable)
             detail.setdefault('status', validator.status)
@@ -101,6 +161,7 @@ class Executor():
             variable.extract_variable_from_response(case, response)
             detail.setdefault('end', friendly_datetime(datetime.datetime.now()))
 
+            self.save_interface_run_history(context, case, response, validator)
             details.append(detail)
 
             # 这里是调试模式，需要返回数据给前端页面。

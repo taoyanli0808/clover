@@ -18,9 +18,9 @@ class Report():
         :param logger:
         :return:
         """
-        case = context.case[0].id
-        type = context.case[0].type
-        sub_type = context.case[0].sub_type
+        case = context.cases[0].id
+        type = context.cases[0].type
+        sub_type = context.cases[0].sub_type
         return {
             'type': type,
             'sub_type': sub_type,
@@ -79,6 +79,7 @@ class Report():
             'end': friendly_datetime(end),
             'duration': (end - self.start).total_seconds(),
             'interface': self.get_interface_statistics(details),
+            'valid': context.trigger != 'clover',
             'detail': details,
             'log': self.get_log(context, logger),
         }
