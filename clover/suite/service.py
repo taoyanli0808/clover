@@ -1,11 +1,9 @@
 
 import datetime
 
-from sqlalchemy.exc import ProgrammingError
 
 from clover.exts import db
 from clover.core.producer import Producer
-from clover.common import get_mysql_error
 
 from clover.models import soft_delete
 from clover.models import query_to_dict
@@ -132,7 +130,7 @@ class SuiteService():
             'sub_type': 'interface',
             'id': data.get('id'),
             'name': data.get('name'),
-            'user': data,
+            'variable': data,
             'trigger': data.get('trigger', 'clover'),
         })
         return

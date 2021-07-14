@@ -31,7 +31,6 @@ from typing import Text
 from clover.core import RESERVED
 from clover.core.logger import Logger
 from clover.core.request import Request
-from clover.core.response import Response
 from clover.core.extractor import Extractor
 
 from clover.models import query_to_dict
@@ -40,17 +39,16 @@ from clover.environment.models import VariableModel
 
 class Variable(object):
 
-    def __init__(self, context):
+    def __init__(self, case, trigger):
         """
-        :param team:
-        :param project:
+        :param case:
         :param trigger:
         """
-        self.team = context.submit.team
-        self.project = context.submit.project
+        self.team = case.team
+        self.project = case.project
         self.extract = []
-        if hasattr(context.submit, 'variables'):
-            self.trigger = context.submit.variables
+        if hasattr(trigger, 'variable'):
+            self.trigger = trigger.variable
         else:
             self.trigger = []
         self.variables = self.load_default_variable()
