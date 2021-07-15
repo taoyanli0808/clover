@@ -48,23 +48,25 @@ class Executor():
         else:
             self.status = status
 
-    def save_interface_run_history(self, context, case, response, validator):
+    def save_interface_run_history(self, trigger, suite, case, response, validator):
         """
-        :param context:
+        :param trigger:
+        :param suite:
         :param case:
+        :param response:
         :param validator:
         :return:
         """
         # 先通过联合主键sid和cid查找接口运行历史，找到则更新
         service = HistoryService()
-        _, history = service.search({'sid': context.id, 'cid': case.id})
+        _, history = service.search({'sid': trigger.id, 'cid': case.id})
 
         # 如果接口运行历史不存在则应该创建历史，否则走更新逻辑。
         if not history:
             history = {
-                'sid': context.id,
+                'sid': suite.id,
                 'cid': case.id,
-                'sname': context.name,
+                'sname': suite.name,
                 'cname': case.name,
                 'team': case.team,
                 'project': case.project,
@@ -76,7 +78,7 @@ class Executor():
                 'skiped': 0,
                 'total': 0,
                 'average': 0.0,
-                'valid': context.trigger != 'clover'
+                'valid': trigger.trigger != 'clover'
             }
             if validator.status == 'passed':
                 history['average'] = (int(history['total']) * float(history['average']) + response.elapsed) / (int(history['total']) + 1)
@@ -91,7 +93,7 @@ class Executor():
             history['total'] += 1
             return service.create(history)
         else:
-            history['valid'] = context.trigger != 'clover'
+            history['valid'] = trigger.trigger != 'clover'
             if validator.status == 'passed':
                 history['average'] = (int(history['total']) * float(history['average']) + response.elapsed) / (int(history['total']) + 1)
             if validator.status == 'error':
@@ -105,9 +107,10 @@ class Executor():
             history['total'] += 1
             return service.update(history)
 
-    def execute(self, context):
+    def execute(self, suite, trigger):
         """
-        :param context:
+        :param suite:
+        :param trigger:
         :return:
         """
         # 注意需要在执行最前端实例化report，report初始化时会记录开始时间点。
@@ -118,12 +121,12 @@ class Executor():
         # trigger参数为触发时用户添加的变量，优先级高于平台预置变量。
         """
         keyword = Keyword('')
-        variable = Variable(context)
+        variable = Variable(suite, trigger)
 
         # 因为是类属性存储日志，使用前先清理历史日志数据。
         Logger.clear()
-        Logger.log("团队：{}，项目：{}".format(context.submit.team, context.submit.project), "开始执行")
-        for case in context.cases:
+        Logger.log("团队：{}，项目：{}".format(suite.team, suite.project), "开始执行")
+        for case in suite.cases:
             detail = {'name': case.name}
             detail.setdefault('start', friendly_datetime(datetime.datetime.now()))
 
@@ -161,7 +164,7 @@ class Executor():
             variable.extract_variable_from_response(case, response)
             detail.setdefault('end', friendly_datetime(datetime.datetime.now()))
 
-            self.save_interface_run_history(context, case, response, validator)
+            self.save_interface_run_history(trigger, suite, case, response, validator)
             details.append(detail)
 
             # 这里是调试模式，需要返回数据给前端页面。

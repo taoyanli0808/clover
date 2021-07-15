@@ -3,7 +3,7 @@
 import datetime
 
 from clover.exts import db
-from clover.core.context import Context
+from clover.core.case import Case
 from clover.core.producer import Producer
 from clover.core.executor import Executor
 
@@ -24,14 +24,14 @@ class InterfaceService(object):
         db.session.add(model)
         db.session.commit()
 
-        context = Context()
-        context.build_context({
+        case = Case()
+        case.build_cases({
             'type': 'interface',
             'id': model.id,
             'user': data
         })
         executor = Executor('debug')
-        status, message, data = executor.execute(context)
+        status, message, data = executor.execute(case)
 
         return model.id, status, message, data
 
@@ -63,14 +63,14 @@ class InterfaceService(object):
             old_model.updated = datetime.datetime.now()
             db.session.commit()
 
-        context = Context()
-        context.build_context({
+        case = Case()
+        case.build_cases({
             'type': 'interface',
             'id': data['id'],
             'user': data
         })
         executor = Executor('debug')
-        status, message, data = executor.execute(context)
+        status, message, data = executor.execute(case)
 
         return old_model.id, status, message, data
 
@@ -146,7 +146,7 @@ class InterfaceService(object):
             'sub_type': 'interface',
             'id': data.get('id'),
             'name': data.get('name'),
-            'user': data,
+            'variable': data,
             'trigger': data.get('trigger', 'clover'),
         })
         return

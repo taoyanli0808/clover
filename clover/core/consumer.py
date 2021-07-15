@@ -1,7 +1,7 @@
 import json
 import time
 
-from clover.core.context import Context
+from clover.core.case import Context
 from clover.core.executor import Executor
 from clover.exts import client
 

@@ -26,7 +26,8 @@ from loguru import logger
 from redis import Redis
 
 from clover.config import REDIS_HOST, REDIS_PORT, REDIS_DATABASE, VERSION, REDIS_STREAM_NAME
-from clover.core.context import Context
+from clover.core.case import Case
+from clover.core.trigger import Trigger
 from clover.core.executor import Executor
 
 try:
@@ -168,12 +169,14 @@ class Run(object):
 
     def __init__(self):
         super(Run, self).__init__()
-        self.executor = Executor()
-        self.context = Context()
 
     def executor_run(self, data):
-        self.context.build_context(data)
-        self.executor.execute(self.context)
+        trigger = Trigger()
+        trigger.make_trigger(data)
+        case = Case()
+        case.build_cases(data)
+        executor = Executor()
+        executor.execute(case, trigger)
 
 
 def main():
