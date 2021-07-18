@@ -4,6 +4,7 @@ import datetime
 
 from clover.exts import db
 from clover.core.case import Case
+from clover.core.trigger import Trigger
 from clover.core.producer import Producer
 from clover.core.executor import Executor
 
@@ -24,14 +25,15 @@ class InterfaceService(object):
         db.session.add(model)
         db.session.commit()
 
+        trigger = Trigger()
+        trigger.make_trigger(data)
         case = Case()
         case.build_cases({
             'type': 'interface',
             'id': model.id,
-            'user': data
         })
         executor = Executor('debug')
-        status, message, data = executor.execute(case)
+        status, message, data = executor.execute(case, trigger)
 
         return model.id, status, message, data
 
@@ -63,14 +65,15 @@ class InterfaceService(object):
             old_model.updated = datetime.datetime.now()
             db.session.commit()
 
+        trigger = Trigger()
+        trigger.make_trigger(data)
         case = Case()
         case.build_cases({
             'type': 'interface',
-            'id': data['id'],
-            'user': data
+            'id': old_model.id,
         })
         executor = Executor('debug')
-        status, message, data = executor.execute(case)
+        status, message, data = executor.execute(case, trigger)
 
         return old_model.id, status, message, data
 

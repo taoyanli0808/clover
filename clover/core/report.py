@@ -12,19 +12,16 @@ class Report():
         """
         self.start = datetime.datetime.now()
 
-    def get_log(self, context, logger):
+    def get_log(self, suite, logger):
         """
-        :param context:
+        :param suite:
         :param logger:
         :return:
         """
-        case = context.cases[0].id
-        type = context.cases[0].type
-        sub_type = context.cases[0].sub_type
         return {
-            'type': type,
-            'sub_type': sub_type,
-            'case': case,
+            'type': suite.type,
+            'sub_type': suite.sub_type,
+            'case': suite.id,
             'logs': logger.to_dict(),
         }
 
@@ -55,23 +52,24 @@ class Report():
         interface['percent'] = round(percent, 2)
         return interface
 
-    def save(self, context, details, logger):
+    def save(self, suite, trigger, details, logger):
         """
-        :param context:
+        :param suite:
+        :param trigger:
         :param details:
         :param logger:
         """
-        if hasattr(context.submit, 'report') and context.submit.report:
-            name = context.submit.report
-        elif hasattr(context.submit, 'name') and context.submit.name:
-            name = context.submit.name
+        if hasattr(trigger, 'report') and trigger.report:
+            name = trigger.report
+        elif hasattr(trigger, 'name') and trigger.name:
+            name = trigger.name
         else:
             name = 'Clover测试平台报告'
         end = datetime.datetime.now()
 
         report = {
-            'team': context.submit.team,
-            'project': context.submit.project,
+            'team': suite.team,
+            'project': suite.project,
             'name': name,
             'type': 'interface',
             'platform': get_system_info(),
@@ -79,9 +77,9 @@ class Report():
             'end': friendly_datetime(end),
             'duration': (end - self.start).total_seconds(),
             'interface': self.get_interface_statistics(details),
-            'valid': context.trigger != 'clover',
+            'valid': trigger.trigger != 'clover',
             'detail': details,
-            'log': self.get_log(context, logger),
+            'log': self.get_log(suite, logger),
         }
 
         service = ReportService()
