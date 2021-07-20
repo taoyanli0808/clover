@@ -59,53 +59,23 @@ class Executor():
         """
         # 先通过联合主键sid和cid查找接口运行历史，找到则更新
         service = HistoryService()
-        _, history = service.search({'sid': trigger.id, 'cid': case.id})
 
-        # 如果接口运行历史不存在则应该创建历史，否则走更新逻辑。
-        if not history:
-            history = {
-                'sid': suite.id,
-                'cid': case.id,
-                'sname': suite.name,
-                'cname': case.name,
-                'team': case.team,
-                'project': case.project,
-                'type': case.type,
-                'sub_type': case.sub_type,
-                'success': 0,
-                'error': 0,
-                'failed': 0,
-                'skiped': 0,
-                'total': 0,
-                'average': 0.0,
-                'valid': trigger.trigger != 'clover'
-            }
-            if validator.status == 'passed':
-                history['average'] = (int(history['total']) * float(history['average']) + response.elapsed) / (int(history['total']) + 1)
-            if validator.status == 'error':
-                history['error'] += 1
-            elif validator.status == 'failed':
-                history['failed'] += 1
-            elif validator.status == 'skiped':
-                history['skiped'] += 1
-            else:
-                history['success'] += 1
-            history['total'] += 1
-            return service.create(history)
-        else:
-            history['valid'] = trigger.trigger != 'clover'
-            if validator.status == 'passed':
-                history['average'] = (int(history['total']) * float(history['average']) + response.elapsed) / (int(history['total']) + 1)
-            if validator.status == 'error':
-                history['error'] += 1
-            elif validator.status == 'failed':
-                history['failed'] += 1
-            elif validator.status == 'skiped':
-                history['skiped'] += 1
-            else:
-                history['success'] += 1
-            history['total'] += 1
-            return service.update(history)
+        history = {
+            'sid': suite.id,
+            'cid': case.id,
+            'sname': suite.name,
+            'cname': case.name,
+            'team': case.team,
+            'project': case.project,
+            'type': case.type,
+            'sub_type': case.sub_type,
+            'success': validator.status == 'passed',
+            'error': validator.status == 'error',
+            'failed': validator.status == 'failed',
+            'skiped': validator.status == 'skiped',
+            'valid': trigger.trigger != 'clover'
+        }
+        return service.create(history)
 
     def execute(self, suite, trigger):
         """
@@ -174,7 +144,7 @@ class Executor():
         # print(Logger.logs)
 
         # 存储运行的测试报告到数据库。
-        data = report.save(context, details, Logger)
+        data = report.save(suite, trigger, details, Logger)
 
         notify = Notify()
         notify.send_message(data, self.status)

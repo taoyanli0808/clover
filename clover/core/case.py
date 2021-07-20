@@ -9,6 +9,7 @@ class Case(object):
         self.id = None
         self.name = None
         self.type = None
+        self.sub_type = 'interface'
         self.team = None
         self.project = None
         self.cases = []
