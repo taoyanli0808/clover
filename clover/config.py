@@ -1,6 +1,6 @@
 # Clover全局配置
 DEBUG = True
-VERSION = '1.8.2'
+VERSION = '1.9.0'
 DOMAIN = 'http://demo.52clover.cn'
 
 SECRET_KEY = '52.Clover'
@@ -18,11 +18,12 @@ GLOBALS = {
 # MySQL数据库配置
 MYSQL = {
     'user': 'clover',
-    'pswd': '52.clover',
+    'password': '52.clover',
     'host': '127.0.0.1',
-    'port': '3306',
+    'port': 3306,
+    'database': 'clover'
 }
-SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{pswd}@{host}:{port}/clover?charset=UTF8MB4&autocommit=true'.format(**MYSQL)
+SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{database}?charset=UTF8MB4&autocommit=true'.format(**MYSQL)
 SQLALCHEMY_TRACK_MODIFICATIONS = True
 # SQLALCHEMY_ECHO = True
 
