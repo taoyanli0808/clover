@@ -48,12 +48,11 @@ class Executor():
         else:
             self.status = status
 
-    def save_interface_run_history(self, trigger, suite, case, response, validator):
+    def save_interface_run_history(self, trigger, suite, case, validator):
         """
         :param trigger:
         :param suite:
         :param case:
-        :param response:
         :param validator:
         :return:
         """
@@ -61,10 +60,10 @@ class Executor():
         service = HistoryService()
 
         history = {
-            'sid': suite.id,
-            'cid': case.id,
-            'sname': suite.name,
-            'cname': case.name,
+            'suite_id': suite.id,
+            'interface_id': case.id,
+            'suite_name': suite.name,
+            'interface_name': case.name,
             'team': case.team,
             'project': case.project,
             'type': case.type,
@@ -134,7 +133,7 @@ class Executor():
             variable.extract_variable_from_response(case, response)
             detail.setdefault('end', friendly_datetime(datetime.datetime.now()))
 
-            self.save_interface_run_history(trigger, suite, case, response, validator)
+            self.save_interface_run_history(trigger, suite, case, validator)
             details.append(detail)
 
             # 这里是调试模式，需要返回数据给前端页面。
