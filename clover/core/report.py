@@ -59,18 +59,11 @@ class Report():
         :param details:
         :param logger:
         """
-        if hasattr(trigger, 'report') and trigger.report:
-            name = trigger.report
-        elif hasattr(trigger, 'name') and trigger.name:
-            name = trigger.name
-        else:
-            name = 'Clover测试平台报告'
         end = datetime.datetime.now()
-
         report = {
             'team': suite.team,
             'project': suite.project,
-            'name': name,
+            'name': trigger.report,
             'type': 'interface',
             'platform': get_system_info(),
             'start': friendly_datetime(self.start),

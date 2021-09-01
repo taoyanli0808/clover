@@ -2,7 +2,7 @@
 
 import datetime
 
-from sqlalchemy import and_
+import sqlalchemy
 
 from clover.exts import db
 
@@ -22,7 +22,11 @@ class HistoryService(object):
         model = HistoryModel(**data)
         db.session.add(model)
         db.session.commit()
-        return model.sid, model.cid
+        # 这里是一个bug，不知道为什么会抛出这个异常，没有定位到就先catch住。
+        try:
+            return model.id
+        except sqlalchemy.orm.exc.ObjectDeletedError:
+            return 0
 
     def delete(self, data):
         """
@@ -40,13 +44,11 @@ class HistoryService(object):
         :param data:
         :return:
         """
-        model = HistoryModel.query.filter(
-            and_(HistoryModel.sid == data['sid'], HistoryModel.cid == data['cid'])
-        ).first()
+        model = HistoryModel.query.get(data['id'])
         {setattr(model, k, v) for k, v in data.items()}
         model.updated = datetime.datetime.now()
         db.session.commit()
-        return model.sid, model.cid
+        return model.id
 
     def search(self, data):
         """
@@ -56,12 +58,9 @@ class HistoryService(object):
         filter = {'enable': 0}
 
         # 如果按照id查询则返回唯一的数据或None
-        if ('sid' in data and data['sid']) and ('cid' in data and data['cid']):
-            filter.setdefault('sid', data.get('sid'))
-            filter.setdefault('cid', data.get('cid'))
-            result = HistoryModel.query.filter(
-                and_(HistoryModel.sid == data['sid'], HistoryModel.cid == data['cid'])
-            ).first()
+        if 'id' in data and data['id']:
+            filter.setdefault('id', data.get('id'))
+            result = HistoryModel.query.get(data['id'])
             count = 1 if result else 0
             result = result.to_dict() if result else None
             return count, result
@@ -71,6 +70,18 @@ class HistoryService(object):
 
         if 'project' in data and data['project']:
             filter.setdefault('project', data.get('project'))
+
+        if 'suite_id' in data and data['suite_id']:
+            filter.setdefault('suite_id', data.get('suite_id'))
+
+        if 'interface_id' in data and data['interface_id']:
+            filter.setdefault('interface_id', data.get('interface_id'))
+
+        if 'suite_name' in data and data['suite_name']:
+            filter.setdefault('suite_name', data.get('suite_name'))
+
+        if 'interface_name' in data and data['interface_name']:
+            filter.setdefault('interface_name', data.get('interface_name'))
 
         try:
             offset = int(data.get('offset', 0))

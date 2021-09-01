@@ -12,6 +12,7 @@ class Trigger(object):
         self.sub_type = 'interface'
         self.id = 0
         self.name = '默认套件名称'
+        self.report = 'Clover测试平台报告'
         self.variable = []
         self.trigger = 'clover'
 
@@ -21,11 +22,12 @@ class Trigger(object):
         :param data[sub_type]: 触发的子类型，可选interface。
         :param data[id]: 用例或套件的ID
         :param data[name]: 用例或套件的名字
+        :param data[report]: 运行后报告的名字
         :param data[variable]: 触发运行时的变量信息
         :param data[trigger]: 触发运行的来源，目前有Clover页面，Jenkins和API三种方式
         :reutrn: None
         """
-        if 'type' in data and not data['type'] and data['type'] in ['interface', 'suite']:
+        if 'type' in data and not data['type'] and data['type'] in ['interface', 'automation']:
             self.type = data.get('type', 'interface')
 
         if 'sub_type' in data and not data['sub_type'] and data['sub_type'] in ['interface']:
@@ -36,6 +38,8 @@ class Trigger(object):
 
         if 'name' in data and not data['name']:
             self.name = data.get('name')
+
+        self.report = data.get('report') or data.get('name') or 'Clover测试平台报告'
 
         if 'variable' in data and not data['variable'] and isinstance(data['variable'], (list,)):
             self.variable = data.get('variable')

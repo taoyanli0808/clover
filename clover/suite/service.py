@@ -130,6 +130,7 @@ class SuiteService():
             'sub_type': 'interface',
             'id': data.get('id'),
             'name': data.get('name'),
+            'report': data.get('report'),
             'variable': data,
             'trigger': data.get('trigger', 'clover'),
         })

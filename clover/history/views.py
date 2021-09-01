@@ -32,32 +32,32 @@ class HistoryView(CloverView):
                 'data': data,
             })
 
-        sid = data.get('sid', None)
-        if not sid:
+        suite_id = data.get('sid', None)
+        if not suite_id:
             return jsonify({
                 'status': 400,
                 'message': '缺少套件ID！',
                 'data': data,
             })
 
-        cid = data.get('cid', None)
-        if not cid:
+        interface_id = data.get('cid', None)
+        if not interface_id:
             return jsonify({
                 'status': 400,
                 'message': '缺少用例ID！',
                 'data': data,
             })
 
-        sname = data.get('sname', None)
-        if not sname:
+        suite_name = data.get('sname', None)
+        if not suite_name:
             return jsonify({
                 'status': 400,
                 'message': '缺少套件名称！',
                 'data': data,
             })
 
-        cname = data.get('cname', None)
-        if not cname:
+        interface_name = data.get('cname', None)
+        if not interface_name:
             return jsonify({
                 'status': 400,
                 'message': '缺少用例名称！',
@@ -77,19 +77,11 @@ class HistoryView(CloverView):
     def delete(self):
         data = request.get_json()
 
-        sid = data.get('sid', None)
-        if not sid:
+        id = data.get('id', None)
+        if not id:
             return jsonify({
                 'status': 400,
                 'message': '缺少套件ID！',
-                'data': data,
-            })
-
-        cid = data.get('cid', None)
-        if not cid:
-            return jsonify({
-                'status': 400,
-                'message': '缺少用例ID！',
                 'data': data,
             })
 
@@ -104,19 +96,11 @@ class HistoryView(CloverView):
     def update(self):
         data = request.get_json()
 
-        sid = data.get('sid', None)
-        if not sid:
+        id = data.get('id', None)
+        if not id:
             return jsonify({
                 'status': 400,
                 'message': '缺少套件ID！',
-                'data': data,
-            })
-
-        cid = data.get('cid', None)
-        if not cid:
-            return jsonify({
-                'status': 400,
-                'message': '缺少用例ID！',
                 'data': data,
             })
 
