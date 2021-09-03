@@ -10,7 +10,6 @@ Clover是简单易用的开源测试平台。
 
 ## 家族介绍：
 - clover 采用python flask框架搭建clover服务后台
-- poppy  采用vue和element ui框架搭建clover前端页面
 - datura 利用docker实现平台一键部署
 - lilac  clover平台jenkins持续集成插件
 
