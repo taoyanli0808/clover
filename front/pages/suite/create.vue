@@ -118,7 +118,9 @@
               <!-- <el-input v-model="name" v-if="visible" size="mini" placeholder="请填写套件名称" /> -->
             </el-col>
             <el-col :span="6">
-              <el-button @click="create" v-if="visible" size="mini" type="primary" icon="el-icon-plus">创建套件</el-button>
+              <el-button @click="create" v-if="visible" size="mini" type="primary" icon="el-icon-plus">
+                创建套件
+              </el-button>
             </el-col>
           </el-row>
         </div>

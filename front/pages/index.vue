@@ -1,13 +1,14 @@
 <template>
   <div class="container">
-    首页
+    <Banner />
   </div>
 </template>
 
 <script>
+import Banner from '~/components/index/Banner.vue'
 
 export default {
-
+  Banner
 }
 </script>
 

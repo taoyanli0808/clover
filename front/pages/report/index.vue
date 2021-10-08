@@ -6,7 +6,7 @@
       </div>
       <div style="display: inline">
         <el-input v-model="name" size="small" placeholder="请输入报告名" class="input-with-select">
-          <el-button @click="search" slot="append" size="small" icon="el-icon-search" />
+          <el-button slot="append" @click="search" size="small" icon="el-icon-search" />
         </el-input>
       </div>
     </div>

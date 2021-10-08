@@ -1,4 +1,5 @@
 import redis
+
 from flask_sqlalchemy import SQLAlchemy
 
 from clover import config

@@ -1,7 +1,7 @@
 """
 使用说明：
 1. 先启动redis服务器
-2. 启动python manage.py
+2. 启动python app.py
 3. 启动worker
     python worker.py -h
     python worker.py (PS: 默认不带参数运行，主机名hostname将作为消费组的名称，消费者名称随机uuid1)

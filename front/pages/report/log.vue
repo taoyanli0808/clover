@@ -9,7 +9,9 @@
           hide-timestamp="true"
         >
           <el-card>
-            <p :style="log.color">{{log.time + ' - ' + log.level + ' - ' + log.step + ' - ' + log.message}}</p>
+            <p :style="log.color">
+              {{ log.time + ' - ' + log.level + ' - ' + log.step + ' - ' + log.message }}
+            </p>
           </el-card>
         </el-timeline-item>
       </el-timeline>

@@ -4,7 +4,7 @@
       <div slot="header" style="float: left;">
         <span>卡片名称</span>
       </div>
-      <div v-for="o in 4" :key="o" class="text item">
+      <div>
         <div>项目</div>
         <el-divider direction="vertical" />
         <div>方案</div>
@@ -20,3 +20,11 @@
     </el-card>
   </div>
 </template>
+
+<script>
+export default {
+  data () {
+    return {}
+  }
+}
+</script>

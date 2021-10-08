@@ -42,14 +42,17 @@
       </el-col>
       <el-col :span="12">
         <el-card class="box-card">
-          <p class="result">{{result}}</p>
+          <p class="result">
+            {{ result }}
+          </p>
         </el-card>
       </el-col>
     </el-row>
     <el-dialog
       :visible.sync="debugDialogVisible"
       title="请添加调用表达式"
-      width="30%">
+      width="30%"
+    >
       <el-input v-model="expression" placeholder="${function_name(parameter, ...)}" />
       <span slot="footer" class="dialog-footer">
         <el-button @click="debugDialogVisible=false" size="mini">取 消</el-button>
@@ -59,7 +62,8 @@
     <el-dialog
       :visible.sync="submitDialogVisible"
       title="请添加调关键字功能介绍"
-      width="30%">
+      width="30%"
+    >
       <el-input v-model="description" type="textarea" placeholder="请填写关键字功能描述..." />
       <span slot="footer" class="dialog-footer">
         <el-button @click="submitDialogVisible=false" size="mini">取 消</el-button>

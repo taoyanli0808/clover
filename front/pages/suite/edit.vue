@@ -118,7 +118,9 @@
               <!-- <el-input v-model="name" v-if="visible" size="mini" placeholder="请填写套件名称" /> -->
             </el-col>
             <el-col :span="6">
-              <el-button @click="update" v-if="visible" size="mini" type="primary" icon="el-icon-plus">更新套件</el-button>
+              <el-button @click="update" v-if="visible" size="mini" type="primary" icon="el-icon-plus">
+                更新套件
+              </el-button>
             </el-col>
           </el-row>
         </div>
@@ -151,9 +153,6 @@ export default {
   },
   computed: {
     visible () {
-      console.log('here!')
-      console.log(this.suite)
-      console.log(this.suite.cases)
       return this.suite.cases.length !== 0
     }
   },

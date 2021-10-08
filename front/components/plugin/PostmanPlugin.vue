@@ -29,7 +29,9 @@
         <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" />
       </el-col>
       <el-col :span="12">
-        <el-button @click="handleUpload" style="float: right;" size="small" type="primary" plain>创建接口</el-button>
+        <el-button @click="handleUpload" style="float: right;" size="small" type="primary" plain>
+          创建接口
+        </el-button>
       </el-col>
     </el-row>
   </div>

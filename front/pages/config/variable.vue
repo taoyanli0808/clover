@@ -122,7 +122,7 @@
     >
       <el-form ref="form" label-width="80px">
         <el-form-item label="团队与项目">
-          <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject"  placeholder="请选择团队和项目" />
+          <TeamProjectCascader v-on:selectedTeamProject="selectedTeamProject" placeholder="请选择团队和项目" />
         </el-form-item>
         <el-form-item label="负责人">
           <el-input v-model="owner" />

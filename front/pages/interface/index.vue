@@ -6,7 +6,7 @@
       </div>
       <div style="display: inline">
         <el-input v-model="caseName" size="small" placeholder="请输入接口名" class="input-with-select">
-          <el-button @click="search" slot="append" size="small" icon="el-icon-search" />
+          <el-button slot="append" @click="search" size="small" icon="el-icon-search" />
         </el-input>
       </div>
       <div style="float: right; padding: 3px 0; display: block;">
