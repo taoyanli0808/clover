@@ -28,3 +28,6 @@ flask db upgrade
 # 4.项目运行run
 python manage.py runserver
 ```
+
+# 试用
+试用网址[Clover开源测试平台](http://demo.52clover.cn/)。
