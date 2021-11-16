@@ -4,21 +4,20 @@
 
 import datetime
 
-from clover.common import friendly_datetime
-
+from clover.core.log import Log
 from clover.core.notify import Notify
-from clover.core.logger import Logger
 from clover.core.report import Report
 from clover.core.request import Request
-from clover.core.keyword import Keyword
+from clover.core.response import Response
 from clover.core.variable import Variable
 from clover.core.validator import Validator
 from clover.core.exception import ResponseException
 
+from clover.log.service import LogService
 from clover.history.service import HistoryService
 
 
-class Executor():
+class Executor(object):
 
     def __init__(self, type='trigger'):
         self.type = type
@@ -83,67 +82,70 @@ class Executor():
         :return:
         """
         # 注意需要在执行最前端实例化report，report初始化时会记录开始时间点。
-        cookies, report, details = None, Report(), []
+        cookies, report, details = None, Report(suite, trigger), []
         """
         # 注意，变量对象必须在循环外被实例化，变量声明周期与执行器相同。
         # 使用团队和项目属性查询平台预置的自定义变量，通过触发时传递。
         # trigger参数为触发时用户添加的变量，优先级高于平台预置变量。
         """
-        keyword = Keyword('')
+        logid = []
         variable = Variable(suite, trigger)
 
-        # 因为是类属性存储日志，使用前先清理历史日志数据。
-        Logger.clear()
-        Logger.log("团队：{}，项目：{}".format(suite.team, suite.project), "开始执行")
         for case in suite.cases:
-            detail = {'name': case.name}
-            detail.setdefault('start', friendly_datetime(datetime.datetime.now()))
+            # 字典log用于记录接口执行时必要的信息
+            log = Log(report)
+            log.set_init_log(case)
 
             request = Request(case, cookies)
-            response = None
-            validator = Validator()
+            # 使用日志记录请求初始化数据
+            log.set_request_log(request)
+
+            log.set_variable_log(variable)
 
             variable.replace_variable(request)
-            keyword.call_keyword(request, 'before_request')
+            # 记录变量替换相关数据
+            log.set_replace_log(request)
+
+            # keyword.call_keyword(request, 'before_request')
+
+            response, validator = Response(), Validator()
             try:
                 # 当用例设置跳过时不进行接口请求。
                 if case.status:
                     response = request.send_request()
                     cookies = response.cookies
-
-                # 当用例跳过或接口请求异常时，response是None，此时设置elapsed为0
-                elapsed = response.elapsed if response is not None else 0
-                detail.setdefault('elapsed', elapsed)
             except ResponseException:
-                Logger.log("请求异常，状态码：{}".format(request.status), "发送请求", 'error')
-                Logger.log(request.message, "发送请求", 'error')
                 self._set_status('error')
                 validator.status = 'error'
+            # 记录接口请求响应的相关数据信息
+            log.set_response_log(response)
 
-            validator.verify(case, response, variable)
-            detail.setdefault('status', validator.status)
-            detail.setdefault('result', validator.result)
+            validator.verify(case, response, variable, report)
+            # 记录断言结果
+            log.set_validator_log(validator)
 
             self._set_status(validator.status)
-
             validator.performance(response)
-            detail.setdefault('threshold', validator.threshold)
-            detail.setdefault('performance', validator.level)
+            # 开始时间、结束时间、接口耗时、时间基准、状态
+            log.set_performance_log(response, validator)
 
-            variable.extract_variable_from_response(case, response)
-            detail.setdefault('end', friendly_datetime(datetime.datetime.now()))
+            # 提取响应返回的数据传递给下一个接口使用
+            extractor_log = variable.extract_variable_from_response(case, response)
+            # 记录本次提取的过程和结果
+            log.set_extractor_log(extractor_log)
 
             self.save_interface_run_history(trigger, suite, case, validator)
-            details.append(detail)
 
             # 这里是调试模式，需要返回数据给前端页面。
             if self.type == 'debug':
                 return 0, "debug", response.get_response()
 
-        # print(Logger.logs)
+            log_service = LogService()
+            _id = log_service.create(log.log)
+            logid.append(_id)
 
         # 存储运行的测试报告到数据库。
-        data = report.save(suite, trigger, details, Logger)
+        data = report.save(logid)
 
         notify = Notify()
         notify.send_message(data, self.status)

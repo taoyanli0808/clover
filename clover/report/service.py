@@ -7,10 +7,7 @@ from clover.common import friendly_datetime
 from clover.report.models import ReportModel
 
 
-class ReportService():
-
-    def __init__(self):
-        pass
+class ReportService(object):
 
     def create(self, data):
         """
@@ -20,7 +17,7 @@ class ReportService():
         model = ReportModel(**data)
         db.session.add(model)
         db.session.commit()
-        return model.to_dict()
+        return model.id
 
     def update(self, data):
         """
@@ -88,7 +85,8 @@ class ReportService():
             results = ReportModel.query.with_entities(
                 ReportModel.id, ReportModel.team, ReportModel.project,
                 ReportModel.name, ReportModel.type, ReportModel.interface,
-                ReportModel.duration, ReportModel.start, ReportModel.end
+                ReportModel.duration, ReportModel.start, ReportModel.end,
+                ReportModel.logid
             ).filter_by(
                 **filter
             ).filter(
@@ -100,7 +98,8 @@ class ReportService():
             results = ReportModel.query.with_entities(
                 ReportModel.id, ReportModel.team, ReportModel.project,
                 ReportModel.name, ReportModel.type, ReportModel.interface,
-                ReportModel.duration, ReportModel.start, ReportModel.end
+                ReportModel.duration, ReportModel.start, ReportModel.end,
+                ReportModel.logid
             ).filter_by(
                 **filter
             ).order_by(
@@ -115,14 +114,10 @@ class ReportService():
             'type': result.type,
             'duration': result.duration,
             'interface': result.interface,
+            'logid': result.logid,
             'start': result.start.strftime('%Y-%m-%d %H:%M:%S'),
             'end': result.end.strftime('%Y-%m-%d %H:%M:%S'),
         } for result in results]
-
-        # 报告新增跳过兼容1.0版本，历史数据为null,兼容历史数据拼错的skiped字段
-        for result in results:
-            if 'sikped' in result['interface']:
-                result['interface'].update({'skiped': result['interface'].pop("sikped")})
 
         if 'name' in data and data['name']:
             count = ReportModel.query.filter_by(**filter).filter(
@@ -132,12 +127,3 @@ class ReportService():
             count = ReportModel.query.filter_by(**filter).count()
 
         return count, results
-
-    def log(self, data):
-        """
-        :param data:
-        :return:
-        """
-        id = data.get('id')
-        report = ReportModel.query.get(id)
-        return report.log

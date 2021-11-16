@@ -13,11 +13,12 @@
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.3.6",
-    "echarts": "^4.8.0",
+    "echarts": "^4.9.0",
     "element-ui": "^2.4.11",
     "nuxt": "^2.0.0",
     "sortablejs": "^1.10.2",
     "v-charts": "^1.19.0",
+    "vue-json-viewer": "^2.2.19",
     "vue2-ace-editor": "0.0.15",
     "vuedraggable": "^2.23.2"
   },

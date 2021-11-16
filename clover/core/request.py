@@ -1,4 +1,5 @@
 import time
+import datetime
 
 from clover import config
 
@@ -10,8 +11,8 @@ from requests.exceptions import InvalidSchema
 from requests.exceptions import InvalidHeader
 from requests.exceptions import ConnectionError
 
-from clover.core.logger import Logger
 from clover.core.response import Response
+from clover.common import friendly_datetime
 from clover.core.exception import ResponseException
 
 
@@ -124,18 +125,9 @@ class Request(object):
             return 1
 
     def _send_request(self):
-        Logger.log("准备发送http请求，请求方法[{}]".format(self.method), "发送请求")
-        Logger.log("准备发送http请求，请求域名[{}]".format(self.host), "发送请求")
-        Logger.log("准备发送http请求，请求路径[{}]".format(self.path), "发送请求")
-        Logger.log("准备发送http请求，请求地址[{}]".format(self.url), "发送请求")
-        Logger.log("准备发送http请求，请求头[{}]".format(self.header), "发送请求")
-        Logger.log("准备发送http请求，请求参数[{}]".format(self.parameter), "发送请求")
-        Logger.log("准备发送http请求，请求体类型[{}]".format(self.body_mode), "发送请求")
-        Logger.log("准备发送http请求，请求体[{}]".format(self.body), "发送请求")
-        Logger.log("准备发送http请求，超时设置[{}]".format(self.timeout), "发送请求")
-        Logger.log("准备发送http请求，重试设置[{}]".format(self.retry), "发送请求")
         try:
-            print(self.header)
+            _response = Response()
+            _response.start = friendly_datetime(datetime.datetime.now())
             response = request(
                 self.method,
                 self.url,
@@ -145,39 +137,37 @@ class Request(object):
                 cookies=self.cookies,
                 timeout=self.timeout
             )
-            Logger.log("发送http请求成功，响应码[{}]".format(response.status_code), "发送请求")
-            Logger.log("发送http请求成功，请求耗时[{}]".format(response.elapsed), "发送请求")
-            Logger.log("发送http请求成功，请求响应[{}]".format(response.text), "发送请求", 'debeg')
-            return Response(response)
+            _response.end = friendly_datetime(datetime.datetime.now())
+            _response.set_response(response)
+            if response is not None:
+                elapsed = float("{}.{}".format(response.elapsed.seconds, response.elapsed.microseconds))
+            else:
+                elapsed = 0.0
+            _response.elapsed = elapsed
+            return _response
         except InvalidURL:
             self.status = 601
             self.message = "您输入接口信息有误，URL格式非法，请确认！"
-            Logger.log("发送http请求出错，原因[{}]".format(self.message), "发送请求", 'warn')
             raise ResponseException()
         except MissingSchema:
             self.status = 602
             self.message = "您输入接口缺少协议格式，请增加[http(s)://]协议头！"
-            Logger.log("发送http请求出错，原因[{}]".format(self.message), "发送请求", 'warn')
             raise ResponseException()
         except InvalidSchema:
             self.status = 603
             self.message = "不支持的接口协议，请使用[http(s)://]协议头！"
-            Logger.log("发送http请求出错，原因[{}]".format(self.message), "发送请求", 'warn')
             raise ResponseException()
         except ConnectionError:
             self.status = 604
             self.message = "当链接到服务器时出错，请确认域名[{}]是否正确！".format(self.host)
-            Logger.log("发送http请求出错，原因[{}]".format(self.message), "发送请求", 'warn')
             raise ResponseException()
         except InvalidHeader:
             self.status = 605
             self.message = "请求头包含非法字符！"
-            Logger.log("发送http请求出错，原因[{}]".format(self.message), "发送请求", 'warn')
             raise ResponseException()
         except ReadTimeout:
             self.status = 606
             self.message = "请求超时退出，请检查超时设置！"
-            Logger.log("发送http请求出错，原因[{}]".format(self.message), "发送请求", 'warn')
             raise ResponseException()
 
     def send_request(self):
@@ -190,11 +180,9 @@ class Request(object):
         self.retry += 1
         while self.retry:
             response = self._send_request()
-            Logger.log("发送http请求，返回响应码[{}]".format(response.status), "发送请求", 'info')
             if response is not None and response.status < 500:
                 return response
             self.retry -= 1
-            Logger.log("发送http请求出错，等待60秒后第[{}]次重试".format(self.retry), "发送请求", 'error')
             time.sleep(60.0)
 
         return response

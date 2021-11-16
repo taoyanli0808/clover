@@ -56,97 +56,55 @@
         border
       >
         <el-table-column
-          prop="name"
+          type="expand"
+        >
+          <template slot-scope="props">
+            <InterfaceRunDetail v-bind:log="props.row" />
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="interface_name"
           label="接口名"
-          width="200"
         />
         <el-table-column
           prop="start"
           label="开始时间"
-          width="200"
         />
         <el-table-column
           prop="end"
           label="结束时间"
-          width="200"
         />
         <el-table-column
-          prop="operate"
-          label="比较操作"
-          width="200"
+          prop="performance.elapsed"
+          label="接口耗时"
         />
         <el-table-column
-          prop="expect"
-          label="期盼结果"
-          width="200"
+          prop="performance.threshold"
+          label="时间基准"
         />
         <el-table-column
-          prop="actual"
-          label="实际结果"
-          width="200"
-        />
-        <el-table-column
-          prop="status"
-          label="状态"
+          prop="validator.status"
+          label="断言结果"
         >
           <template slot-scope="scope">
             <el-tag
-              :type="scope.row.status === true ? 'success' : 'danger'"
+              :type="scope.row.validator.status === '通过' ? 'success' : 'danger'"
               disable-transitions
             >
-              {{ scope.row.status }}
+              {{ scope.row.validator.status }}
             </el-tag>
           </template>
         </el-table-column>
-      </el-table>
-    </el-row>
-    <el-row>
-      <div class="title">
-        性能
-      </div>
-    </el-row>
-    <el-row>
-      <el-table
-        :data="performance"
-        :row-class-name="tableRowClassName"
-        style="width: 100%"
-        border
-      >
         <el-table-column
-          prop="name"
-          label="接口名"
-          width="200"
-        />
-        <el-table-column
-          prop="start"
-          label="开始时间"
-          width="200"
-        />
-        <el-table-column
-          prop="end"
-          label="结束时间"
-          width="200"
-        />
-        <el-table-column
-          prop="elapsed"
-          label="接口耗时"
-          width="200"
-        />
-        <el-table-column
-          prop="threshold"
-          label="时间基准"
-          width="200"
-        />
-        <el-table-column
-          prop="performance"
-          label="状态"
+          prop="performance.status"
+          label="性能结果"
         >
           <template slot-scope="scope">
             <el-tag
-              :type="scope.row.elapsed <= scope.row.threshold ? 'success' : 'danger'"
+              :type="scope.row.performance.status === '通过' ? 'success' : 'danger'"
               disable-transitions
             >
-              {{ scope.row.performance + '%' }}
+              {{ scope.row.performance.status }}
             </el-tag>
           </template>
         </el-table-column>
@@ -156,17 +114,20 @@
 </template>
 
 <script>
+import InterfaceRunDetail from '~/components/report/InterfaceRunDetail.vue'
+
 export default {
+  components: {
+    InterfaceRunDetail
+  },
   data () {
     return {
       data: {
         platform: {
-        },
-        detail: {}
+        }
       },
       headers: [],
       results: [],
-      performance: [],
       total: 0,
       success: 0,
       failed: 0,
@@ -181,6 +142,10 @@ export default {
   },
   methods: {
     refresh () {
+      this.base_infomation()
+      this.validator_and_performance()
+    },
+    base_infomation () {
       this.$axios
         .post('/api/v1/report/search', { id: this.$route.query.id })
         .then((res) => {
@@ -192,33 +157,6 @@ export default {
             this.error = this.data.interface.error
             this.skip = this.data.interface.skiped
             this.percent = this.data.interface.percent.toFixed(0) + '%'
-            // 这里是报告的详细数据。
-            for (const name in this.data.detail) {
-              for (const index in this.data.detail[name].result) {
-                const actual = this.data.detail[name].result[index].actual
-                this.results.push({
-                  name: this.data.detail[name].name,
-                  start: this.data.detail[name].start,
-                  end: this.data.detail[name].end,
-                  operate: this.data.detail[name].result[index].operate || '-',
-                  expect: this.data.detail[name].result[index].expect || '-',
-                  actual: actual !== null ? actual : 'None',
-                  status: this.data.detail[name].result[index].status
-                })
-              }
-            }
-            // 这里是报告的性能数据。
-            for (const name in this.data.detail) {
-              this.performance.push({
-                name: this.data.detail[name].name,
-                start: this.data.detail[name].start,
-                end: this.data.detail[name].end,
-                elapsed: this.data.detail[name].elapsed || 0,
-                threshold: this.data.detail[name].threshold,
-                performance: this.data.detail[name].performance
-              })
-            }
-            // 这里是报告的表头数据。
             this.headers.push({
               hc1: '部门',
               hc2: this.data.team,
@@ -283,17 +221,56 @@ export default {
           })
         })
     },
+    validator_and_performance () {
+      this.$axios({
+        url: '/api/v1/log/search',
+        method: 'post',
+        data: JSON.stringify({
+          id: this.$route.query.id,
+          logid: this.$route.query.logid
+        }),
+        headers: {
+          'Content-Type': 'application/json;'
+        }
+      }).then((res) => {
+        if (res.data.status === 0) {
+          this.results = res.data.data
+          this.resultHandler(this.results)
+        } else {
+          this.$message({
+            type: 'warning',
+            message: res.data.message,
+            center: true
+          })
+        }
+      }).catch((error) => {
+        this.$message({
+          type: 'error',
+          message: error,
+          center: true
+        })
+      })
+    },
+    resultHandler (results) {
+      for (const i in results) {
+        if (results[i].validator.status === 'passed') {
+          results[i].validator.status = '通过'
+        } else {
+          results[i].validator.status = '失败'
+        }
+        if (results[i].performance.status === 'passed') {
+          results[i].performance.status = '通过'
+        } else {
+          results[i].performance.status = '失败'
+        }
+        results[i].response.data = JSON.parse(results[i].response.data)
+      }
+    },
     tableRowClassName ({ row, rowIndex }) {
-      if (row.status === 'passed') {
+      if (row.validator.status === '通过') {
         return 'success'
-      } else if (row.status === 'error') {
-        return 'danger'
-      } else if (row.status === 'failed') {
-        return 'warning'
-      } else if (row.status === 'skip') {
-        return 'info'
       } else {
-        return 'primary'
+        return 'danger'
       }
     }
   }

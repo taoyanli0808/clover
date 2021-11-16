@@ -5,10 +5,10 @@
 from clover.environment.views import TeamView as Team
 from clover.keyword.views import KeywordView as Keyword
 from clover.environment.views import VariableView as Variable
-from clover.history.views import HistoryView as History
 from clover.interface.views import InterfaceView as Interface
 from clover.suite.views import SuiteView as Suite
 from clover.report.views import ReportView as Report
+from clover.log.views import LogView as Log
 from clover.index.views import IndexView as Index
 from clover.task.views import TaskView as Task
 from clover.plugin.views import PluginView as Plugin
@@ -266,9 +266,12 @@ def map_urls(app):
         methods=['POST'],
         strict_slashes=False,
     )
+
+    # 测试日志相关路由与视图
+    log = Log.as_view("log")
     app.add_url_rule(
-        "/api/v1/report/log",
-        view_func=report,
+        "/api/v1/log/search",
+        view_func=log,
         methods=['POST'],
         strict_slashes=False,
     )

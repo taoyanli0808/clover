@@ -1,6 +1,5 @@
 from clover import config
 
-from clover.core.logger import Logger
 from clover.core.extractor import Extractor
 
 
@@ -11,7 +10,7 @@ class Validator():
         self.status = 'failed'
         self.result = []
         self.threshold = 1.0
-        self.level = 0
+        self.level = 'failed'
         self.extractor = Extractor()
 
     def _assert(self): pass
@@ -51,9 +50,8 @@ class Validator():
                 self.threshold = 1.0
 
         if response is not None:
-            self.level = round(100 * response.elapsed / self.threshold, 2)
-        else:
-            self.level = 0.0
+            # self.level = round(100 * response.elapsed / self.threshold, 2)
+            self.level = 'passed' if response.elapsed < self.threshold else 'failed'
 
     @staticmethod
     def set_default_verify(case):
@@ -72,20 +70,23 @@ class Validator():
                 'expression': "${response}.status"
             })
 
-    def verify(self, case, response, variable):
+    def verify(self, case, response, variable, report):
         """
         :param case:
         :param response:
         :param variable:
+        :param report:
         :return:
         """
         if not case.status:
             self.status = 'skiped'
-            Logger.log("断言，执行退出[{}]".format('用例状态为跳过执行'), "执行断言", level='warn')
+            # 接口跳过运行时统计skiped加1
+            report.report['interface']['skiped'] += 1
             return
 
         if self.status == 'error':
-            Logger.log("断言，执行退出[{}]".format('用例状态为执行异常'), "执行断言", level='warn')
+            # 接口请求时若发生错误error加1
+            report.report['interface']['error'] += 1
             return
 
         self.set_default_verify(case)
@@ -120,12 +121,9 @@ class Validator():
                     _expression = variable.derivation(expression)
                     _variable = extractor.extract(response.response, _expression, '.')
 
-                Logger.log("断言，表达式处理前[{}]，表达式处理后[{}]".format(expression, _expression), "执行断言")
-
                 expected = verify.get('expected', None)
                 # 预期结果可能包含变量，使用值对变量进行替换。
                 _expected = variable.derivation(expected)
-                Logger.log("断言，预期值处理前[{}]，预期值处理后[{}]".format(expected, _expected), "执行断言")
 
                 # 转化预期结果为需要的数据类型，数据类型相同才能比较嘛
                 convertor = verify.get('convertor', None)
@@ -141,15 +139,10 @@ class Validator():
                     'status': result,
                     'actual': _variable,
                     'expect': _expected,
-                    'operate': comparator,
+                    'comparator': comparator,
+                    'expression': _expression,
+                    'extractor': _extractor,
                 })
-                Logger.log("断言，执行通过！", "执行断言")
-                Logger.log("断言，提取器[{}]".format(_extractor), "执行断言")
-                Logger.log("断言，表达式[{}]".format(_expression), "执行断言")
-                Logger.log("断言，提取值[{}]".format(_variable), "执行断言")
-                Logger.log("断言，预期值[{}]".format(_expected), "执行断言")
-                Logger.log("断言，比较器[{}]".format(comparator), "执行断言")
-                Logger.log("断言，结果为[{}]".format(result), "执行断言")
             except Exception as error:
                 # 断言异常时则认定为接口测试失败
                 self.result.append({
@@ -157,18 +150,22 @@ class Validator():
                     'actual': _variable,
                     'expect': _expected,
                     'operate': comparator,
+                    'expression': _expression,
+                    'extractor': _extractor,
                 })
-                Logger.log("断言，执行异常[{}]".format(error), "执行断言", level='error')
-                Logger.log("断言，提取器[{}]".format(_extractor), "执行断言", level='error')
-                Logger.log("断言，表达式[{}]".format(_expression), "执行断言", level='error')
-                Logger.log("断言，提取值[{}]".format(_variable), "执行断言", level='error')
-                Logger.log("断言，预期值[{}]".format(_expected), "执行断言", level='error')
-                Logger.log("断言，比较器[{}]".format(comparator), "执行断言", level='error')
-                Logger.log("断言，结果为[{}]".format('error'), "执行断言", level='error')
 
         # 这里对断言结果进行统计，全部为passed才认为接口断言通过。
         status = [result['status'] for result in self.result]
         self.status = 'passed' if {True} == set(status) else 'failed'
+
+        if self.status == 'passed':
+            report.report['interface']['passed'] += 1
+        elif self.status == 'failed':
+            report.report['interface']['failed'] += 1
+        elif self.status == 'error':
+            report.report['interface']['error'] += 1
+        else:
+            pass
 
     def compare(self, comparator, variable, expected):
         """

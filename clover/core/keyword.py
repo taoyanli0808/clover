@@ -7,10 +7,10 @@
 
 import re
 
+from loguru import logger
+
 from clover.models import query_to_dict
 from clover.keyword.models import KeywordModel
-
-from clover.core.logger import Logger
 
 
 class Keyword(object):
@@ -60,7 +60,7 @@ class Keyword(object):
         """
         function = re.findall(r'def\s+(.+?)\(', self.source)
         if not function:
-            Logger.log("不能提取关键字名称，执行失败！", "获取关键字名")
+            logger.info("不能提取关键字名称，执行失败！", "获取关键字名")
             return False
         return function[0]
 
@@ -78,13 +78,13 @@ class Keyword(object):
 
         function = re.findall(r'\$\{(\w+?)\(', keyword)
         if not function:
-            Logger.log("不能提取关键字名称，执行失败！", "关键字判定")
+            logger.info("不能提取关键字名称，执行失败！", "关键字判定")
             return False
         self.function_name = function[0]
 
         parameters = re.findall(r'\$\{\w+\((.+?)\)\}', keyword)
         if not parameters:
-            Logger.log("不能提取关键字参数，执行失败！", "关键字判定")
+            logger.info("不能提取关键字参数，执行失败！", "关键字判定")
             return False
         parameters = parameters[0]
         for param in parameters.split(','):
@@ -105,14 +105,14 @@ class Keyword(object):
 
             # 从locals获取执行关键字。
             if self.function_name not in locals():
-                Logger.log("获取关键字失败！", "关键字执行")
+                logger.info("获取关键字失败！", "关键字执行")
                 return
             self.function = locals()[self.function_name]
 
             # 判断正则提取的参数与函数实际参数是否一致。
             parameter_count = locals()[self.function_name].__code__.co_argcount
             if len(self.parameters) != parameter_count:
-                Logger.log("执行关键字时实际参数与所需参数不匹配！", "关键字执行")
+                logger.info("执行关键字时实际参数与所需参数不匹配！", "关键字执行")
                 return
 
             # 从locals获取执行关键字所需参数列表。
@@ -122,7 +122,7 @@ class Keyword(object):
             #     print(locals())
             #     if parameter not in globals() and parameter not in locals():
             #         print("找不到执行关键字的必要参数！")
-            #         Logger.log("找不到执行关键字的必要参数！", "关键字执行")
+            #         logger.info("找不到执行关键字的必要参数！", "关键字执行")
             #         continue
             #     if parameter in globals():
             #         parameters.append(globals()[parameter])
@@ -138,7 +138,7 @@ class Keyword(object):
                 print(error)
             return result
         except Exception as error:
-            Logger.log("执行关键字时发生异常{}".format(error), "关键字执行", level="error")
+            logger.info("执行关键字时发生异常{}".format(error), "关键字执行", level="error")
 
     def derivation(self, data):
         """
@@ -155,12 +155,12 @@ class Keyword(object):
         flag = self.is_keyword(data)
         if not flag:
             return data
-        Logger.log("发现关键字[{}]！".format(self.function_name), "关键字执行")
+        logger.info("发现关键字[{}]！".format(self.function_name), "关键字执行")
 
         # 查找关键字并执行
         for keyword in self.keywords:
             if keyword['name'] == self.function_name:
-                Logger.log("关键字[{}]存在！".format(self.function_name), "关键字执行")
+                logger.info("关键字[{}]存在！".format(self.function_name), "关键字执行")
                 self.source = keyword['keyword']
                 return self.execute()
             return data

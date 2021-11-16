@@ -95,14 +95,6 @@
           >
             删除
           </el-button>
-          <el-button
-            @click="handleLog(scope.$index, scope.row)"
-            size="mini"
-            icon="el-icon-bank-card"
-            type="info"
-          >
-            日志
-          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -197,7 +189,8 @@ export default {
       this.$router.push({
         path: '/report/detail',
         query: {
-          id: row.id
+          id: row.id,
+          logid: row.logid
         }
       })
     },
@@ -242,14 +235,6 @@ export default {
           message: '已取消删除',
           center: true
         })
-      })
-    },
-    handleLog (index, row) {
-      this.$router.push({
-        path: 'report/log',
-        query: {
-          id: row.id
-        }
       })
     }
   }

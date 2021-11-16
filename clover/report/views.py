@@ -52,10 +52,6 @@ class ReportView(CloverView):
             })
 
     @catch_exception
-    def update(self):
-        pass
-
-    @catch_exception
     def search(self):
         """
         :return:
