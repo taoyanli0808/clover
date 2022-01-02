@@ -1,6 +1,6 @@
 # Clover全局配置
 DEBUG = True
-VERSION = '1.10.2'
+VERSION = '1.10.3'
 DOMAIN = 'http://demo.52clover.cn'
 
 SECRET_KEY = '52.Clover'

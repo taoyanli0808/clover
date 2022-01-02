@@ -1,5 +1,4 @@
 
-import os
 import time
 import json
 import platform
@@ -55,29 +54,6 @@ def get_system_info():
         'python': platform.python_version(),
         'clover': VERSION,
     }
-
-
-def get_python_dependency():
-    dependency = {}
-    require = os.path.join(os.getcwd(), 'requirements.txt')
-    with open(require) as file:
-        lines = file.readlines()
-        for line in lines:
-            if '>=' in line:
-                name, version = line.split('>=')
-            else:
-                name, version = line.split('==')
-            name, version = name.strip(), version.strip()
-            dependency.setdefault(name, version)
-    return dependency
-
-
-def get_nodejs_dependency():
-    require = os.path.join(os.getcwd(), 'package.json')
-    with open(require) as file:
-        data = json.load(file)
-        dependency = {**data['dependencies'], **data['devDependencies']}
-    return dependency
 
 
 def allowed_file(filename):
