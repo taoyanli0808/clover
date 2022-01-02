@@ -21,7 +21,8 @@ class CloverView(View):
         # use getattr call method and return result.
         :return:
         """
-        func = request.path.split('/')[-1]
+        path = request.path.split('/')
+        func = '_'.join([p for p in path if p])
         return getattr(self, func)()
 
     def response(self, **kwargs):

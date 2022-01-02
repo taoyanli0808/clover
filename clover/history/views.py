@@ -13,7 +13,7 @@ class HistoryView(CloverView):
         self.service = HistoryService()
 
     @catch_exception
-    def create(self):
+    def api_v1_history_create(self):
         data = request.get_json()
 
         team = data.get('team', None)
@@ -74,7 +74,7 @@ class HistoryView(CloverView):
         })
 
     @catch_exception
-    def delete(self):
+    def api_v1_history_delete(self):
         data = request.get_json()
 
         id = data.get('id', None)
@@ -93,7 +93,7 @@ class HistoryView(CloverView):
         })
 
     @catch_exception
-    def update(self):
+    def api_v1_history_update(self):
         data = request.get_json()
 
         id = data.get('id', None)
@@ -114,7 +114,7 @@ class HistoryView(CloverView):
         })
 
     @catch_exception
-    def search(self):
+    def api_v1_history_search(self):
 
         if request.method == 'GET':
             data = request.values.to_dict()

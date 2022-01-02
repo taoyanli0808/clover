@@ -15,7 +15,7 @@ class PluginView(CloverView):
         self.service = PluginService()
 
     @catch_exception
-    def create(self):
+    def api_v1_plugin_create(self):
         """
         :return:
         """

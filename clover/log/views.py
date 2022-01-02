@@ -13,7 +13,7 @@ class LogView(CloverView):
         self.service = LogService()
 
     @catch_exception
-    def search(self):
+    def api_v1_log_search(self):
         """
         :return:
         """

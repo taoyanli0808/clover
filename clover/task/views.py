@@ -14,7 +14,7 @@ class TaskView(CloverView):
         self.service = TaskService()
 
     @catch_exception
-    def create(self):
+    def api_v1_task_create(self):
         data = request.get_json()
 
         if 'team' not in data or not data['team']:
@@ -60,7 +60,7 @@ class TaskView(CloverView):
             })
 
     @catch_exception
-    def delete(self):
+    def api_v1_task_delete(self):
         data = request.get_json()
 
         if 'id' not in data or not data['id']:
@@ -85,7 +85,7 @@ class TaskView(CloverView):
             })
 
     @catch_exception
-    def update(self):
+    def api_v1_task_update(self):
         data = request.get_json()
 
         if 'id' not in data or not data['id']:
@@ -110,7 +110,7 @@ class TaskView(CloverView):
             })
 
     @catch_exception
-    def search(self):
+    def api_v1_task_search(self):
         if request.method == 'GET':
             data = request.values.to_dict()
         else:
@@ -132,7 +132,7 @@ class TaskView(CloverView):
             })
 
     @catch_exception
-    def trigger(self):
+    def api_v1_task_trigger(self):
         """
         :param data:
         :return:

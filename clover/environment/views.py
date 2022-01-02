@@ -16,7 +16,7 @@ class TeamView(CloverView):
         self.service = TeamService()
 
     @catch_exception
-    def create(self):
+    def api_v1_team_create(self):
         """
         :return:
         """
@@ -56,7 +56,7 @@ class TeamView(CloverView):
             })
 
     @catch_exception
-    def delete(self):
+    def api_v1_team_delete(self):
         """
         :return:
         """
@@ -79,7 +79,7 @@ class TeamView(CloverView):
         })
 
     @catch_exception
-    def update(self):
+    def api_v1_team_update(self):
         """
         :return:
         """
@@ -106,7 +106,7 @@ class TeamView(CloverView):
             })
 
     @catch_exception
-    def search(self):
+    def api_v1_team_search(self):
         """
         :return:
         """
@@ -121,7 +121,7 @@ class TeamView(CloverView):
         })
 
     @catch_exception
-    def aggregate(self):
+    def api_v1_team_aggregate(self):
         """
         :return:
         """
@@ -135,7 +135,7 @@ class TeamView(CloverView):
         })
 
     @catch_exception
-    def navigation(self):
+    def api_v1_team_navigation(self):
         """
         :return:
         """
@@ -156,7 +156,7 @@ class VariableView(CloverView):
         self.service = VariableService()
 
     @catch_exception
-    def create(self):
+    def api_v1_variable_create(self):
         """
         :return:
         """
@@ -218,7 +218,7 @@ class VariableView(CloverView):
             })
 
     @catch_exception
-    def delete(self):
+    def api_v1_variable_delete(self):
         """
         :return:
         """
@@ -239,7 +239,7 @@ class VariableView(CloverView):
         })
 
     @catch_exception
-    def update(self):
+    def api_v1_variable_update(self):
         """
         :return:
         """
@@ -266,7 +266,7 @@ class VariableView(CloverView):
             })
 
     @catch_exception
-    def search(self):
+    def api_v1_variable_search(self):
         """
         :return:
         """

@@ -14,7 +14,7 @@ class SuiteView(CloverView):
         self.service = SuiteService()
 
     @catch_exception
-    def create(self):
+    def api_v1_suite_create(self):
         data = request.get_json()
 
         if 'team' not in data or not data['team']:
@@ -60,7 +60,7 @@ class SuiteView(CloverView):
         })
 
     @catch_exception
-    def delete(self):
+    def api_v1_suite_delete(self):
         data = request.get_json()
 
         if 'id_list' not in data or not data['id_list']:
@@ -78,7 +78,7 @@ class SuiteView(CloverView):
         })
 
     @catch_exception
-    def update(self):
+    def api_v1_suite_update(self):
         if request.method == 'GET':
             data = request.values.to_dict()
         else:
@@ -113,7 +113,7 @@ class SuiteView(CloverView):
         })
 
     @catch_exception
-    def search(self):
+    def api_v1_suite_search(self):
         if request.method == 'GET':
             data = request.values.to_dict()
         else:
@@ -128,7 +128,7 @@ class SuiteView(CloverView):
         })
 
     @catch_exception
-    def trigger(self):
+    def api_v1_suite_trigger(self):
         """
         :param data:
         :return:
@@ -150,7 +150,7 @@ class SuiteView(CloverView):
         })
 
     @catch_exception
-    def switch(self):
+    def api_v1_suite_switch(self):
         data = request.get_json()
         if 'id_list' not in data or not data['id_list']:
             return jsonify({

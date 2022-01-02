@@ -13,7 +13,7 @@ class InterfaceView(CloverView):
         self.service = InterfaceService()
 
     @catch_exception
-    def create(self):
+    def api_v1_interface_create(self):
         data = request.get_json()
 
         team = data.get('team', None)
@@ -76,7 +76,7 @@ class InterfaceView(CloverView):
         })
 
     @catch_exception
-    def delete(self):
+    def api_v1_interface_delete(self):
         data = request.get_json()
 
         if 'id_list' not in data or not data['id_list']:
@@ -94,7 +94,7 @@ class InterfaceView(CloverView):
         })
 
     @catch_exception
-    def update(self):
+    def api_v1_interface_update(self):
         data = request.get_json()
 
         if 'id' not in data or not data['id']:
@@ -116,7 +116,7 @@ class InterfaceView(CloverView):
         })
 
     @catch_exception
-    def search(self):
+    def api_v1_interface_search(self):
 
         if request.method == 'GET':
             data = request.values.to_dict()
@@ -132,7 +132,7 @@ class InterfaceView(CloverView):
         })
 
     @catch_exception
-    def trigger(self):
+    def api_v1_interface_trigger(self):
         # 这里支持GET与POST请求，获取参数方法不同。
         if request.method == 'GET':
             data = request.values.to_dict()
@@ -155,7 +155,7 @@ class InterfaceView(CloverView):
         })
 
     @catch_exception
-    def switch(self):
+    def api_v1_interface_switch(self):
         data = request.get_json()
 
         if 'id_list' not in data or not data['id_list']:

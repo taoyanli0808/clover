@@ -13,14 +13,14 @@ class ReportView(CloverView):
         self.service = ReportService()
 
     @catch_exception
-    def create(self):
+    def api_v1_report_create(self):
         """
         :return:
         """
         pass
 
     @catch_exception
-    def delete(self):
+    def api_v1_report_delete(self):
         """
         :return:
         """
@@ -52,7 +52,7 @@ class ReportView(CloverView):
             })
 
     @catch_exception
-    def search(self):
+    def api_v1_report_search(self):
         """
         :return:
         """
@@ -70,7 +70,7 @@ class ReportView(CloverView):
         })
 
     @catch_exception
-    def log(self):
+    def api_v1_report_log(self):
         """
         :return:
         """

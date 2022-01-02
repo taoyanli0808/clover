@@ -14,7 +14,7 @@ class KeywordView(CloverView):
         self.service = KeywordService()
 
     @catch_exception
-    def create(self):
+    def api_v1_keyword_create(self):
         """
         :return:
         """
@@ -42,7 +42,7 @@ class KeywordView(CloverView):
         })
 
     @catch_exception
-    def delete(self):
+    def api_v1_keyword_delete(self):
         """
         :return:
         """
@@ -63,7 +63,7 @@ class KeywordView(CloverView):
         })
 
     @catch_exception
-    def update(self):
+    def api_v1_keyword_update(self):
         """
         :return:
         """
@@ -84,7 +84,7 @@ class KeywordView(CloverView):
         })
 
     @catch_exception
-    def search(self):
+    def api_v1_keyword_search(self):
         """
         :return:
         """
@@ -99,7 +99,7 @@ class KeywordView(CloverView):
         })
 
     @catch_exception
-    def debug(self):
+    def api_v1_keyword_debug(self):
         """
         :return:
         """

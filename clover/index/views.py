@@ -17,7 +17,7 @@ class IndexView(CloverView):
         self.service = Service()
 
     @catch_exception
-    def info(self):
+    def api_v1_index_info(self):
         """
         :param data:
         :return:
@@ -33,7 +33,7 @@ class IndexView(CloverView):
         })
 
     @catch_exception
-    def count(self):
+    def api_v1_index_count(self):
         """
         :param data:
         :return:
@@ -46,7 +46,7 @@ class IndexView(CloverView):
         })
 
     @catch_exception
-    def config(self):
+    def api_v1_index_config(self):
         return jsonify({
             'status': 0,
             'message': 'clover平台功能配置。',
