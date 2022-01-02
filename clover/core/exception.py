@@ -15,6 +15,8 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from clover.exts import db
 
+from clover.config import FEEDBACK
+
 
 class ResponseException(Exception): pass
 
@@ -46,7 +48,7 @@ def catch_exception(func):
             response = make_response(
                 jsonify({
                     'status': 500,
-                    'message': '运行时代码出错，请联系管理员！',
+                    'message': FEEDBACK,
                     'data': {
                         'error': str(error),
                         'function': func.__name__,

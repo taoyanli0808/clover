@@ -1,6 +1,6 @@
 # Clover全局配置
 DEBUG = True
-VERSION = '1.10.0'
+VERSION = '1.10.1'
 DOMAIN = 'http://demo.52clover.cn'
 
 SECRET_KEY = '52.Clover'
@@ -56,3 +56,5 @@ NOTIFY = {
         'dingtalk': '4dd0b68415aabe0c6f36bb6a529a6fda6d128ae72ba8b69970f90398c69b36dd',  # 这里是钉钉机器人的access_token配置
     },
 }
+
+FEEDBACK = '平台运行时发生错误，这似乎是一个代码BUG，请联系作者进行反馈。WeChat：taoyanli0808，Email：taoyanli0808@163.com'
