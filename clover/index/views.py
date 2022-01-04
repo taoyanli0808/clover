@@ -30,6 +30,14 @@ class IndexView(CloverView):
         })
 
     @catch_exception
+    def api_v1_index_config(self):
+        return jsonify({
+            'status': 0,
+            'message': 'clover平台功能配置。',
+            'data': config.MODULE
+        })
+
+    @catch_exception
     def api_v1_index_count(self):
         """
         :param data:
