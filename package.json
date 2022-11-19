@@ -15,7 +15,7 @@
     "@nuxtjs/axios": "^5.3.6",
     "echarts": "^4.9.0",
     "element-ui": "^2.4.11",
-    "nuxt": "^2.0.0",
+    "nuxt": "^2.15.8",
     "sortablejs": "^1.10.2",
     "v-charts": "^1.19.0",
     "vue-json-viewer": "^2.2.19",
@@ -29,6 +29,6 @@
     "cross-env": "^6.0.3",
     "eslint": "^5.0.0",
     "eslint-plugin-nuxt": ">=0.4.2",
-    "webpack-cli": "^3.3.10"
+    "webpack-cli": "^3.3.12"
   }
 }
